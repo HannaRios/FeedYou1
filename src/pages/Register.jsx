@@ -1,123 +1,130 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import AuthLayout from '../components/AuthLayout';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
+import { registrarUsuario } from "../services/userService";
 
 export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    username: '',
-    password: '',
-    confirmPassword: ''
+    fullName: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mensaje, setMensaje] = useState("");
 
+  // 🔍 Validación HTML5 + Reglas Personalizadas
   const validateForm = () => {
     const newErrors = {};
 
-    // Validar nombre completo
+    // Campo requerido y longitud mínima
     if (!formData.fullName.trim()) {
-      newErrors.fullName = 'El nombre completo es requerido';
-    } else if (formData.fullName.trim().length < 3) {
-      newErrors.fullName = 'El nombre debe tener al menos 3 caracteres';
+      newErrors.fullName = "El nombre completo es requerido";
+    } else if (formData.fullName.length < 3) {
+      newErrors.fullName = "Debe tener al menos 3 caracteres";
     }
 
-    // Validar email
+    // Validación de correo con Regex más estricto
     if (!formData.email) {
-      newErrors.email = 'El correo es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El correo no es válido';
+      newErrors.email = "El correo es requerido";
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email)) {
+      newErrors.email = "Correo no válido (ej: ejemplo@correo.com)";
     }
 
-    // Validar username
-    if (!formData.username.trim()) {
-      newErrors.username = 'El nombre de usuario es requerido';
-    } else if (formData.username.trim().length < 3) {
-      newErrors.username = 'El nombre de usuario debe tener al menos 3 caracteres';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-      newErrors.username = 'El nombre de usuario solo puede contener letras, números y guiones bajos';
+    // Validación username
+    if (!formData.username) {
+      newErrors.username = "El nombre de usuario es requerido";
+    } else if (!/^[a-zA-Z0-9_]{3,15}$/.test(formData.username)) {
+      newErrors.username =
+        "Solo letras, números y guiones bajos (3-15 caracteres)";
     }
 
-    // Validar contraseña
+    // Validación de contraseña
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
+      newErrors.password = "La contraseña es requerida";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])/.test(formData.password)) {
-      newErrors.password = 'La contraseña debe contener mayúsculas y minúsculas';
+      newErrors.password = "Debe tener al menos 6 caracteres";
     }
 
-    // Validar confirmación de contraseña
+    // Confirmar contraseña
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Debes confirmar tu contraseña';
+      newErrors.confirmPassword = "Debes confirmar tu contraseña";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
+      newErrors.confirmPassword = "Las contraseñas no coinciden";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // 💡 Valida en tiempo real mientras el usuario escribe
+  useEffect(() => {
+    validateForm();
+  }, [formData]);
+
+  // 🖋 Manejador de cambios
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
-    }
+    setFormData({ ...formData, [name]: value });
+    if (errors[name]) setErrors({ ...errors, [name]: "" });
   };
 
+  // 🚀 Envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setMensaje("");
 
-    // Simular llamada a API
-    setTimeout(() => {
-      console.log('Register:', formData);
-      // Aquí irá la lógica de registro
-      // Si es exitoso, redirigir al test de intereses
-      navigate('/interest-test');
+    try {
+      const usuario = {
+        nombre: formData.fullName,
+        email: formData.email,
+        contrasena: formData.password,
+      };
+
+      const res = await registrarUsuario(usuario);
+      setMensaje(res.mensaje || "Registro exitoso ✅");
+
+      setTimeout(() => navigate("/interest-test"), 1000);
+    } catch (err) {
+      setMensaje(err.message || "Error al registrar ❌");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
+
+  const isFormValid = Object.keys(errors).length === 0 && formData.fullName && formData.email && formData.username && formData.password && formData.confirmPassword;
 
   return (
     <AuthLayout>
       <div className="pt-12">
-        {/* Título */}
-        <h1 
+        <h1
           className="text-center text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] mb-8"
-          style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+          style={{ fontFamily: "Comic Sans MS, cursive" }}
+        >
           FeedYou
         </h1>
 
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Nombre Completo */}
+        <form onSubmit={handleSubmit} noValidate className="space-y-3">
+          {/* Nombre completo */}
           <div>
             <input
               type="text"
               name="fullName"
               placeholder="Nombre completo"
+              required
+              minLength={3}
               value={formData.fullName}
               onChange={handleChange}
               className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-sm ${
-                errors.fullName 
-                  ? 'border-red-500 focus:ring-red-300' 
-                  : 'border-gray-300 focus:ring-blue-300'
+                errors.fullName
+                  ? "border-red-500 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-300"
               }`}
             />
             {errors.fullName && (
@@ -131,12 +138,13 @@ export default function Register() {
               type="email"
               name="email"
               placeholder="Correo electrónico"
+              required
               value={formData.email}
               onChange={handleChange}
               className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-sm ${
-                errors.email 
-                  ? 'border-red-500 focus:ring-red-300' 
-                  : 'border-gray-300 focus:ring-blue-300'
+                errors.email
+                  ? "border-red-500 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-300"
               }`}
             />
             {errors.email && (
@@ -149,13 +157,15 @@ export default function Register() {
             <input
               type="text"
               name="username"
-              placeholder="Nombre de perfil o nombre de usuario"
+              placeholder="Nombre de usuario"
+              required
+              pattern="^[a-zA-Z0-9_]{3,15}$"
               value={formData.username}
               onChange={handleChange}
               className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-sm ${
-                errors.username 
-                  ? 'border-red-500 focus:ring-red-300' 
-                  : 'border-gray-300 focus:ring-blue-300'
+                errors.username
+                  ? "border-red-500 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-300"
               }`}
             />
             {errors.username && (
@@ -169,12 +179,14 @@ export default function Register() {
               type="password"
               name="password"
               placeholder="Contraseña"
+              required
+              minLength={6}
               value={formData.password}
               onChange={handleChange}
               className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-sm ${
-                errors.password 
-                  ? 'border-red-500 focus:ring-red-300' 
-                  : 'border-gray-300 focus:ring-blue-300'
+                errors.password
+                  ? "border-red-500 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-300"
               }`}
             />
             {errors.password && (
@@ -182,40 +194,41 @@ export default function Register() {
             )}
           </div>
 
-          {/* Confirmar Contraseña */}
+          {/* Confirmar contraseña */}
           <div>
             <input
               type="password"
               name="confirmPassword"
               placeholder="Confirmar contraseña"
+              required
+              minLength={6}
               value={formData.confirmPassword}
               onChange={handleChange}
               className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-sm ${
-                errors.confirmPassword 
-                  ? 'border-red-500 focus:ring-red-300' 
-                  : 'border-gray-300 focus:ring-blue-300'
+                errors.confirmPassword
+                  ? "border-red-500 focus:ring-red-300"
+                  : "border-gray-300 focus:ring-blue-300"
               }`}
             />
             {errors.confirmPassword && (
-              <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.confirmPassword}
+              </p>
             )}
           </div>
 
-          {/* Términos y condiciones */}
+          {/* Mensaje final */}
           <p className="text-xs text-gray-500 text-center px-2 leading-relaxed">
-            Al registrarte, aceptas nuestros términos y condiciones, 
-            Reglas de la comunidad y aceptas nuestra 
-            Política de privacidad y de cookies.
+            Al registrarte, aceptas nuestros términos, reglas y políticas.
           </p>
 
-          {/* Botones */}
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={!isFormValid || isSubmitting}
               className="flex-1 bg-blue-200 text-gray-800 py-2.5 rounded-lg font-semibold hover:bg-blue-300 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Registrando...' : 'Registrarte'}
+              {isSubmitting ? "Registrando..." : "Registrarte"}
             </button>
             <Link
               to="/login"
@@ -224,6 +237,10 @@ export default function Register() {
               Volver
             </Link>
           </div>
+
+          {mensaje && (
+            <p className="text-center mt-3 text-sm text-blue-600">{mensaje}</p>
+          )}
         </form>
       </div>
     </AuthLayout>
