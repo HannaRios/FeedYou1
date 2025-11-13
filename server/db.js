@@ -5,12 +5,23 @@ dotenv.config();
 
 // Creamos un pool para manejar múltiples consultas correctamente
 const db = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "12345H",
-  database: "feedyou",
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "12345H",
+  database: process.env.DB_NAME || "feedyou",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-console.log("✅ Conectado a la base de datos MySQL (FeedYou)");
+// Verificar conexión
+db.getConnection()
+  .then(connection => {
+    console.log("✅ Conectado a la base de datos MySQL (FeedYou)");
+    connection.release();
+  })
+  .catch(err => {
+    console.error("❌ Error al conectar a la base de datos:", err.message);
+  });
 
 export default db;

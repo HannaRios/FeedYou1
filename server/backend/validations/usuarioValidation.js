@@ -1,7 +1,7 @@
 // backend/validations/usuarioValidation.js
 import { check } from "express-validator";
 
-// 🧾 Validaciones para el registro de usuario
+// Validaciones para el registro de usuario
 export const validarRegistro = [
   check("nombre")
     .trim()
@@ -17,12 +17,12 @@ export const validarRegistro = [
     .normalizeEmail(),
 
   check("contrasena")
-    .isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres")
+    .isLength({ min: 8 }).withMessage("La contraseña debe tener al menos 8 caracteres")
     .matches(/^(?=.*[A-Z])(?=.*\d)/)
     .withMessage("La contraseña debe contener al menos una mayúscula y un número"),
 ];
 
-// 🧾 Validaciones para el inicio de sesión
+// Validaciones para el inicio de sesión
 export const validarLogin = [
   check("email")
     .trim()

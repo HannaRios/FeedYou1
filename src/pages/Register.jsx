@@ -45,8 +45,8 @@ export default function Register() {
     // Validación de contraseña
     if (!formData.password) {
       newErrors.password = "La contraseña es requerida";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Debe tener al menos 6 caracteres";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Debe tener al menos 8 caracteres";
     }
 
     // Confirmar contraseña

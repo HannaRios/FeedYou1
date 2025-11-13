@@ -1,4 +1,4 @@
-import { useState } from "react"; // ⚠ Import faltante
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Instagram, Facebook, Youtube, PlusCircle, Bot } from "lucide-react";
 

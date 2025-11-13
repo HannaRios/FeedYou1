@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import "./db.js";
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
-
+import feedRoutes from "./backend/routes/feedRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -17,6 +17,7 @@ app.get("/", (req, res) => {
 
 // Aquí montamos las rutas de usuarios
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/feed", feedRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
