@@ -10,7 +10,6 @@ import { useSearch } from "../Context/SearchContext";
 
 
 export default function Profile() {
-  const { setIsSearchOpen } = useSearch();
   const [activeTab, setActiveTab] = useState("preferencias");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -18,7 +17,7 @@ export default function Profile() {
   const navigate = useNavigate();
 
   const userName = "Andrea Gómez"; 
-  const userPhoto = "/profile.jpg"; 
+  const userPhoto = "/public/profile.jpg"; 
 
   const handleLogout = () => {
     
