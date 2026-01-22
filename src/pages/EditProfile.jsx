@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Upload, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -12,26 +12,64 @@ export default function EditProfile() {
   const [photo, setPhoto] = useState("/profile.jpg");
   const [showToast, setShowToast] = useState(false);
 
+  /* ===============================
+     CARGAR DATOS GUARDADOS
+  =============================== */
+  useEffect(() => {
+    const savedProfile = localStorage.getItem("profileData");
+    if (savedProfile) {
+      const data = JSON.parse(savedProfile);
+      setName(data.name || "");
+      setEmail(data.email || "");
+      setBio(data.bio || "");
+      setPhoto(data.photo || "/profile.jpg");
+    }
+  }, []);
+
+  /* ===============================
+     CAMBIO DE FOTO (BASE64)
+  =============================== */
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setPhoto(URL.createObjectURL(file));
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhoto(reader.result);
+      localStorage.setItem("profilePhoto", reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
+  /* ===============================
+     GUARDAR PERFIL
+  =============================== */
   const handleSave = (e) => {
     e.preventDefault();
+
+    localStorage.setItem(
+      "profileData",
+      JSON.stringify({
+        name,
+        email,
+        bio,
+        photo,
+      })
+    );
+
     setShowToast(true);
 
     setTimeout(() => {
       setShowToast(false);
       navigate("/profile");
-    }, 2500);
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
+
+      {/* ===== TOAST ===== */}
       {showToast && (
         <div className="fixed top-6 right-6 z-50">
           <div className="bg-white/90 backdrop-blur-md border border-green-300 text-gray-800 shadow-xl rounded-2xl px-5 py-3 flex items-center gap-3 animate-slide-in">
@@ -41,8 +79,10 @@ export default function EditProfile() {
         </div>
       )}
 
+      {/* ===== CONTENIDO ===== */}
       <div className="flex-grow flex justify-center items-center px-4 py-10 bg-[url('/bg-dark.jpg')] bg-cover bg-center">
         <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl p-8 relative">
+
           <button
             onClick={() => navigate("/profile")}
             className="absolute top-6 left-6 text-gray-500 hover:text-gray-700 flex items-center gap-1"
@@ -55,6 +95,8 @@ export default function EditProfile() {
           </h1>
 
           <form onSubmit={handleSave} className="space-y-6">
+
+            {/* FOTO */}
             <div className="flex flex-col items-center">
               <div className="relative">
                 <img
@@ -76,11 +118,16 @@ export default function EditProfile() {
                   className="hidden"
                 />
               </div>
-              <p className="text-sm text-gray-500 mt-2">Cambia tu foto de perfil</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Cambia tu foto de perfil
+              </p>
             </div>
 
+            {/* NOMBRE */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">Nombre completo</label>
+              <label className="block text-gray-700 font-medium mb-1">
+                Nombre completo
+              </label>
               <input
                 type="text"
                 value={name}
@@ -89,8 +136,11 @@ export default function EditProfile() {
               />
             </div>
 
+            {/* EMAIL */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">Correo electrónico</label>
+              <label className="block text-gray-700 font-medium mb-1">
+                Correo electrónico
+              </label>
               <input
                 type="email"
                 value={email}
@@ -99,8 +149,11 @@ export default function EditProfile() {
               />
             </div>
 
+            {/* BIO */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">Descripción</label>
+              <label className="block text-gray-700 font-medium mb-1">
+                Descripción
+              </label>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
@@ -109,6 +162,7 @@ export default function EditProfile() {
               />
             </div>
 
+            {/* BOTÓN */}
             <div className="flex justify-center">
               <button
                 type="submit"
@@ -121,6 +175,7 @@ export default function EditProfile() {
         </div>
       </div>
 
+      {/* ===== ANIMACIÓN ===== */}
       <style>{`
         @keyframes slide-in {
           0% { opacity: 0; transform: translateY(-10px); }

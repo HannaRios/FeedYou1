@@ -8,7 +8,7 @@ export const validarRegistro = [
     .notEmpty().withMessage("El nombre es obligatorio")
     .isString().withMessage("El nombre debe ser texto")
     .matches(/^[A-Za-zÁÉÍÓÚáéíóúñÑ\s]+$/)
-    .withMessage("El nombre solo puede contener letras y espacios")
+    .withMessage("El nombre solo puede contener letras")
     .isLength({ min: 3 }).withMessage("El nombre debe tener al menos 3 caracteres"),
 
   check("email")
