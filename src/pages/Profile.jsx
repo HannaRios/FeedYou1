@@ -5,14 +5,19 @@ import Logo from "../components/Logo";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import ChatBot from "../components/ChatBot";
+import { useSearch } from "../Context/SearchContext";
+
+
 
 export default function Profile() {
+  const { setIsSearchOpen } = useSearch();
   const [activeTab, setActiveTab] = useState("preferencias");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const navigate = useNavigate();
 
-  const userName = "Hanna Rios"; 
+  const userName = "Andrea Gómez"; 
   const userPhoto = "/profile.jpg"; 
 
   const handleLogout = () => {
@@ -28,7 +33,7 @@ export default function Profile() {
       {/* Fondo con contenido */}
       <div className="flex-grow bg-[url('/bg-dark.jpg')] bg-cover bg-center flex flex-col items-center pt-10 px-4">
         {/* Contenedor principal */}
-        <div className="bg-white rounded-3xl shadow-lg w-full max-w-4xl p-8 relative z-10">
+        <div className="bg-white rounded-3xl shadow-lg w-full max-w-4xl p-8 relative">
           {/* Encabezado */}
           <div className="flex items-center justify-between">
             <div>
@@ -149,9 +154,14 @@ export default function Profile() {
         </div>
       </div>
       {/* Botones flotantes */}
-      <button className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40">
+
+      <button
+        onClick={() => setIsCreatePostOpen(true)}
+        className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+      >
         <PlusCircle className="w-6 h-6 text-blue-700" />
       </button>
+
 
       <button 
         onClick={() => setIsChatOpen(!isChatOpen)}
@@ -241,6 +251,47 @@ export default function Profile() {
           </div>
         </div>
       </footer>
+
+            {/* MODAL CREAR PUBLICACIÓN */}
+      {isCreatePostOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          
+          <div className="bg-white rounded-3xl w-full max-w-xl p-6 relative animate-scaleIn">
+            
+            {/* Botón cerrar */}
+            <button
+              onClick={() => setIsCreatePostOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-xl font-bold text-center mb-4">
+              Crear nueva publicación
+            </h2>
+
+            {/* Texto */}
+            <textarea
+              placeholder="Añade una descripción..."
+              className="w-full border rounded-xl p-3 resize-none"
+            />
+
+            {/* Subir media */}
+            <label className="mt-4 block border-2 border-dashed rounded-xl p-10 text-center cursor-pointer">
+              <input type="file" hidden />
+              <span className="text-gray-500">➕ Agregar foto o video</span>
+            </label>
+
+            {/* Publicar */}
+            <button className="mt-6 w-full bg-blue-300 hover:bg-blue-400 text-white py-2 rounded-xl">
+              Publicar
+            </button>
+
+          </div>
+  </div>
+)}
+
+
     </div>
   );
 }
