@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Creamos un pool para manejar múltiples consultas correctamente
 const db = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
@@ -14,7 +13,7 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-// Verificar conexión
+// Verificar conexion
 db.getConnection()
   .then(connection => {
     console.log("✅ Conectado a la base de datos MySQL (FeedYou)");

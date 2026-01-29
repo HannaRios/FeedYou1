@@ -11,6 +11,7 @@ import Favorites from "./pages/Favorites";
 import Categories from "./pages/Categories";
 import Profile from "./pages/Profile";;
 import EditProfile from "./pages/EditProfile";
+import ResetPassword from "./pages/ResetPassword";
 
 import { SearchProvider } from "./Context/SearchContext";
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Routes>
       </SearchProvider>
     </Router>
