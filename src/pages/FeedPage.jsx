@@ -27,10 +27,7 @@ export default function FeedPage() {
         <Feed testAnswers={testAnswers} />
       </main>
 
-      {/* Botones flotantes */}
-      <button className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40">
-        <PlusCircle className="w-6 h-6 text-blue-700" />
-      </button>
+
 
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
