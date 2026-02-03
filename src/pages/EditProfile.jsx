@@ -13,7 +13,7 @@ export default function EditProfile() {
   const [showToast, setShowToast] = useState(false);
 
   /* ===============================
-     CARGAR DATOS GUARDADOS
+    CARGAR DATOS GUARDADOS
   =============================== */
   useEffect(() => {
     const savedProfile = localStorage.getItem("profileData");
@@ -27,7 +27,7 @@ export default function EditProfile() {
   }, []);
 
   /* ===============================
-     CAMBIO DE FOTO (BASE64)
+    CAMBIO DE FOTO (BASE64)
   =============================== */
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -42,7 +42,7 @@ export default function EditProfile() {
   };
 
   /* ===============================
-     GUARDAR PERFIL
+    GUARDAR PERFIL
   =============================== */
   const handleSave = (e) => {
     e.preventDefault();

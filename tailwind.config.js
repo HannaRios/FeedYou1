@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       /* ===============================
-         ANIMACIONES
+        ANIMACIONES
       =============================== */
       keyframes: {
         float: {

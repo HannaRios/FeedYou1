@@ -7,12 +7,15 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import Navbar from "../components/Navbar";
 import ChatBot from "../components/ChatBot";
+import CreatePost from "../components/CreatePost";
+
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("preferencias");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const navigate = useNavigate();
+  const [isPostOpen, setIsPostOpen] = useState(false);
 
 
   const [profile, setProfile] = useState({
@@ -143,9 +146,13 @@ export default function Profile() {
       </div>
 
       {/* BOTONES */}
-      <button className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg">
+      <button
+        onClick={() => setIsPostOpen(true)}
+        className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg"
+      >
         <PlusCircle className="w-6 h-6 text-blue-700" />
       </button>
+
 
       <button
         onClick={() => setIsChatOpen(true)}
@@ -155,6 +162,12 @@ export default function Profile() {
       </button>
 
       <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+      <CreatePost
+        isOpen={isPostOpen}
+        onClose={() => setIsPostOpen(false)}
+      />
+
     </div>
   );
 }
