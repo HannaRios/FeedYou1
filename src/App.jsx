@@ -10,6 +10,7 @@ import Favorites from "./pages/Favorites";
 import Categories from "./pages/Categories";
 import Profile from "./pages/Profile";;
 import EditProfile from "./pages/EditProfile";
+import SeguidosPage from "./pages/SeguidosPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/landing" element={<Landing />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/seguidos" element={<SeguidosPage />} />
       </Routes>
     </Router>
   );

@@ -1,89 +1,141 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { fetchFeed } from "../services/feedService";
-import { mapTestToTags } from "../utils/mapTestToTags";
 
-function Feed({ testAnswers: propTestAnswers }) {
-  const location = useLocation();
-  
-  const testAnswers = propTestAnswers || location.state?.testAnswers || {};
-
+function Feed() {
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasInterests, setHasInterests] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const tags = mapTestToTags(testAnswers);
-    console.log("Tags generados:", tags); 
+    const email = localStorage.getItem("email");
 
-    fetchFeed(tags)
+    // 🧠 Usuario no logueado o sin email
+    if (!email) {
+      setHasInterests(false);
+      setLoading(false);
+      return;
+    }
+
+    // 🔥 Pedir feed personalizado
+    fetchFeed(email)
       .then((data) => {
-        console.log("Feed recibido:", data); 
+        console.log("Feed recibido:", data);
         setFeed(data);
+
+        // Si no hay publicaciones pero sí intereses
+        if (data.length === 0) {
+          setHasInterests(false);
+        }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.error("Error al cargar feed:", error);
       })
       .finally(() => setLoading(false));
-  }, [testAnswers]);
+  }, []);
 
+  /* =========================
+      LOADING
+  ========================== */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex justify-center items-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
       </div>
     );
   }
 
+  /* =========================
+      SIN INTERESES / SIN FEED
+  ========================== */
+  if (!hasInterests) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="text-center max-w-md">
+          <div className="text-5xl mb-4">🧠</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            Aún no hay publicaciones para ti
+          </h2>
+          <p className="text-gray-600">
+            Realiza el test de intereses o espera nuevas publicaciones relacionadas.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================
+      FEED TIPO THREADS
+  ========================== */
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Grid de contenido */}
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        {feed.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">🎨</div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-              No hay contenido disponible
-            </h3>
-            <p className="text-gray-600">Intenta completar el test nuevamente</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {feed.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+    <div className="flex justify-center px-4 py-6">
+      <div className="w-full max-w-xl flex flex-col gap-6">
+
+        {/* Selector Para ti / Seguidos */}
+        <div className="relative flex justify-center border-b pb-3">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="flex items-center gap-2 font-semibold text-gray-900"
+          >
+            Para ti
+            <ChevronDown className="w-4 h-4" />
+          </button>
+
+          {showMenu && (
+            <div className="absolute top-10 bg-white border rounded-lg shadow-md w-40 z-50">
+              <button
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate("/feed");
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 font-medium"
               >
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-64 object-cover"
-                  />
-                )}
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 text-gray-800">
-                    {item.title || "Publicación"}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {item.text || "Contenido inspirador"}
-                  </p>
-                  {item.tags && item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {item.tags.slice(0, 3).map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 bg-purple-100 text-purple-600 rounded-full text-xs"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+                Para ti
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate("/seguidos");
+                }}
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-600"
+              >
+                Seguidos
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Publicaciones */}
+        {feed.map((item) => (
+          <div
+            key={item.id_publicacion}
+            className="bg-white rounded-xl shadow-sm overflow-hidden"
+          >
+            {item.archivo && (
+              <img
+                src={`http://localhost:4000/uploads/${item.archivo}`}
+                alt={item.titulo}
+                className="w-full max-h-[500px] object-cover"
+              />
+            )}
+
+            <div className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-1">
+                {item.titulo}
+              </h3>
+
+              <p className="text-gray-600 text-sm">
+                {item.descripcion}
+              </p>
+            </div>
           </div>
-        )}
+        ))}
+
       </div>
     </div>
   );

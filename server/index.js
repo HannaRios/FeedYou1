@@ -7,6 +7,8 @@ import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
 import feedRoutes from "./backend/routes/feedRoutes.js";
 import publicacionRoutes from "./backend/routes/publicacionRoutes.js";
 import categoriasRoutes from "./backend/routes/categorias.js";
+import interesesRoutes from "./backend/routes/interesesRoutes.js";
+
 
 dotenv.config();
 
@@ -27,6 +29,9 @@ app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/publicaciones", publicacionRoutes);
 app.use("/api/categorias", categoriasRoutes);
+app.use("/api/intereses", interesesRoutes);
+
+
 
 //Puerto
 const PORT = process.env.PORT || 4000;

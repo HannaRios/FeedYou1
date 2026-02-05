@@ -66,9 +66,10 @@ export default function Login() {
 
       // Guardar usuario autenticado
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
+      localStorage.setItem("email", data.usuario.email);
 
       // Redirige al test (puedes cambiar la ruta si quieres)
-      setTimeout(() => navigate("/interest-test"), 1000);
+      setTimeout(() => navigate("/feed"), 1000);
     } catch (err) {
       setMensaje(err.message || "Error al iniciar sesión ❌");
     } finally {

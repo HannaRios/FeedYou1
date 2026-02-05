@@ -1,33 +1,33 @@
 import express from "express";
 import db from "../../db.js";
+
 const router = express.Router();
 
-// GET /api/categorias
-router.get("/", async (req, res) => {
+// TODAS las categorías (para crear publicación)
+    router.get("/", async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT id_categoria AS id, nombre_categoria AS nombre FROM categorias"
+        "SELECT id_categoria AS id, nombre_categoria AS nombre FROM categorias"
         );
         res.json(rows);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Error al obtener categorías" });
     }
-});
+    });
 
-// GET /api/categorias/:id/subcategorias
-router.get("/:id/subcategorias", async (req, res) => {
-    const { id } = req.params;
+    // TODAS las subcategorías de una categoría
+    router.get("/:id/subcategorias", async (req, res) => {
     try {
         const [rows] = await db.query(
-            "SELECT id_subcategoria AS id, nombre_subcategoria AS nombre FROM subcategorias WHERE id_categoria = ?",
-            [id]
+        "SELECT id_subcategoria AS id, nombre_subcategoria AS nombre FROM subcategorias WHERE id_categoria = ?",
+        [req.params.id]
         );
         res.json(rows);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Error al obtener subcategorías" });
     }
-});
+    });
 
-export default router;
+    export default router;

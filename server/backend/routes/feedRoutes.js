@@ -1,9 +1,9 @@
 import express from "express";
-import { getFeed } from "../controllers/feedController.js";
+import { feedParaTi } from "../controllers/feedController.js";
 
 const router = express.Router();
 
-// Ruta para el feed
-router.get("/", getFeed);
+// GET /api/feed/:email
+router.get("/para-ti/:email", feedParaTi);
 
 export default router;

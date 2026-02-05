@@ -8,7 +8,7 @@ const db = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "1035",
-  database: process.env.DB_NAME || "feedyou",
+  database: process.env.DB_NAME || "Feedyou",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
