@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { sendResetEmail } from "../services/emailService.js";
 import db from "../../db.js";
 
+
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
