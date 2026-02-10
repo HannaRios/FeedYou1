@@ -65,7 +65,6 @@ export default function ChatBot({ isOpen, onClose }) {
       {/* Ventana del chat */}
       <div className="fixed bottom-10 right-6 w-80 h-[400px] bg-pink-50 rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden animate-slide-up">
         
-        {/* Header */}
         <div className="bg-pink-200 p-3 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center">
@@ -81,7 +80,6 @@ export default function ChatBot({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-pink-50">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -99,7 +97,6 @@ export default function ChatBot({ isOpen, onClose }) {
           ))}
         </div>
 
-        {/* Input Area */}
         <div className="border-t border-pink-200 p-3 bg-pink-50 flex items-center gap-2 rounded-b-2xl">
           <button className="p-2 hover:bg-pink-100 rounded-full transition">
             <Menu className="w-4 h-4 text-gray-600" />
@@ -122,7 +119,6 @@ export default function ChatBot({ isOpen, onClose }) {
         </div>
       </div>
 
-      {/* Animación */}
       <style>{`
         @keyframes slide-up {
           from { opacity: 0; transform: translateY(20px); }

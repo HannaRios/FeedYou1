@@ -35,6 +35,7 @@ export default function FeedPage() {
         <PlusCircle className="w-6 h-6 text-blue-700" />
       </button>
 
+
       {/* Botón flotante YouBot */}
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}

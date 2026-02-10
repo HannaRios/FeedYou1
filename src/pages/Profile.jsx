@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import {
-  Settings, Bot, PlusCircle, Instagram, Facebook,
-  Youtube, LogOut, User, Sliders
+  Settings, Bot, PlusCircle, LogOut, User, Sliders
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import Logo from "../components/Logo";
 import Navbar from "../components/Navbar";
 import ChatBot from "../components/ChatBot";
 import CreatePost from "../components/CreatePost";
@@ -14,8 +12,8 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("preferencias");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const navigate = useNavigate();
-  const [isPostOpen, setIsPostOpen] = useState(false);
 
 
   const [profile, setProfile] = useState({
@@ -28,7 +26,13 @@ export default function Profile() {
   useEffect(() => {
     const savedProfile = localStorage.getItem("profileData");
     if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
+      const data = JSON.parse(savedProfile);
+      setProfile({
+        name: data.name || "Usuario",
+        email: data.email || "",
+        bio: data.bio || "",
+        photo: data.photo || "/profile.jpg",
+      });
     }
   }, []);
 
@@ -41,9 +45,9 @@ export default function Profile() {
       <Navbar />
 
       <div className="flex-grow bg-[url('/bg-dark.jpg')] bg-cover bg-center flex flex-col items-center pt-10 px-4">
-        <div className="bg-white rounded-3xl shadow-lg w-full max-w-4xl p-8 relative z-10">
+        <div className="bg-white rounded-3xl shadow-lg w-full max-w-4xl p-8 relative">
 
-          {/* ENCABEZADO */}
+          {/* Encabezado */}
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-extrabold text-gray-800">
@@ -90,7 +94,7 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* TABS */}
+          {/* Tabs */}
           <div className="flex justify-center gap-6 mt-6 border-b pb-2">
             {[
               { id: "preferencias", label: "Tus preferencias" },
@@ -112,31 +116,16 @@ export default function Profile() {
             ))}
           </div>
 
-          {/* CONTENIDO */}
+          {/* Contenido */}
           <div className="mt-6">
-            {activeTab === "preferencias" && (
+            {activeTab === "preferencias" ? (
               <>
                 <h2 className="text-lg font-semibold mb-4">Prefieres...</h2>
-
-                <div className="grid grid-cols-3 gap-4">
-                  {["Autos", "Moda", "Voleibol"].map(item => (
-                    <div key={item} className="rounded-2xl shadow-md">
-                      <img
-                        src={`/${item.toLowerCase()}.jpg`}
-                        className="h-36 w-full object-cover"
-                      />
-                      <p className="text-center py-2 font-medium">{item}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="text-gray-500 text-sm mt-4">
-                  {profile.name.split(" ")[0]}, has interactuado con estos temas esta semana.
+                <p className="text-gray-500 text-sm">
+                  {profile.name.split(" ")[0]}, aquí aparecerán tus preferencias.
                 </p>
               </>
-            )}
-
-            {activeTab !== "preferencias" && (
+            ) : (
               <p className="text-center text-gray-600 mt-10">
                 Contenido disponible próximamente.
               </p>
@@ -145,9 +134,9 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* BOTONES */}
+      {/* Botones flotantes */}
       <button
-        onClick={() => setIsPostOpen(true)}
+        onClick={() => setIsCreatePostOpen(true)}
         className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg"
       >
         <PlusCircle className="w-6 h-6 text-blue-700" />
@@ -155,7 +144,7 @@ export default function Profile() {
 
 
       <button
-        onClick={() => setIsChatOpen(true)}
+        onClick={() => setIsChatOpen(!isChatOpen)}
         className="fixed bottom-6 right-6 bg-blue-200 p-4 rounded-full shadow-lg"
       >
         <Bot className="w-6 h-6 text-blue-700" />
@@ -164,8 +153,8 @@ export default function Profile() {
       <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
       <CreatePost
-        isOpen={isPostOpen}
-        onClose={() => setIsPostOpen(false)}
+        isOpen={isCreatePostOpen}
+        onClose={() => setIsCreatePostOpen(false)}
       />
 
     </div>

@@ -6,8 +6,8 @@ import Navbar from "../components/Navbar";
 export default function EditProfile() {
   const navigate = useNavigate();
 
-  const [name, setName] = useState("Hanna Rios");
-  const [email, setEmail] = useState("hanna@example.com");
+  const [name, setName] = useState("Andrea Gómez");
+  const [email, setEmail] = useState("Andrea@example.com");
   const [bio, setBio] = useState("Amante de la moda, la música y la tecnología.");
   const [photo, setPhoto] = useState("/profile.jpg");
   const [showToast, setShowToast] = useState(false);

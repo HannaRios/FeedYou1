@@ -9,6 +9,8 @@ import publicacionRoutes from "./backend/routes/publicacionRoutes.js";
 import categoriasRoutes from "./backend/routes/categorias.js";
 import interesesRoutes from "./backend/routes/interesesRoutes.js";
 
+import chatRoutes from "./backend/routes/chatRoutes.js";
+import authRoutes from "./backend/routes/authRoutes.js";
 
 dotenv.config();
 
@@ -19,7 +21,18 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-// Ruta base para comprobar si el servidor responde
+app.use(cors({
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 app.get("/", (req, res) => {
   res.send("Servidor FeedYou funcionando ✅");
 });
@@ -30,11 +43,24 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/publicaciones", publicacionRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/intereses", interesesRoutes);
+app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/feed", feedRoutes);
+app.use("/api", chatRoutes);
+app.use("/api/auth", authRoutes);
+
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err);
+  res.status(500).json({ 
+    error: "Error interno del servidor",
+    details: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
 
 
 
 //Puerto
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () =>
-  console.log(`✅ Servidor FeedYou corriendo en puerto ${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`✅ Servidor FeedYou corriendo en puerto ${PORT}`);
+  console.log(`📋 GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "✅ Configurado" : "❌ NO configurado"}`);
+});

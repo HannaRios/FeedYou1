@@ -6,11 +6,37 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [emailSent, setEmailSent] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Reset password for:', email);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    console.log("Enviando petición...");
+
+    const response = await fetch(
+      "http://localhost:4000/api/auth/forgot-password",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+      }
+    );
+
+    const data = await response.json();
+    console.log("Respuesta backend:", data);
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error al enviar correo");
+    }
+
     setEmailSent(true);
-  };
+
+  } catch (error) {
+    console.error("Error real:", error);
+    alert("Hubo un error al enviar el correo");
+  }
+};
 
   return (
     <AuthLayout>
@@ -33,7 +59,7 @@ export default function ForgotPassword() {
 
         {!emailSent ? (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Campo Email */}
+
             <input
               type="email"
               placeholder="correo electrónico"
@@ -43,7 +69,7 @@ export default function ForgotPassword() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
             />
 
-            {/* Botón Enviar */}
+
             <button
               type="submit"
               className="w-full bg-blue-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-blue-300 transition"
@@ -51,7 +77,7 @@ export default function ForgotPassword() {
               Enviar enlace de recuperación
             </button>
 
-            {/* Botón Volver */}
+
             <Link
               to="/login"
               className="block w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition text-center"
@@ -63,7 +89,7 @@ export default function ForgotPassword() {
           <div className="text-center space-y-4">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-green-700">
-                ✓ Se ha enviado un correo a <strong>{email}</strong>
+                ✓ Si el correo existe, recibirás un enlace a <strong>{email}</strong>
               </p>
               <p className="text-sm text-gray-600 mt-2">
                 Revisa tu bandeja de entrada y sigue las instrucciones.
