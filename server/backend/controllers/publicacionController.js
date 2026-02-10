@@ -32,8 +32,11 @@ export const crearPublicacionController = async (req, res) => {
             return res.status(400).json({ message: "El usuario no existe" });
         }
 
-        // Si subió un archivo, sobreescribe url_media con la ruta local
-        const archivoRuta = req.file ? `/uploads/${req.file.filename}` : url_media || null;
+
+        const archivo = req.file ? req.file.filename : null;
+        const media = req.file
+            ? `/uploads/publicaciones/${req.file.filename}`
+            : url_media || null;
 
         // Crear la publicación usando async/await
         const result = await crearPublicacion({
@@ -43,16 +46,17 @@ export const crearPublicacionController = async (req, res) => {
             titulo,
             descripcion,
             tipo,
-            url_media: archivoRuta,
+            url_media: media,
             enlace_externo,
         });
 
         // ✅ Respuesta exitosa
         res.status(201).json({
-            message: "Publicación creada con éxito",
-            id_publicacion: result.insertId,
-            archivo: archivoRuta,
+        message: "Publicación creada con éxito",
+        id_publicacion: result.insertId,
+        url_media: media,
         });
+
     } catch (error) {
         console.error("Error al crear publicación:", error);
         res.status(500).json({ message: "Error inesperado al crear la publicación" });

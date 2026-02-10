@@ -29,17 +29,32 @@ export default function EditProfile() {
   /* ===============================
     CAMBIO DE FOTO (BASE64)
   =============================== */
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+const handlePhotoChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhoto(reader.result);
-      localStorage.setItem("profilePhoto", reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+  const formData = new FormData();
+  formData.append("email", usuario.email);
+  formData.append("foto", file);
+
+  const res = await fetch(
+    "http://localhost:4000/api/usuarios/foto-perfil",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+
+  if (res.ok) {
+    // mostrar la imagen real del servidor
+    setPhoto(`http://localhost:4000${data.foto_perfil}`);
+  }
+};
+
 
   /* ===============================
     GUARDAR PERFIL

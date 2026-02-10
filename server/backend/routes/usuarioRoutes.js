@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import db from "../../db.js";
 import { validarRegistro, validarLogin } from "../validations/usuarioValidation.js";
+import { uploadPerfil } from "../middlewares/uploadPerfil.js";
 
 const router = express.Router();
 
@@ -82,5 +83,36 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Error al obtener los usuarios" });
   }
 });
+
+//  Subir / cambiar foto de perfil
+router.post(
+  "/foto-perfil",
+  uploadPerfil.single("foto"),
+  async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email || !req.file) {
+        return res.status(400).json({ message: "Datos incompletos" });
+      }
+
+      const ruta = `/uploads/perfiles/${req.file.filename}`;
+
+      await db.query(
+        "UPDATE usuarios SET foto_perfil = ? WHERE email = ?",
+        [ruta, email]
+      );
+
+      res.json({
+        message: "Foto de perfil actualizada",
+        foto_perfil: ruta,
+      });
+    } catch (error) {
+      console.error("Error foto perfil:", error);
+      res.status(500).json({ message: "Error al subir foto" });
+    }
+  }
+);
+
 
 export default router;

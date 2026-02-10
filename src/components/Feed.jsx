@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchFeed } from "../services/feedService";
+import PostCard from "./PostCard";
 
 function Feed() {
   const [feed, setFeed] = useState([]);
@@ -112,28 +113,7 @@ function Feed() {
 
         {/* Publicaciones */}
         {feed.map((item) => (
-          <div
-            key={item.id_publicacion}
-            className="bg-white rounded-xl shadow-sm overflow-hidden"
-          >
-            {item.archivo && (
-              <img
-                src={`http://localhost:4000/uploads/${item.archivo}`}
-                alt={item.titulo}
-                className="w-full max-h-[500px] object-cover"
-              />
-            )}
-
-            <div className="p-4">
-              <h3 className="font-semibold text-gray-900 mb-1">
-                {item.titulo}
-              </h3>
-
-              <p className="text-gray-600 text-sm">
-                {item.descripcion}
-              </p>
-            </div>
-          </div>
+          <PostCard key={item.id_publicacion} post={item} />
         ))}
 
       </div>

@@ -1,11 +1,11 @@
 // server/backend/routes/publicacionRoutes.js
 import express from "express";
 import { crearPublicacionController } from "../controllers/publicacionController.js";
-import { upload } from "../middlewares/uploadMiddleware.js"; // <- importante
+import { uploadPublicacion as upload, uploadPublicacion } from "../middlewares/uploadPublicacion.js";
 
 const router = express.Router();
 
-router.post("/", upload.single("archivo"), crearPublicacionController);
+router.post("/", uploadPublicacion.single("archivo"), crearPublicacionController);
 
 // GET de prueba
 router.get("/", (req, res) => {

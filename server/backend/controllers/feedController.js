@@ -6,11 +6,21 @@ export const feedParaTi = async (req, res) => {
 
     const [feed] = await db.query(
       `
-      SELECT DISTINCT p.*
+      SELECT 
+        u.foto_perfil,
+        p.id_publicacion,
+        p.email_autor,
+        p.titulo,
+        p.descripcion,
+        p.tipo,
+        p.url_media,
+        p.fecha_publicacion
       FROM publicaciones p
       JOIN preferencias_test pt
         ON p.id_categoria = pt.id_categoria
         AND p.id_subcategoria = pt.id_subcategoria
+      JOIN usuarios u
+        ON p.email_autor = u.email
       WHERE pt.email = ?
         AND p.estado = 'aprobado'
       ORDER BY p.fecha_publicacion DESC

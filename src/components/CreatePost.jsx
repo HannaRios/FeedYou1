@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 // Funciones auxiliares
 const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be");
 
+
     const getYouTubeEmbed = (url) => {
     const videoId = url.includes("youtu.be") ? url.split("/").pop() : url.split("v=")[1];
     return `https://www.youtube.com/embed/${videoId}`;
@@ -16,14 +17,14 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [publicando, setPublicando] = useState(false);
-
+    
     const usuarioLogueado = JSON.parse(localStorage.getItem("usuario"));
 
     const [categorias, setCategorias] = useState([]);
     const [subcategorias, setSubcategorias] = useState([]);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
     const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState("");
-
+    
     // Cargar categorías al iniciar
     useEffect(() => {
         fetch("http://localhost:4000/api/categorias")
