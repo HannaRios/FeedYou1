@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import "./db.js";
+import path from "path";
+
 
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
 import feedRoutes from "./backend/routes/feedRoutes.js";
@@ -17,24 +19,31 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors());
-app.use(express.json());
-app.use("/uploads", express.static("uploads"));
 
 app.use(cors({
-  origin: "http://localhost:5173", 
+  origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
+  credentials: true
 }));
 
+// Parsear JSON
 app.use(express.json());
+
+// Servir archivos estáticos (fotos de perfil, publicaciones, etc.)
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"))
+);
+
+// Logger
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
 });
+
+
 app.get("/", (req, res) => {
-  res.send("Servidor FeedYou funcionando ✅");
+  res.send("Servidor FeedYou funcionando ");
 });
 
 // Rutas
@@ -43,8 +52,6 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/publicaciones", publicacionRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/intereses", interesesRoutes);
-app.use("/api/usuarios", usuarioRoutes);
-app.use("/api/feed", feedRoutes);
 app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 

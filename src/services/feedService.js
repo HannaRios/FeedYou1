@@ -1,4 +1,24 @@
+const API_URL = import.meta.env.VITE_API_URL;
+console.log("API_URL desde Vite:", API_URL);
+
 export const fetchFeed = async (email) => {
-  const res = await fetch(`http://localhost:4000/api/feed/para-ti/${email}`);
-  return res.json();
+  try {
+    const res = await fetch(
+      `${API_URL}/api/feed/para-ti/${email}`
+    );
+
+    const data = await res.json();
+    console.log("Feed recibido correctamente:", data);
+
+    return data;
+
+  } catch (error) {
+
+    console.error("Error fetchFeed:", error);
+
+    return [];
+
+  }
+
 };
+

@@ -7,8 +7,13 @@ import Navbar from "../components/Navbar";
 import ChatBot from "../components/ChatBot";
 import CreatePost from "../components/CreatePost";
 
+import { useAuth } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 
 export default function Profile() {
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState("preferencias");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -20,25 +25,48 @@ export default function Profile() {
     name: "Usuario",
     email: "",
     bio: "",
-    photo: "/profile.jpg",
+    photo: null,
   });
 
-  useEffect(() => {
-    const savedProfile = localStorage.getItem("profileData");
-    if (savedProfile) {
-      const data = JSON.parse(savedProfile);
+useEffect(() => {
+  const loadProfile = async () => {
+
+    if (!user?.email) return;
+    try {
+      const res = await fetch(
+        `${API_URL}/api/usuarios/${user.email}`
+      );
+
+      const data = await res.json();
+
       setProfile({
-        name: data.name || "Usuario",
+        name: data.nombre || "Usuario",
         email: data.email || "",
         bio: data.bio || "",
-        photo: data.photo || "/profile.jpg",
+        photo: data.foto_perfil
+          ? data.foto_perfil.startsWith("http")
+              ? data.foto_perfil
+              : `${API_URL}${data.foto_perfil}`
+          : `${API_URL}/uploads/perfiles/default.png`,
       });
-    }
-  }, []);
 
-  const handleLogout = () => {
-    navigate("/Landing");
+    } catch (error) {
+      console.error("Error cargando perfil:", error);
+    }
   };
+  loadProfile();
+}, [user]);
+
+
+
+const handleLogout = () => {
+
+  logout(); // AuthContext limpia todo
+
+  navigate("/Landing");
+
+};
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 relative">
@@ -54,14 +82,22 @@ export default function Profile() {
                 ¡{profile.name.split(" ")[0]}!
               </h1>
               <p className="text-gray-600">{profile.name}</p>
+
+                {profile.bio && profile.bio.trim() !== "" && (
+                  <p className="text-gray-500 text-sm mt-2 max-w-md">
+                    {profile.bio}
+                  </p>
+                )}
             </div>
 
+
             <div className="relative">
-              <img
-                src={profile.photo}
-                alt="Perfil"
-                className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
-              />
+            <img
+              src={profile.photo || `${API_URL}/uploads/perfiles/default.png`}
+              alt="Perfil"
+              className="w-20 h-20 rounded-full object-cover border-4 border-gray-200"
+            />
+
 
               <button
                 onClick={() => setMenuOpen(!menuOpen)}

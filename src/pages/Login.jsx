@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -66,8 +69,13 @@ export default function Login() {
       setMensaje("Inicio de sesión exitoso ✅");
 
       // Guardar usuario autenticado
-      localStorage.setItem("usuario", JSON.stringify(data.usuario));
-      localStorage.setItem("email", data.usuario.email);
+      // Guardar usuario autenticado
+      login({
+        email: data.usuario.email,
+        nombre: data.usuario.nombre
+      });
+
+
 
       // Redirige al feed (puedes cambiar la ruta si quieres)
       setTimeout(() => navigate("/feed"), 1000);
@@ -106,7 +114,12 @@ export default function Login() {
       }
 
       // Guardar usuario en localStorage
-      localStorage.setItem("usuario", JSON.stringify(data.user));
+      login({
+        email: data.user.email,
+        nombre: data.user.nombre
+      });
+
+
       
       setMensaje("✅ Inicio de sesión exitoso con Google");
       

@@ -1,5 +1,11 @@
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+
+const API_URL = import.meta.env.VITE_API_URL;
+    if (!API_URL) {
+    console.error(" VITE_API_URL no está definida");
+    }
 
 // Funciones auxiliares
 const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be");
@@ -18,16 +24,19 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
     const [preview, setPreview] = useState(null);
     const [publicando, setPublicando] = useState(false);
     
-    const usuarioLogueado = JSON.parse(localStorage.getItem("usuario"));
+    const { user } = useAuth();
 
     const [categorias, setCategorias] = useState([]);
     const [subcategorias, setSubcategorias] = useState([]);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
     const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState("");
-    
+
+
     // Cargar categorías al iniciar
     useEffect(() => {
-        fetch("http://localhost:4000/api/categorias")
+        if (!API_URL) return;
+        
+        fetch(`${API_URL}/api/categorias`)
         .then((res) => res.json())
         .then((data) => setCategorias(data))
         .catch((err) => console.error(err));
@@ -56,7 +65,7 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         setSubcategorias([]);
         return;
         }
-        fetch(`http://localhost:4000/api/categorias/${id}/subcategorias`)
+        fetch(`${API_URL}/api/categorias/${id}/subcategorias`)
         .then((res) => res.json())
         .then((data) => setSubcategorias(data))
         .catch((err) => console.error(err));
@@ -108,14 +117,14 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         url_media = mediaUrl;
         }
 
-        if (!usuarioLogueado || !usuarioLogueado.email) {
+        if (!user?.email) {
         alert("No hay usuario logueado");
         setPublicando(false);
         return;
         }
 
         const formData = new FormData();
-        formData.append("email_autor", usuarioLogueado.email);
+        formData.append("email_autor", user.email);
         formData.append("id_categoria", categoriaSeleccionada);
         formData.append("id_subcategoria", subcategoriaSeleccionada);
         formData.append("titulo", "Nueva publicación");
@@ -126,7 +135,7 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         if (file) formData.append("archivo", file);
 
         try {
-        const response = await fetch("http://localhost:4000/api/publicaciones", {
+        const response = await fetch(`${API_URL}/api/publicaciones`, {
             method: "POST",
             body: formData,
         });
@@ -229,7 +238,7 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
             />
 
             <label className="block text-sm text-blue-600 font-medium cursor-pointer">
-                📁 Subir desde mi computadora
+            Subir desde mi computadora
                 <input type="file" accept="image/*,video/*" hidden onChange={handleFileChange} />
             </label>
 

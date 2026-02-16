@@ -4,6 +4,8 @@ import App from './App.jsx'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import axios from "axios";
+import { AuthProvider } from "./context/AuthContext.jsx";
+
 
 axios.defaults.withCredentials = true;
 
@@ -20,6 +22,8 @@ if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === "TU_CLIENT_ID_AQUI") {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </GoogleOAuthProvider>
 )

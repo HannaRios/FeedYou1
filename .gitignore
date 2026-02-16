@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .env
 server/.env
+server/uploads/
+node_modules/
+dist/

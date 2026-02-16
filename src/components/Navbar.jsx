@@ -3,25 +3,52 @@ import { NavLink } from "react-router-dom";
 import { Search } from "lucide-react";
 import Logo from "./Logo";
 import { useSearch } from "../Context/SearchContext";
+import { useAuth } from "../context/AuthContext";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export default function Navbar() {
   const { isSearchOpen, setIsSearchOpen, query, setQuery } = useSearch();
 
+  const { user } = useAuth();
   const [profile, setProfile] = useState({
     name: "Usuario",
-    photo: "/profile.jpg",
+    photo: null,
   });
 
-  useEffect(() => {
-    const savedProfile = localStorage.getItem("profileData");
-    if (savedProfile) {
-      const data = JSON.parse(savedProfile);
+useEffect(() => {
+  const loadProfile = async () => {
+    if (!user?.email) return;
+    try {
+
+      const res = await fetch(
+        `${API_URL}/api/usuarios/${user.email}`
+      );
+
+      const data = await res.json();
+
       setProfile({
-        name: data.name || "Usuario",
-        photo: data.photo || "/profile.jpg",
+        name: data.nombre || "Usuario",
+        photo: data.foto_perfil
+          ? data.foto_perfil.startsWith("http")
+              ? data.foto_perfil
+              : `${API_URL}${data.foto_perfil}`
+          : `${API_URL}/uploads/perfiles/default.png`,
       });
+
+    } catch (error) {
+
+      console.error("Error cargando perfil navbar:", error);
+
     }
-  }, []);
+
+  };
+
+  loadProfile();
+
+}, [user]);
+
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-10">
@@ -92,11 +119,11 @@ export default function Navbar() {
         {/* Perfil */}
         <NavLink to="/profile" className="flex items-center gap-2">
           <img
-            src={profile.photo}
+            src={profile.photo || `${API_URL}/uploads/perfiles/default.png`}
             alt="Perfil"
             className="w-8 h-8 rounded-full object-cover border"
           />
-          <span className="font-medium">{profile.name}</span>
+        <span className="font-medium">{profile.name}</span>
         </NavLink>
       </div>
 

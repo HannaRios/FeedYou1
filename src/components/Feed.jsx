@@ -3,8 +3,10 @@ import { ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchFeed } from "../services/feedService";
 import PostCard from "./PostCard";
+import { useAuth } from "../context/AuthContext";
 
 function Feed() {
+  const { user } = useAuth();
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasInterests, setHasInterests] = useState(true);
@@ -12,32 +14,54 @@ function Feed() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const email = localStorage.getItem("email");
+useEffect(() => {
 
-    // 🧠 Usuario no logueado o sin email
-    if (!email) {
+  //  LIMPIAR ESTADO ANTES DE CARGAR NUEVO FEED
+  setFeed([]);
+  setLoading(true);
+  setHasInterests(true);
+
+  const loadFeed = async () => {
+    if (!user?.email) {
+
       setHasInterests(false);
       setLoading(false);
       return;
     }
 
-    // 🔥 Pedir feed personalizado
-    fetchFeed(email)
-      .then((data) => {
-        console.log("Feed recibido:", data);
-        setFeed(data);
+    try {
+      const data = await fetchFeed(user.email);
 
-        // Si no hay publicaciones pero sí intereses
-        if (data.length === 0) {
-          setHasInterests(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error al cargar feed:", error);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+      console.log("Feed recibido:", data);
+
+      setFeed(data);
+      if (data.length === 0) {
+        setHasInterests(false);
+      }
+
+    } catch (error) {
+      console.error("Error al cargar feed:", error);
+
+    } finally {
+      setLoading(false);
+
+    }
+
+  };
+
+  loadFeed();
+
+  // LIMPIAR CUANDO EL COMPONENTE SE DESMONTA
+  return () => {
+
+    setFeed([]);
+    setLoading(true);
+    setHasInterests(true);
+
+  };
+
+}, [user]);
+
 
   /* =========================
       LOADING

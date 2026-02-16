@@ -36,7 +36,10 @@ export const googleLogin = async (req, res) => {
 
   try {
     // Buscar usuario en la BD
-    const [rows] = await db.query("SELECT * FROM usuarios WHERE email = ?", [payload.email]);
+    const [rows] = await db.query(
+      "SELECT email, nombre, provider, foto_perfil FROM usuarios WHERE email = ?",
+      [payload.email]
+    );
 
     let usuario;
 
@@ -45,34 +48,58 @@ export const googleLogin = async (req, res) => {
       console.log("Usuario nuevo, creando en BD...");
 
       const [result] = await db.query(
-        "INSERT INTO usuarios (email, nombre, contrasena) VALUES (?, ?, ?)",
+        "INSERT INTO usuarios (email, nombre, contrasena, provider, foto_perfil) VALUES (?, ?, ?, ?, ?)",
         [
           payload.email,
-          payload.name || "Sin nombre",
-          "GOOGLE" 
+          payload.name,
+          "GOOGLE",
+          "google",
+          "/uploads/perfiles/default.png"
         ]
       );
 
-      usuario = {
-        id: result.insertId,
-        email: payload.email,
-        nombre: payload.name || "Sin nombre"
-      };
 
-      console.log("✅ Usuario creado con ID:", usuario.id);
-    } else {
-      usuario = rows[0];
-      console.log("✅ Usuario existente encontrado:", usuario);
-    }
+    usuario = {
+      email: payload.email,
+      nombre: payload.name || "Sin nombre",
+      provider: "google",
+      foto_perfil: payload.picture || null
+    };
+
+      console.log("Usuario Google creado:", usuario.email);
+
+} else {
+  usuario = rows[0];
+
+  // Si no tiene foto, guardarla
+  if (!usuario.foto_perfil && payload.picture) {
+    await db.query(
+      "UPDATE usuarios SET foto_perfil = ? WHERE email = ?",
+      [payload.picture, payload.email]
+    );
+    usuario.foto_perfil = payload.picture;
+  }
+  console.log("Usuario Google existente:", usuario.email);
+}
+
 
     // Responder al frontend
-    return res.status(200).json({ success: true, user: usuario });
+return res.status(200).json({ 
+  success: true, 
+  user: {
+    email: usuario.email,
+    nombre: usuario.nombre,
+    provider: usuario.provider,
+    foto_perfil: usuario.foto_perfil || payload.picture || null
+  }
+});
+
 
   } catch (err) {
-    console.error("❌ Error en BD al procesar usuario:", err);
+    console.error("Error DB Google Auth:", err);
+
     return res.status(500).json({
-      error: "Error en la base de datos al procesar login de Google",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      error: "Error interno del servidor"
     });
   }
 };

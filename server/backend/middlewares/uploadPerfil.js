@@ -3,15 +3,18 @@ import path from "path";
 import fs from "fs";
 
 // asegurar carpeta
-const dir = "uploads/perfiles";
+const dir = path.join(process.cwd(), "uploads", "perfiles");
+
     if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
+    console.log("Carpeta creada:", dir);
     }
 
     const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, dir);
     },
+    
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
         const nombre = `perfil-${Date.now()}${ext}`;
@@ -22,8 +25,8 @@ const dir = "uploads/perfiles";
     export const uploadPerfil = multer({
     storage,
     fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith("image")) {
-        cb(new Error("Solo imágenes"));
+        if (!file.mimetype.startsWith("image/")) {
+        return cb(new Error("Solo imágenes"));
         }
         cb(null, true);
     },

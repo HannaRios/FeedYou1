@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { registrarUsuario } from "../services/userService";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -87,10 +89,18 @@ export default function Register() {
         contrasena: formData.password,
       };
 
-      const res = await registrarUsuario(usuario);
-      setMensaje(res.mensaje || "Registro exitoso ✅");
+    const res = await registrarUsuario(usuario);
+    setMensaje(res.mensaje || "Registro exitoso ✅");
 
-      setTimeout(() => navigate("/interest-test"), 1000);
+    // guardar usuario en AuthContext
+    login({
+      email: usuario.email,
+      nombre: usuario.nombre
+    });
+
+    setTimeout(() => navigate("/interest-test"), 1000);
+
+
     } catch (err) {
       setMensaje(err.message || "Error al registrar ❌");
     } finally {

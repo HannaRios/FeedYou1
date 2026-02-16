@@ -2,29 +2,58 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, Upload, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../context/AuthContext";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function EditProfile() {
   const navigate = useNavigate();
-
+  const { user } = useAuth();
   const [name, setName] = useState("Andrea Gómez");
   const [email, setEmail] = useState("Andrea@example.com");
-  const [bio, setBio] = useState("Amante de la moda, la música y la tecnología.");
-  const [photo, setPhoto] = useState("/profile.jpg");
+  const [bio, setBio] = useState("");
+  const [photo, setPhoto] = useState("/avatar-default.png");
   const [showToast, setShowToast] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   /* ===============================
     CARGAR DATOS GUARDADOS
   =============================== */
-  useEffect(() => {
-    const savedProfile = localStorage.getItem("profileData");
-    if (savedProfile) {
-      const data = JSON.parse(savedProfile);
-      setName(data.name || "");
-      setEmail(data.email || "");
-      setBio(data.bio || "");
-      setPhoto(data.photo || "/profile.jpg");
+useEffect(() => {
+
+  const loadProfile = async () => {
+
+    if (!user?.email) {
+      setLoading(false);
+      return;
     }
-  }, []);
+
+    fetch(`${API_URL}/api/usuarios/${user.email}`)
+      .then(res => res.json())
+      .then(data => {
+
+        setName(data.nombre);
+        setEmail(data.email);
+        setBio(data.bio || "");
+
+        if (data.foto_perfil){
+          setPhoto(`${API_URL}${data.foto_perfil}`);
+        } 
+        setLoading(false);
+      })
+
+        .catch(err => {
+          console.error(err);
+          setLoading(false); 
+        });
+
+    };
+
+    loadProfile();
+
+}, [user]);
+
+
 
   /* ===============================
     CAMBIO DE FOTO (BASE64)
@@ -33,14 +62,15 @@ const handlePhotoChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (!user?.email) return;
+
 
   const formData = new FormData();
-  formData.append("email", usuario.email);
+  formData.append("email", user.email);
   formData.append("foto", file);
 
   const res = await fetch(
-    "http://localhost:4000/api/usuarios/foto-perfil",
+    `${API_URL}/api/usuarios/foto-perfil`,
     {
       method: "POST",
       body: formData,
@@ -51,7 +81,7 @@ const handlePhotoChange = async (e) => {
 
   if (res.ok) {
     // mostrar la imagen real del servidor
-    setPhoto(`http://localhost:4000${data.foto_perfil}`);
+    setPhoto(`${API_URL}${data.foto_perfil}`);
   }
 };
 
@@ -59,26 +89,46 @@ const handlePhotoChange = async (e) => {
   /* ===============================
     GUARDAR PERFIL
   =============================== */
-  const handleSave = (e) => {
-    e.preventDefault();
+const handleSave = async (e) => {
 
-    localStorage.setItem(
-      "profileData",
-      JSON.stringify({
-        name,
-        email,
-        bio,
-        photo,
-      })
+  e.preventDefault();
+
+  if (!user?.email) return;
+
+  try {
+    const res = await fetch(
+        `${API_URL}/api/usuarios/actualizar`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            bio: bio,
+            email: user.email,
+            nombre: name
+          }),
+      }
     );
 
-    setShowToast(true);
+    if (!res.ok) throw new Error("Error al guardar");
 
-    setTimeout(() => {
-      setShowToast(false);
-      navigate("/profile");
-    }, 2000);
-  };
+    navigate("/profile");
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Error al guardar perfil");
+
+  }
+
+};
+
+
+  if (loading) return <div>Cargando...</div>;
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -159,7 +209,7 @@ const handlePhotoChange = async (e) => {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                disabled
                 className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-300 focus:outline-none"
               />
             </div>
@@ -172,9 +222,15 @@ const handlePhotoChange = async (e) => {
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
+                className="w-full border p-2 rounded mb-4"
                 rows="4"
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-300 focus:outline-none resize-none"
-              />
+                placeholder="Cuéntanos algo sobre ti..."
+                maxLength={160}
+              ></textarea>
+
+              <p className="text-sm text-gray-400">
+                {bio.length}/160 caracteres
+              </p>
             </div>
 
             {/* BOTÓN */}

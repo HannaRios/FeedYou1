@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function PostCard({ post }) {
     console.log("POST:", post);
 
@@ -6,13 +8,18 @@ export default function PostCard({ post }) {
         post.archivo && post.archivo.startsWith("http");
 
     // Definir src correcto
-    const mediaSrc = isExternal
-        ? post.archivo
-        : post.url_media
-        ? `http://localhost:4000${post.url_media}`
-        : post.archivo
-            ? `http://localhost:4000/uploads/${post.archivo}`
-            : null;
+    const mediaSrc =
+        post.url_media
+            ? post.url_media.startsWith("http")
+                ? post.url_media
+                : `${API_URL}${post.url_media}`
+            : post.archivo
+                ? post.archivo.startsWith("http")
+                    ? post.archivo
+                    : `${API_URL}${post.archivo}`
+                : null;
+
+
 
     return (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -20,12 +27,14 @@ export default function PostCard({ post }) {
         {/* HEADER: foto + usuario */}
         <div className="flex items-center gap-3 px-4 pt-4">
         {/* Foto de perfil */}
-        <img
-            src={
-            post.foto_perfil
-                ? `http://localhost:4000${post.foto_perfil}`
-                : "/avatar-default.png"
-            }
+            <img
+                src={
+                    post.foto_perfil
+                    ? post.foto_perfil.startsWith("http")
+                        ? post.foto_perfil
+                        : `${API_URL}${post.foto_perfil}`
+                    : "/avatar-default.png"
+                }
             alt="Foto de perfil"
             className="w-10 h-10 rounded-full object-cover border"
         />
@@ -50,23 +59,17 @@ export default function PostCard({ post }) {
 
 
         {/* Imagen */}
-        {post.tipo === "imagen" && post.url_media && (
+        {post.tipo === "imagen" && mediaSrc && (
         <img
-            src={
-            post.url_media.startsWith("http")
-                ? post.url_media
-                : `http://localhost:4000${post.url_media}`
-            }
+            src={mediaSrc}
             className="w-full max-h-[500px] object-cover mt-2"
         />
         )}
 
         {/* Video */}
-        {post.tipo === "video" && post.url_media && (
+        {post.tipo === "video" && mediaSrc && (
             <video controls className="w-full mt-3">
-            <source src={post.url_media.startsWith("http")
-                ? post.url_media
-                : `http://localhost:4000${post.url_media}`} />
+            <source src={mediaSrc} />
             </video>
         )}
 
@@ -77,7 +80,7 @@ export default function PostCard({ post }) {
             <button
             onClick={() =>
                 navigator.clipboard.writeText(
-                `http://localhost:5173/post/${post.id_publicacion}`
+                `${window.location.origin}/post/${post.id_publicacion}`
                 )
             }
             >

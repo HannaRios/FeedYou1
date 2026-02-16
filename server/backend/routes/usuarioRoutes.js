@@ -27,11 +27,14 @@ router.post("/register", validarRegistro, async (req, res) => {
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     // Guardar usuario
-    await db.query("INSERT INTO usuarios (nombre, email, contrasena) VALUES (?, ?, ?)", [
-      nombre,
-      email,
-      hashedPassword,
-    ]);
+await db.query(
+  "INSERT INTO usuarios (nombre, email, contrasena, provider) VALUES (?, ?, ?, ?)",
+  [
+    nombre,
+    email,
+    hashedPassword,
+    "local"
+  ]);
 
     res.json({ mensaje: "Usuario registrado correctamente" });
   } catch (error) {
@@ -57,7 +60,20 @@ router.post("/login", validarLogin, async (req, res) => {
     }
 
     const usuario = rows[0];
-    const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
+
+    // Evitar login normal en cuentas Google
+    if (usuario.provider === "google") {
+
+      return res.status(400).json({
+        error: "Esta cuenta usa Google Login"
+      });
+    }
+
+    const passwordValida = await bcrypt.compare(
+      contrasena,
+      usuario.contrasena
+    );
+
 
     if (!passwordValida) {
       return res.status(401).json({ error: "Contraseña incorrecta" });
@@ -73,16 +89,35 @@ router.post("/login", validarLogin, async (req, res) => {
   }
 });
 
-// ✅ Obtener todos los usuarios
-router.get("/", async (req, res) => {
+
+// ✅ Obtener usuario por email
+router.get("/:email", async (req, res) => {
   try {
-    const [usuarios] = await db.query("SELECT email, nombre, fecha_registro FROM usuarios");
-    res.json({ usuarios });
+    const [rows] = await db.query(
+      "SELECT email, nombre, foto_perfil, bio FROM usuarios WHERE email = ?",
+      [req.params.email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    const usuario = rows[0];
+    
+    res.json({
+      email: usuario.email,
+      nombre: usuario.nombre,
+      bio: usuario.bio || "",
+      foto_perfil: usuario.foto_perfil || "/uploads/perfiles/default.png"
+    });
+
   } catch (error) {
-    console.error("❌ Error al obtener usuarios:", error.message);
-    res.status(500).json({ error: "Error al obtener los usuarios" });
+    console.error(error);
+    res.status(500).json({ error: "Error servidor" });
   }
 });
+
+
 
 //  Subir / cambiar foto de perfil
 router.post(
@@ -113,6 +148,45 @@ router.post(
     }
   }
 );
+
+router.put("/actualizar", async (req, res) => {
+
+  try {
+
+    console.log("BODY RECIBIDO:", req.body);
+
+    const { email, nombre, bio } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Email es requerido"
+      });
+    }
+
+    const [result] = await db.query(
+      "UPDATE usuarios SET nombre = ?, bio = ? WHERE email = ?",
+      [nombre || "", bio || "", email]
+    );
+
+    console.log("RESULTADO:", result);
+
+    res.json({
+      message: "Perfil actualizado correctamente"
+    });
+
+  } catch (error) {
+
+    console.error("ERROR ACTUALIZAR PERFIL:", error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
 
 
 export default router;
