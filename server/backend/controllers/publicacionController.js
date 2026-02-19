@@ -1,4 +1,5 @@
 import { crearPublicacion } from "../models/publicacionModel.js";
+import { obtenerPublicaciones } from "../models/publicacionModel.js";
 import db from "../../db.js";
 
 export const crearPublicacionController = async (req, res) => {
@@ -60,5 +61,20 @@ export const crearPublicacionController = async (req, res) => {
     } catch (error) {
         console.error("Error al crear publicación:", error);
         res.status(500).json({ message: "Error inesperado al crear la publicación" });
+    }
+};
+
+export const obtenerPublicacionesController = async (req, res) => {
+    try {
+
+        const publicaciones = await obtenerPublicaciones();
+
+        res.json(publicaciones);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Error al obtener publicaciones"
+        });
     }
 };

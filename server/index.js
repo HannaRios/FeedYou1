@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import "./db.js";
 import path from "path";
 
-
+import newsApiRoutes from "./backend/routes/newsApiRoutes.js";
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
 import feedRoutes from "./backend/routes/feedRoutes.js";
 import publicacionRoutes from "./backend/routes/publicacionRoutes.js";
@@ -54,6 +54,8 @@ app.use("/api/categorias", categoriasRoutes);
 app.use("/api/intereses", interesesRoutes);
 app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/newsapi", newsApiRoutes);
+
 
 app.use((err, req, res, next) => {
   console.error("❌ Error:", err);

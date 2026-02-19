@@ -21,3 +21,15 @@ export const crearPublicacion = async (data) => {
     const [result] = await db.query(sql, values);
     return result;
 };
+
+export const obtenerPublicaciones = async () => {
+    const sql = `
+        SELECT *
+        FROM publicaciones
+        WHERE estado = 'aprobado'
+        ORDER BY fecha_publicacion DESC
+    `;
+
+    const [rows] = await db.query(sql);
+    return rows;
+};
