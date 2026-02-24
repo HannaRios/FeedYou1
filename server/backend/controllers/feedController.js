@@ -1,43 +1,66 @@
 import axios from "axios";
+import db from "../../db.js"; 
+import 'dotenv/config';
 
 export async function getFeed(req, res) {
-  const tagsQuery = req.query.tags || "inspiration,art,creative"; 
-  const tagsArray = tagsQuery.split(",").map(tag => tag.trim());
+  const email = req.query.email || req.body.email;
 
-  console.log("🔍 Buscando imágenes con tags:", tagsArray);
-  console.log("🔑 API Key presente:", !!process.env.UNSPLASH_KEY);
+  if (!email) {
+    return res.status(400).json({ error: "Email es requerido" });
+  }
 
   try {
-    const promises = tagsArray.map(tag =>
-      axios.get("https://api.unsplash.com/photos/random", {
-        params: { query: tag, count: 5 },
-        headers: { Authorization: `Client-ID ${process.env.UNSPLASH_KEY}` },
+      const [rows] = await db.query(`
+        SELECT s.nombre_subcategoria
+        FROM preferencias_test pt
+        JOIN subcategorias s ON pt.id_subcategoria = s.id_subcategoria
+        WHERE pt.email = ?
+      `, [email]);
+
+
+    if (rows.length === 0) {
+      return res.status(400).json({ error: "Usuario sin preferencias" });
+    }
+
+    const mapToNewsAPI = {
+      "Libros y novelas": "entertainment",
+      "Cine y películas": "entertainment",
+      "Series y TV": "entertainment",
+      "Música y conciertos": "entertainment",
+      "Videojuegos": "technology",
+      "Moda y estilo": "entertainment"
+    };
+
+    const categoriesArray = rows
+      .map(row => mapToNewsAPI[row.nombre_subcategoria.toLowerCase()])
+      .filter(Boolean);
+    if (categoriesArray.length === 0) {
+  categoriesArray.push("entertainment");
+     } //por defecto
+
+    const uniqueCategories = [...new Set(categoriesArray)];
+
+    const promises = uniqueCategories.map(category =>
+      axios.get("https://newsapi.org/v2/top-headlines", {
+        params: {
+          category,
+          language: "es",
+          pageSize: 5,
+          apiKey: process.env.NEWS_API_KEY
+        }
       })
     );
 
     const results = await Promise.all(promises);
 
-    const images = results.flatMap(r => Array.isArray(r.data) ? r.data : [r.data]);
+    const articles = results
+      .flatMap(r => r.data.articles)
+      .filter(article => article.urlToImage);
 
-    const formattedImages = images.map(img => ({
-      id: img.id,
-      description: img.description || img.alt_description,
-      url: img.urls.small,
-      full: img.urls.full,
-      user: img.user.name,
-    }));
+    res.json({ results: articles });
 
-    console.log(`✅ ${formattedImages.length} imágenes obtenidas correctamente`);
-    res.json({ results: formattedImages });
-  } catch (err) {
-    console.error("❌ Error fetching Unsplash feed:", err.message);
-    if (err.response) {
-      console.error("Detalles del error:", err.response.data);
-      return res.status(err.response.status).json({ 
-        error: "Error al obtener imágenes de Unsplash",
-        details: err.response.data 
-      });
-    }
-    res.status(500).json({ error: "Error interno del servidor", results: [] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error obteniendo feed" });
   }
 }

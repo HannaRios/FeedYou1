@@ -133,7 +133,7 @@ export default function Profile() {
 
       {/* Botones flotantes */}
       <button
-        onClick={() => setIsCreatePostOpen(true)}
+        onClick={() => setIsCreatePostOpen(false)}
         className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg"
       >
         <PlusCircle className="w-6 h-6 text-blue-700" />

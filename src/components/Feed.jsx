@@ -1,30 +1,49 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { fetchFeed } from "../services/feedService";
-import { mapTestToTags } from "../utils/mapTestToTags";
+import ChatBot from "./ChatBot";
 
-function Feed({ testAnswers: propTestAnswers }) {
-  const location = useLocation();
-  
-  const testAnswers = propTestAnswers || location.state?.testAnswers || {};
-
+function Feed() {
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false); 
 
   useEffect(() => {
-    const tags = mapTestToTags(testAnswers);
-    console.log("Tags generados:", tags); 
+    const getFeed = async () => {
+      try {
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          console.error("No hay datos de usuario en localStorage");
+          setLoading(false);
+          return;
+        }
 
-    fetchFeed(tags)
-      .then((data) => {
-        console.log("Feed recibido:", data); 
-        setFeed(data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      })
-      .finally(() => setLoading(false));
-  }, [testAnswers]);
+        const user = JSON.parse(userData);
+
+        if (!user || !user.email) {
+          console.error("El objeto usuario no tiene email");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`http://localhost:4000/api/feed?email=${user.email}`);
+        
+        if (!response.ok) throw new Error(`Error en el servidor: ${response.status}`);
+
+        const data = await response.json();
+        console.log("Feed recibido:", data);
+
+        if (data && Array.isArray(data)) setFeed(data);
+        else if (data && data.results && Array.isArray(data.results)) setFeed(data.results);
+        else setFeed([]);
+      } catch (error) {
+        console.error("Error al obtener feed:", error);
+        setFeed([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getFeed();
+  }, []);
 
   if (loading) {
     return (
@@ -35,49 +54,42 @@ function Feed({ testAnswers: propTestAnswers }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Grid de contenido */}
+    <div className="min-h-screen bg-gray-50 relative">
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {feed.length === 0 ? (
+        {!Array.isArray(feed) || feed.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🎨</div>
             <h3 className="text-2xl font-bold text-gray-800 mb-2">
               No hay contenido disponible
             </h3>
-            <p className="text-gray-600">Intenta completar el test nuevamente</p>
+            <p className="text-gray-600">
+              Verifica que tengas intereses guardados o que el servidor esté activo.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {feed.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-              >
-                {item.image && (
+            {feed.map((item, index) => (
+              <div key={item.id || index} className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+                {item.urlToImage && (
                   <img
-                    src={item.image}
+                    src={item.urlToImage}
                     alt={item.title}
                     className="w-full h-64 object-cover"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400x250?text=No+Image'; }}
                   />
                 )}
                 <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 text-gray-800">
-                    {item.title || "Publicación"}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {item.text || "Contenido inspirador"}
-                  </p>
-                  {item.tags && item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {item.tags.slice(0, 3).map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 bg-purple-100 text-purple-600 rounded-full text-xs"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+                  <h3 className="font-bold text-lg mb-2 text-gray-800 line-clamp-2">{item.title}</h3>
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">{item.description}</p>
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-600 text-sm font-semibold hover:text-purple-800"
+                    >
+                      Leer más →
+                    </a>
                   )}
                 </div>
               </div>
@@ -85,6 +97,17 @@ function Feed({ testAnswers: propTestAnswers }) {
           </div>
         )}
       </div>
+
+      {/* Botón para abrir/ocultar el chat */}
+      <button
+        onClick={() => setChatOpen(!chatOpen)}
+        className="fixed bottom-6 right-6 bg-pink-400 hover:bg-pink-500 text-white rounded-full w-14 h-14 flex items-center justify-center z-40 shadow-lg"
+      >
+        💬
+      </button>
+
+      {/* ChatBot solo se monta si chatOpen es true */}
+      {chatOpen && <ChatBot onClose={() => setChatOpen(false)} />}
     </div>
   );
 }

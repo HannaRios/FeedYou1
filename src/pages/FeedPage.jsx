@@ -27,8 +27,6 @@ export default function FeedPage() {
         <Feed testAnswers={testAnswers} />
       </main>
 
-
-
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
         className="fixed bottom-6 right-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
@@ -36,9 +34,9 @@ export default function FeedPage() {
         <Bot className="w-6 h-6 text-blue-700" />
       </button>
 
-      {/* ChatBot */}
-      <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-
+      {isChatOpen && (
+        <ChatBot onClose={() => setIsChatOpen(false)} />
+      )}
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">

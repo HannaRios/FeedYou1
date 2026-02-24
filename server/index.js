@@ -7,6 +7,7 @@ import feedRoutes from "./backend/routes/feedRoutes.js";
 import chatRoutes from "./backend/routes/chatRoutes.js";
 import authRoutes from "./backend/routes/authRoutes.js";
 
+
 dotenv.config();
 
 const app = express();
@@ -29,7 +30,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/feed", feedRoutes);
-app.use("/api", chatRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use((err, req, res, next) => {

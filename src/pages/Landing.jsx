@@ -109,10 +109,10 @@ export default function FeedYouLanding() {
             <div>
               <h3 className="font-semibold mb-4">Contenido</h3>
               <ul className="space-y-2 text-gray-300 text-sm">
-                <li><NavLink to="/FeedPage" className="hover:text-white">Para ti</NavLink></li>
-                <li><NavLink to="/Trending" className="hover:text-white">Tendencias</NavLink></li>
-                <li><NavLink to="/Favorites" className="hover:text-white">Favoritos</NavLink></li>
-                <li><NavLink to="/Categories" className="hover:text-white">Categorías</NavLink></li>
+                <li>Para ti</li>
+                <li>Tendencias</li>
+                <li>Favoritos</li>
+                <li>Categorías</li>
               </ul>
             </div>
 
