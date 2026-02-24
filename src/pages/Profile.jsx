@@ -20,7 +20,6 @@ export default function Profile() {
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const navigate = useNavigate();
 
-
   const [profile, setProfile] = useState({
     name: "Usuario",
     email: "",

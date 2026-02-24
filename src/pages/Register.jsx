@@ -18,7 +18,7 @@ export default function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
-  // 🔍 Validación HTML5 + Reglas Personalizadas
+  //  Validación HTML5 + Reglas Personalizadas
   const validateForm = () => {
     const newErrors = {};
 
@@ -62,7 +62,7 @@ export default function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // 💡 Valida en tiempo real mientras el usuario escribe
+  // Valida en tiempo real mientras el usuario escribe
   useEffect(() => {
     validateForm();
   }, [formData]);
@@ -74,20 +74,21 @@ export default function Register() {
     if (errors[name]) setErrors({ ...errors, [name]: "" });
   };
 
-  // 🚀 Envío del formulario
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  // Envío del formulario
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    setIsSubmitting(true);
-    setMensaje("");
+  setIsSubmitting(true);
+  setMensaje("");
 
-    try {
-      const usuario = {
-        nombre: formData.fullName,
-        email: formData.email,
-        contrasena: formData.password,
-      };
+  try {
+    const usuario = {
+      nombre: formData.fullName,
+      email: formData.email,
+      username: formData.username,
+      contrasena: formData.password,
+    };
 
     const res = await registrarUsuario(usuario);
     setMensaje(res.mensaje || "Registro exitoso ✅");

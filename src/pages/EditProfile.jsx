@@ -16,9 +16,6 @@ export default function EditProfile() {
   const [showToast, setShowToast] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  /* ===============================
-    CARGAR DATOS GUARDADOS
-  =============================== */
 useEffect(() => {
 
   const loadProfile = async () => {
@@ -54,10 +51,6 @@ useEffect(() => {
 }, [user]);
 
 
-
-  /* ===============================
-    CAMBIO DE FOTO (BASE64)
-  =============================== */
 const handlePhotoChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -86,9 +79,6 @@ const handlePhotoChange = async (e) => {
 };
 
 
-  /* ===============================
-    GUARDAR PERFIL
-  =============================== */
 const handleSave = async (e) => {
 
   e.preventDefault();

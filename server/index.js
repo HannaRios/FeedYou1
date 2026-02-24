@@ -28,7 +28,8 @@ const server = http.createServer(app);
 app.use(cors({
   origin: "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // Parsear JSON
@@ -62,10 +63,20 @@ app.use("/api/auth", authRoutes);
 app.use("/api/newsapi", newsApiRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/interacciones", interaccionesRoutes);
+app.use("/api/chat", chatRoutes);
 
 
 app.use((err, req, res, next) => {
-  console.error("❌ Error:", err);
+  console.error("Error:", err);
+  res.status(500).json({ 
+    error: "Error interno del servidor",
+    details: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
   res.status(500).json({ 
     error: "Error interno del servidor",
     details: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -83,10 +94,10 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("🟢 Usuario conectado:", socket.id);
+  console.log("Usuario conectado:", socket.id);
 
   socket.on("disconnect", () => {
-    console.log("🔴 Usuario desconectado:", socket.id);
+    console.log("Usuario desconectado:", socket.id);
   });
 });
 
@@ -95,7 +106,7 @@ export { io };
 
 //Puerto
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => {
-  console.log(`✅ Servidor FeedYou corriendo en puerto ${PORT}`);
-  console.log(`📋 GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "✅ Configurado" : "❌ NO configurado"}`);
+app.listen(PORT, () => {
+  console.log(`Servidor FeedYou corriendo en puerto ${PORT}`);
+  console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "Configurado" : "NO configurado"}`);
 });

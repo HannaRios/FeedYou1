@@ -1,131 +1,226 @@
-import { useState } from 'react';
-import { X, Send, Menu } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { 
+  X, Send, Menu, MessageSquare, Trash2, 
+  UserCircle, ChevronLeft, Tv, Cpu, Trophy, 
+  Heart, Microscope, Briefcase 
+} from 'lucide-react';
 
-export default function ChatBot({ isOpen, onClose }) {
+export default function ChatBot({ isOpen = true, onClose }) {
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'bot',
-      text: '¡Hola! Soy YouBot, tu asistente personal de contenido. ¿En qué puedo ayudarte hoy?',
-      time: new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [view, setView] = useState('chat');
+  const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = () => {
-    if (!message.trim()) return;
+  const categories = [
+    { id: 'entretenimiento', name: 'Entretenimiento', icon: <Tv className="w-4 h-4" />, color: '#FADADD', welcome: '¡Hola! Hablemos de Cine, Series, Música o Videojuegos.' },
+    { id: 'tecnologia', name: 'Tecnología', icon: <Cpu className="w-4 h-4" />, color: '#D0F0FD', welcome: 'Sistemas listos. ¿Qué hay de nuevo en el mundo tech e IA?' },
+    { id: 'salud', name: 'Salud', icon: <Heart className="w-4 h-4" />, color: '#E6E6FA', welcome: 'Tu bienestar es prioridad. ¿Cómo te sientes hoy?' },
+    { id: 'negocios', name: 'Negocios', icon: <Briefcase className="w-4 h-4" />, color: '#FFE5B4', welcome: 'Estrategia y emprendimiento. ¿En qué trabajamos hoy?' },
+    { id: 'deportes', name: 'Deportes', icon: <Trophy className="w-4 h-4" />, color: '#FADADD', welcome: '¡A por la victoria! Hablemos de resultados.' },
+    { id: 'ciencia', name: 'Ciencia', icon: <Microscope className="w-4 h-4" />, color: '#D0F0FD', welcome: 'Exploremos descubrimientos científicos.' }
+  ];
 
-    const userMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      text: message,
-      time: new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('youbot_history');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [activeCat, setActiveCat] = useState(() => {
+    const savedId = localStorage.getItem('youbot_category_id');
+    return categories.find(c => c.id === savedId) || categories[0];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('youbot_history', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('youbot_category_id', activeCat.id);
+  }, [activeCat]);
+
+  const scrollRef = useRef(null);
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, isTyping]);
+
+  const handleSend = async () => {
+    if (!message.trim() || isTyping) return;
+
+    const userText = message;
+    const userMsg = { 
+      id: Date.now(), 
+      type: 'user', 
+      text: userText, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMsg]);
     setMessage('');
+    setIsTyping(true);
 
-    setTimeout(() => {
-      const botResponse = {
-        id: messages.length + 2,
+    try {
+      const response = await fetch('http://localhost:4000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: userText,
+          category: activeCat.name 
+        })
+      });
+
+      const data = await response.json();
+      if (data.reply) {
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          type: 'bot',
+          text: data.reply,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
+      }
+    } catch (error) {
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
         type: 'bot',
-        text: getBotResponse(message),
-        time: new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, botResponse]);
-    }, 1000);
-  };
-
-  const getBotResponse = (userMessage) => {
-    const msg = userMessage.toLowerCase();
-    if (msg.includes('hola') || msg.includes('hey')) {
-      return '¡Hola! ¿Cómo puedo ayudarte con tu feed personalizado?';
-    } else if (msg.includes('ayuda')) {
-      return 'Puedo ayudarte a encontrar contenido, ajustar tus preferencias o responder preguntas sobre FeedYou.';
-    } else if (msg.includes('música') || msg.includes('musica')) {
-      return '¿Quieres ver más contenido de música? Puedo mostrarte las últimas tendencias musicales.';
-    } else if (msg.includes('película') || msg.includes('pelicula') || msg.includes('cine')) {
-      return '¡Genial! Puedo recomendarte películas basadas en tus gustos. ¿Qué género prefieres?';
-    } else {
-      return 'Interesante. Déjame buscar contenido relacionado con eso.';
+        text: "Error de conexión. 🔌",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+  const clearHistory = () => {
+    setMessages([]);
+    localStorage.removeItem('youbot_history');
+    setIsMenuOpen(false);
   };
 
   if (!isOpen) return null;
 
   return (
-    <>
-      {/* Ventana del chat */}
-      <div className="fixed bottom-10 right-6 w-80 h-[400px] bg-pink-50 rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden animate-slide-up">
-        
-        <div className="bg-pink-200 p-3 flex items-center justify-between rounded-t-2xl">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-white rounded-full flex items-center justify-center">
-              <img src="/logo.png" alt="YouBot" className="w-7 h-7 rounded-full" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm text-gray-800">YouBot</h3>
-              <p className="text-xs text-gray-600">Tu asistente personal</p>
-            </div>
+    <div className="fixed bottom-10 right-6 w-80 h-[450px] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden border border-black/5 bg-white">
+      
+      {/* Header */}
+      <div style={{ backgroundColor: activeCat.color }} className="p-3 flex items-center justify-between shadow-sm z-20">
+        <div className="flex items-center gap-2">
+          {view !== 'chat' && (
+            <button onClick={() => setView('chat')} className="p-1 hover:bg-black/5 rounded-full">
+              <ChevronLeft className="w-5 h-5 text-gray-800"/>
+            </button>
+          )}
+          <div className="w-9 h-9 bg-white/90 rounded-full flex items-center justify-center shadow-sm">
+            {activeCat.icon}
           </div>
-          <button onClick={onClose} className="hover:bg-white/30 p-1 rounded-full transition">
-            <X className="w-4 h-4 text-gray-800" />
-          </button>
+          <div>
+            <h3 className="font-bold text-sm text-gray-800 leading-tight">
+              {view === 'personalities' ? 'Categorías' : activeCat.name}
+            </h3>
+            <p className="text-[10px] text-gray-600 font-medium">YouBot</p>
+          </div>
         </div>
-
-        <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-pink-50">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[70%] rounded-xl px-3 py-2 text-sm ${
-                msg.type === 'user'
-                  ? 'bg-pink-300 text-white rounded-br-none'
-                  : 'bg-white shadow text-gray-800 rounded-bl-none'
-              }`}>
-                <p>{msg.text}</p>
-                <p className={`text-xs mt-1 ${msg.type === 'user' ? 'text-white/70' : 'text-gray-400'}`}>
-                  {msg.time}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="border-t border-pink-200 p-3 bg-pink-50 flex items-center gap-2 rounded-b-2xl">
-          <button className="p-2 hover:bg-pink-100 rounded-full transition">
-            <Menu className="w-4 h-4 text-gray-600" />
-          </button>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Escribe un mensaje..."
-            className="flex-1 px-3 py-1.5 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300 text-sm"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!message.trim()}
-            className="bg-pink-300 p-2 rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="w-4 h-4 text-white" />
-          </button>
-        </div>
+        <button onClick={onClose} className="hover:bg-black/10 p-1 rounded-full text-gray-800">
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
-      <style>{`
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up { animation: slide-up 0.3s ease-out; }
-      `}</style>
-    </>
+{/* Cuerpo de Chat / Categorías */}
+<div 
+  className="flex-1 overflow-y-auto p-3 relative" 
+  ref={scrollRef}
+style={{
+  backgroundColor: '#f9fafb',
+  backgroundImage: `linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
+  url("/youbot.png")`,
+  backgroundSize: '330px',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+}}
+>
+  {view === 'chat' ? (
+    <div className="relative z-10 space-y-3"> {/* z-10 para asegurar que el texto esté sobre el fondo */}
+      {messages.length === 0 && (
+        <div className="text-center py-8 opacity-70 text-xs italic px-4 bg-white/80 backdrop-blur-sm border border-black/5 rounded-xl">
+          {activeCat.welcome}
+        </div>
+      )}
+      {messages.map((msg) => (
+        <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div 
+            style={{ 
+              backgroundColor: msg.type === 'user' ? activeCat.color : 'rgba(255, 255, 255, 0.9)' 
+            }}
+            className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm text-gray-800 backdrop-blur-sm ${
+              msg.type === 'user' ? 'rounded-br-none' : 'rounded-bl-none border border-gray-100'
+            }`}
+          >
+            <p className="whitespace-pre-wrap">{msg.text}</p>
+            <p className="text-[9px] mt-1 opacity-40 text-right">{msg.time}</p>
+          </div>
+        </div>
+      ))}
+      {isTyping && (
+        <div className="flex justify-start animate-pulse">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl px-3 py-1.5 text-[10px] text-gray-500">
+            YouBot está pensando...
+          </div>
+        </div>
+      )}
+    </div>
+        ) : (
+          <div className="space-y-2">
+            {categories.map(cat => (
+              <button 
+                key={cat.id} 
+                onClick={() => { setActiveCat(cat); setView('chat'); }}
+                className="w-full flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 hover:border-gray-300 transition-all shadow-sm"
+              >
+                <div style={{ backgroundColor: cat.color }} className="w-8 h-8 rounded-lg flex items-center justify-center">
+                  {cat.icon}
+                </div>
+                <span className="text-sm font-bold text-gray-800">{cat.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Menú Desplegable */}
+      {isMenuOpen && (
+        <div className="absolute bottom-16 left-4 w-52 bg-white border border-gray-200 rounded-xl shadow-xl z-[100] overflow-hidden">
+          <button onClick={() => {setView('personalities'); setIsMenuOpen(false);}} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3">
+            <UserCircle className="w-4 h-4" /> Cambiar Categoría
+          </button>
+          <button onClick={clearHistory} className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 flex items-center gap-3 border-t border-gray-100">
+            <Trash2 className="w-4 h-4" /> Borrar
+          </button>
+        </div>
+      )}
+
+      {/* Input de Mensaje */}
+      <div className="p-3 bg-white border-t border-gray-100 flex items-center gap-2 z-20">
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          className={`p-2 rounded-full transition-colors ${isMenuOpen ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+        >
+          <Menu className="w-4 h-4 text-gray-600" />
+        </button>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="Escribe algo..."
+          className="flex-1 bg-gray-100 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
+        />
+        <button 
+          onClick={handleSend} 
+          disabled={!message.trim() || isTyping} 
+          style={{ backgroundColor: activeCat.color }}
+          className="p-2 rounded-full text-gray-800 shadow-sm disabled:opacity-30 transition-transform active:scale-90"
+        >
+          <Send className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
   );
 }

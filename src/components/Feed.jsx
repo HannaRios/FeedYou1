@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchFeed } from "../services/feedService";
 import PostCard from "./PostCard";
 import { useAuth } from "../context/AuthContext";
+import ChatBot from "./ChatBot";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,10 +22,54 @@ function Feed() {
         const img = new Image();
         img.src = url;
 
+function Feed() {
+  const [feed, setFeed] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false); 
+
+  useEffect(() => {
+    const getFeed = async () => {
+      try {
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          console.error("No hay datos de usuario en localStorage");
+          setLoading(false);
+          return;
+        }
+
+        const user = JSON.parse(userData);
+
+        if (!user || !user.email) {
+          console.error("El objeto usuario no tiene email");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`http://localhost:4000/api/feed?email=${user.email}`);
+        
+        if (!response.ok) throw new Error(`Error en el servidor: ${response.status}`);
+
+        const data = await response.json();
+        console.log("Feed recibido:", data);
+
+        if (data && Array.isArray(data)) setFeed(data);
+        else if (data && data.results && Array.isArray(data.results)) setFeed(data.results);
+        else setFeed([]);
+      } catch (error) {
+        console.error("Error al obtener feed:", error);
+        setFeed([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getFeed();
+  }, []);
+
         img.onload = () => resolve(true);
         img.onerror = () => resolve(false);
-      });
-    };
+      };
+    });
 
 useEffect(() => {
 
@@ -169,8 +214,20 @@ useEffect(() => {
         ))}
 
       </div>
+
+      {/* Botón para abrir/ocultar el chat */}
+      <button
+        onClick={() => setChatOpen(!chatOpen)}
+        className="fixed bottom-6 right-6 bg-pink-400 hover:bg-pink-500 text-white rounded-full w-14 h-14 flex items-center justify-center z-40 shadow-lg"
+      >
+        💬
+      </button>
+
+      {/* ChatBot solo se monta si chatOpen es true */}
+      {chatOpen && <ChatBot onClose={() => setChatOpen(false)} />}
     </div>
   );
 }
 
+}
 export default Feed;

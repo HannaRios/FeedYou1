@@ -6,4 +6,5 @@ const router = express.Router();
 // GET /api/feed/:email
 router.get("/para-ti/:email", feedParaTi);
 
+
 export default router;

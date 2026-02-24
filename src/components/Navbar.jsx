@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Search } from "lucide-react";
 import Logo from "./Logo";
-import { useSearch } from "../Context/SearchContext";
+import { useSearch } from "../context/SearchContext.jsx";
 import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;

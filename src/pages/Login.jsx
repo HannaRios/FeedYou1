@@ -66,6 +66,9 @@ export default function Login() {
 
       if (!res.ok) throw new Error(data.error || "Error al iniciar sesión");
 
+    
+      localStorage.setItem("user", JSON.stringify(data.usuario));
+
       setMensaje("Inicio de sesión exitoso ✅");
 
       // Guardar usuario autenticado
@@ -80,7 +83,7 @@ export default function Login() {
       // Redirige al feed (puedes cambiar la ruta si quieres)
       setTimeout(() => navigate("/feed"), 1000);
     } catch (err) {
-      setMensaje(err.message || "Error al iniciar sesión ❌");
+      setMensaje(err.message || "Error al iniciar sesión ");
     } finally {
       setIsSubmitting(false);
     }
@@ -88,7 +91,7 @@ export default function Login() {
 
   //  Manejo del login con Google
   const handleGoogleSuccess = async (credentialResponse) => {
-    console.log("🔑 Token recibido de Google");
+    console.log("Token recibido de Google");
     setMensaje("Iniciando sesión con Google...");
 
     try {
@@ -104,10 +107,10 @@ export default function Login() {
       });
       console.log("Enviando token:", credentialResponse.credential);
 
-      console.log("📡 Respuesta del servidor:", res.status);
+      console.log("Respuesta del servidor:", res.status);
 
       const data = await res.json();
-      console.log("📦 Datos recibidos:", data);
+      console.log("Datos recibidos:", data);
 
       if (!res.ok) {
         throw new Error(data.error || "Error al iniciar sesión con Google");
@@ -121,7 +124,7 @@ export default function Login() {
 
 
       
-      setMensaje("✅ Inicio de sesión exitoso con Google");
+      setMensaje("Inicio de sesión exitoso con Google");
       
       // Redirigir después de 500ms
       setTimeout(() => {
@@ -129,13 +132,13 @@ export default function Login() {
       }, 500);
 
     } catch (error) {
-      console.error("❌ Error en Google Login:", error);
+      console.error("Error en Google Login:", error);
       setMensaje(`Error: ${error.message}`);
     }
   };
 
   const handleGoogleError = () => {
-    console.error("❌ Error en Google Login");
+    console.error("Error en Google Login");
     setMensaje("Error al iniciar sesión con Google");
   };
 
@@ -152,7 +155,6 @@ export default function Login() {
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
           <div>
             <input
               type="email"
@@ -160,18 +162,13 @@ export default function Login() {
               placeholder="Correo"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition ${
-                errors.email
-                  ? "border-red-500 focus:ring-red-300"
-                  : "border-gray-300 focus:ring-blue-300"
-              }`}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300"
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-500">{errors.email}</p>
             )}
           </div>
 
-          {/* Contraseña */}
           <div>
             <input
               type="password"
@@ -179,22 +176,17 @@ export default function Login() {
               placeholder="Contraseña"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition ${
-                errors.password
-                  ? "border-red-500 focus:ring-red-300"
-                  : "border-gray-300 focus:ring-blue-300"
-              }`}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300"
             />
             {errors.password && (
               <p className="mt-1 text-sm text-red-500">{errors.password}</p>
             )}
           </div>
 
-          {/* Botón Iniciar Sesión */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-blue-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-blue-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-blue-300 transition disabled:opacity-50"
           >
             {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
@@ -213,7 +205,6 @@ export default function Login() {
           </p>
         )}
 
-        {/* Divisor */}
         <div className="flex items-center my-6">
           <div className="flex-1 border-t border-gray-300"></div>
           <span className="px-4 text-gray-500 text-sm">o</span>
@@ -230,24 +221,10 @@ export default function Login() {
           />
         </div>
 
-        {/* Links inferiores */}
-        <div className="mt-6 space-y-3 text-center text-sm">
-          <Link
-            to="/forgot-password"
-            className="block text-gray-600 hover:text-blue-500 transition"
-          >
-            ¿Olvidaste tu contraseña?
+        <div className="mt-6 text-center text-sm">
+          <Link to="/register" className="text-blue-500 hover:underline">
+            ¿No tienes cuenta? Regístrate
           </Link>
-
-          <div className="text-gray-600">
-            ¿No tienes una cuenta?{" "}
-            <Link
-              to="/register"
-              className="text-blue-500 hover:underline font-semibold"
-            >
-              Regístrate
-            </Link>
-          </div>
         </div>
       </div>
     </AuthLayout>

@@ -13,7 +13,7 @@ export default function AuthLayout({ children }) {
         bg-[#0b0f1a]
       "
     >
-      {/* ===== FONDO OSCURO===== */}
+      {/*FONDO OSCURO */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-90"
         style={{
@@ -22,7 +22,7 @@ export default function AuthLayout({ children }) {
       />
 
 
-      {/* ===== LINK VOLVER AL INICIO ===== */}
+      {/*LINK VOLVER AL INICIO */}
       <Link
         to="/"
         className="
@@ -34,7 +34,7 @@ export default function AuthLayout({ children }) {
         ← Volver al inicio
       </Link>
 
-      {/* ===== CARD PRINCIPAL ===== */}
+      {/*CARD PRINCIPAL*/}
       <div
         className="
           relative z-10

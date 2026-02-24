@@ -17,19 +17,18 @@ import ResetPassword from "./pages/ResetPassword";
 import PostDetail from "./components/PostDetail";
 import socket from "./socket";
 import { useEffect } from "react";
-
-import { SearchProvider } from "./Context/SearchContext";
+import { SearchProvider } from "./context/SearchContext";
 
 function App() {
   useEffect(() => {
     socket.connect();
     
     socket.on("connect", () => {
-      console.log("🟢 Conectado al servidor de sockets");
+      console.log("Conectado al servidor de sockets");
     });
 
     socket.on("disconnect", () => {
-      console.log("🔴 Desconectado del servidor de sockets");
+      console.log("Desconectado del servidor de sockets");
     });
   }, []);
 
@@ -44,7 +43,6 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/interest-test" element={<InterestTest />} />
           <Route path="/test-intro" element={<TestIntro />} />
-          
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/favorites" element={<Favorites />} />
