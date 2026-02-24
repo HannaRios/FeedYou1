@@ -5,6 +5,8 @@ import { fetchFeed } from "../services/feedService";
 import PostCard from "./PostCard";
 import { useAuth } from "../context/AuthContext";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function Feed() {
   const { user } = useAuth();
   const [feed, setFeed] = useState([]);
@@ -13,6 +15,16 @@ function Feed() {
   const [showMenu, setShowMenu] = useState(false);
 
   const navigate = useNavigate();
+
+  const isImageValid = (url) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = url;
+
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+      });
+    };
 
 useEffect(() => {
 
@@ -32,10 +44,26 @@ useEffect(() => {
     try {
       const data = await fetchFeed(user.email);
 
-      console.log("Feed recibido:", data);
+      const validatedFeed = await Promise.all(
+        data.map(async (post) => {
 
-      setFeed(data);
-      if (data.length === 0) {
+          if (!post.url_media) return post;
+
+          const imageUrl = post.url_media.startsWith("http")
+            ? post.url_media
+            : `${API_URL}${post.url_media}`;
+
+          const valid = await isImageValid(imageUrl);
+
+          return valid ? post : null;
+        })
+      );
+
+      const filteredFeed = validatedFeed.filter(Boolean);
+
+      setFeed(filteredFeed);
+
+      if (filteredFeed.length === 0) {
         setHasInterests(false);
       }
 
@@ -98,7 +126,7 @@ useEffect(() => {
   ========================== */
   return (
     <div className="flex justify-center px-4 py-6">
-      <div className="w-full max-w-xl flex flex-col gap-6">
+      <div className="w-full max-w-4xl flex flex-col gap-6">
 
         {/* Selector Para ti / Seguidos */}
         <div className="relative flex justify-center border-b pb-3">

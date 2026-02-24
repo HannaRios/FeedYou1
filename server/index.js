@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
 import "./db.js";
 import path from "path";
 
@@ -10,14 +12,17 @@ import feedRoutes from "./backend/routes/feedRoutes.js";
 import publicacionRoutes from "./backend/routes/publicacionRoutes.js";
 import categoriasRoutes from "./backend/routes/categorias.js";
 import interesesRoutes from "./backend/routes/interesesRoutes.js";
+import testRoutes from "./backend/routes/testRoutes.js";
+import interaccionesRoutes from "./backend/routes/interaccionesRoutes.js";
 
 import chatRoutes from "./backend/routes/chatRoutes.js";
 import authRoutes from "./backend/routes/authRoutes.js";
 
+
 dotenv.config();
 
 const app = express();
-
+const server = http.createServer(app);
 // Middlewares
 
 app.use(cors({
@@ -55,6 +60,8 @@ app.use("/api/intereses", interesesRoutes);
 app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/newsapi", newsApiRoutes);
+app.use("/api/test", testRoutes);
+app.use("/api/interacciones", interaccionesRoutes);
 
 
 app.use((err, req, res, next) => {
@@ -65,11 +72,30 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ================= SOCKET.IO =================
 
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("🟢 Usuario conectado:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Usuario desconectado:", socket.id);
+  });
+});
+
+// Exportar después de crear io
+export { io };
 
 //Puerto
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`✅ Servidor FeedYou corriendo en puerto ${PORT}`);
   console.log(`📋 GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "✅ Configurado" : "❌ NO configurado"}`);
 });

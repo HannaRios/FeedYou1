@@ -1,236 +1,347 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import LoadingScreen from '../components/LoadingScreen'; 
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuth} from "../context/AuthContext";
+import "../App.css";
 
-// Componente del logo
-function Logo({ size = 'md' }) {
-  const sizes = { sm: 40, md: 60, lg: 90 };
+const API = import.meta.env.VITE_API_URL;
 
-  return (
-    <div className="flex items-center justify-center">
-      <img
-        src="/logo.png"
-        alt="FeedYou Logo"
-        width={sizes[size]}
-        height={sizes[size]}
-      />
-    </div>
-  );
-}
-
-// Componente principal del test
 export default function InterestTest() {
-  const [step, setStep] = useState(0);
-  const [selectedInterests, setSelectedInterests] = useState({});
-  const [showLoading, setShowLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const questions = [
-    {
-      title: "¿Qué te interesa?",
-      subtitle: "¿Cuál fue tu primera conexión con este universo?",
-      options: [
-        "Libros y novelas",
-        "Cine y películas",
-        "Series y TV",
-        "Música y conciertos",
-        "Videojuegos",
-        "Moda y estilo"
-      ]
-    },
-    {
-      title: "¿Qué tipo de contenido prefieres?",
-      subtitle: "Selecciona tus géneros favoritos (máximo 3)",
-      options: [
-        "Acción y Aventura",
-        "Comedia",
-        "Drama",
-        "Ciencia Ficción",
-        "Romance",
-        "Terror y Suspenso",
-        "Fantasía",
-        "Documental"
-      ]
-    },
-    {
-      title: "¿Con qué frecuencia consumes contenido?",
-      subtitle: "Esto nos ayuda a personalizar tu feed",
-      options: [
-        "Varias veces al día",
-        "Una vez al día",
-        "Varias veces a la semana",
-        "Una vez a la semana",
-        "Ocasionalmente"
-      ]
+  const [step, setStep] = useState(1);
+
+  const [categorias, setCategorias] = useState([]);
+  const [subcategorias, setSubcategorias] = useState([]);
+
+  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
+  const [subcategoriasSeleccionadas, setSubcategoriasSeleccionadas] = useState([]);
+  
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
     }
-  ];
+  }, [loading, user, navigate]);
 
-  const handleOptionSelect = (option) => {
-    const currentQuestion = `question_${step}`;
-    const currentAnswers = selectedInterests[currentQuestion] || [];
 
-    if (step === 1) {
-      // Máximo 3 opciones
-      if (currentAnswers.includes(option)) {
-        setSelectedInterests({
-          ...selectedInterests,
-          [currentQuestion]: currentAnswers.filter(o => o !== option)
-        });
-      } else {
-        if (currentAnswers.length >= 3) {
-          alert("Solo puedes seleccionar hasta 3 opciones.");
-          return;
-        }
-        setSelectedInterests({
-          ...selectedInterests,
-          [currentQuestion]: [...currentAnswers, option]
-        });
-      }
-    } else {
-      setSelectedInterests({
-        ...selectedInterests,
-        [currentQuestion]: [option]
-      });
+  // cargar categorias
+  useEffect(() => {
+
+    fetch(`${API}/api/categorias`)
+      .then(res => res.json())
+      .then(data => setCategorias(data));
+
+  }, []);
+
+  // cargar subcategorias segun categorias elegidas
+useEffect(() => {
+
+  if(categoriasSeleccionadas.length === 0) return;
+
+  Promise.all(
+
+    categoriasSeleccionadas.map(id =>
+      fetch(`${API}/api/categorias/${id}/subcategorias`)
+        .then(res => res.json())
+        .then(subs =>
+          subs.map(sub => ({
+            id_subcategoria: sub.id,
+            nombre_subcategoria: sub.nombre,
+            id_categoria: id
+          }))
+        )
+    )
+
+  ).then(results => {
+
+    const todas = results.flat();
+
+    const unicas = Array.from(
+      new Map(todas.map(s => [s.id_subcategoria, s])).values()
+    );
+
+    setSubcategorias(unicas);
+
+  });
+
+}, [categoriasSeleccionadas]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Cargando...
+      </div>
+    );
+  }
+
+
+  function toggleCategoria(id){
+
+    if(categoriasSeleccionadas.includes(id)){
+
+      setCategoriasSeleccionadas(
+        categoriasSeleccionadas.filter(c => c !== id)
+      );
+
+    }else{
+
+      setCategoriasSeleccionadas([...categoriasSeleccionadas, id]);
+
     }
-  };
 
-  // Navegar entre pasos
-  const handleNext = () => {
-    const currentQuestion = `question_${step}`;
-    const answers = selectedInterests[currentQuestion] || [];
+  }
 
-    if (step === 1 && answers.length < 3) {
-      alert("Por favor selecciona 3 opciones antes de continuar.");
+
+  function toggleSubcategoria(id){
+
+    if(subcategoriasSeleccionadas.includes(id)){
+
+      setSubcategoriasSeleccionadas(
+        subcategoriasSeleccionadas.filter(s => s !== id)
+      );
+
+    }else{
+
+      setSubcategoriasSeleccionadas([...subcategoriasSeleccionadas, id]);
+
+    }
+
+  }
+
+
+  async function guardar(){
+
+    if (!user) {
+      console.log("Usuario no encontrado");
       return;
     }
 
-    if (step < questions.length - 1) {
-      setStep(step + 1);
-    } else {
-      handleFinish();
-    }
-  };
+    const preferencias = subcategoriasSeleccionadas.map(id_subcategoria => {
 
-  const handlePrev = () => {
-    if (step > 0) setStep(step - 1);
-  };
+      const sub = subcategorias.find(
+        s => s.id_subcategoria === id_subcategoria
+      );
 
-  // Finalizar test
-  const handleFinish = () => {
-    setShowLoading(true);
-  };
+      if (!sub) return null;
 
-  const handleGoToFeed = () => {
-    navigate('/feed', { state: { testAnswers: selectedInterests } });
-  };
+      return {
 
-  // Mostrar pantalla de carga
-  if (showLoading) {
-    return <LoadingScreen onComplete={handleGoToFeed} />;
+        email:user.email,
+        id_categoria:sub.id_categoria,
+        id_subcategoria
+
+      };
+
+    }).filter(Boolean);
+
+    await fetch(`${API}/api/test/guardar-preferencias`,{
+
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+
+        email:user.email,
+        preferencias
+
+      })
+
+    });
+
+    navigate("/feed");
+
   }
 
-  const currentAnswers = selectedInterests[`question_${step}`] || [];
 
-  // Render principal
   return (
-      <div
-    className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-6"
-    style={{ backgroundImage: "url('/fondoFeedyou.png')" }}>
+
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{backgroundImage:"url('/fondoFeedyou.png')"}}
+    >
+
+      <div className="bg-[#ffffff] rounded-[30px] shadow-[0_10px_35px_rgba(0,0,0,0.25)] w-[800px] p-12 relative overflow-hidden">
       
-      <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl p-8">
-        <div className="flex justify-center mb-6">
-          <Logo size="md" />
-        </div>
-
-        <h2
-          className="text-center text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] mb-6"
-          style={{ fontFamily: 'Comic Sans MS, cursive' }}
-        >
-          Test de Intereses
-        </h2>
-
-        <div className="mb-6 text-center">
-          <h3
-            className="text-2xl font-semibold text-gray-800 mb-2"
-            style={{ fontFamily: 'Comic Sans MS, cursive' }}
-          >
-            {questions[step].title}
-          </h3>
-          <p className="text-gray-600 text-sm">{questions[step].subtitle}</p>
-        </div>
-
-        {/* Opciones */}
-        <div className="space-y-3 mb-8">
-          {questions[step].options.map((option, idx) => {
-            const isSelected = currentAnswers.includes(option);
-            return (
-              <button
-                key={idx}
-                onClick={() => handleOptionSelect(option)}
-                className={`w-full text-left px-5 py-3 rounded-lg border transition-all ${
-                  isSelected
-                    ? 'border-blue-300 bg-blue-50 text-blue-700 font-semibold'
-                    : 'border-gray-300 hover:bg-gray-50 text-gray-700'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-blue-400 bg-blue-400' : 'border-gray-300'
-                    }`}
-                  >
-                    {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
-                  </div>
-                  <span>{option}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Progreso */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Pregunta {step + 1} de {questions.length}</span>
-            <span>{Math.round(((step + 1) / questions.length) * 100)}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((step + 1) / questions.length) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Botones */}
-        <div className="flex gap-3">
-          <button
-            onClick={handlePrev}
-            disabled={step === 0}
-            className={`flex items-center gap-2 px-5 py-3 rounded-lg font-semibold transition ${
-              step === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-            }`}
-          >
-            <ChevronLeft className="w-5 h-5" /> Anterior
-          </button>
-
-          <button
-            onClick={handleNext}
-            disabled={currentAnswers.length === 0}
-            className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold transition ${
-              currentAnswers.length === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] text-gray-800 hover:opacity-90'
-            }`}
-          >
-            {step === questions.length - 1 ? 'Finalizar' : 'Siguiente'}
-            {step < questions.length - 1 && <ChevronRight className="w-5 h-5" />}
-          </button>
-        </div>
+      <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute bottom-[-40px] left-[-40px] w-40 h-40 bg-blue-200 rounded-full "></div>
+          <div className="absolute bottom-10 left-32 w-16 h-16 bg-yellow-200 rounded-full "></div>
+          <div className="absolute bottom-0 right-10 w-20 h-20 bg-purple-200 rounded-full "></div>
+          <div className="absolute bottom-8 right-0 w-24 h-24 bg-orange-200 rounded-full "></div>
       </div>
+
+        {/* LOGO */}
+
+        <img
+          src="/logo.png"
+          className="absolute top-7 left-7 w-12"
+        />
+
+      {/* BOTÓN VOLVER */}
+      {step === 1 ? (
+        <button
+          onClick={() => navigate("/register")}
+          className="absolute top-7 right-7 bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+        >
+          <ChevronLeft />
+        </button>
+      ) : (
+        <button
+          onClick={() => setStep(1)}
+          className="absolute top-7 right-7 bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+        >
+          <ChevronLeft />
+        </button>
+      )}
+
+        {/* TITULO */}
+
+        <h1
+          className="text-center text-5xl font-extrabold mb-6
+          text-transparent bg-clip-text
+          bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5]"
+          style={{ fontFamily:"Comic Sans MS, cursive" }}
+        >
+          ¿Qué te interesa?
+        </h1>
+
+
+        {/* PASO 1 */}
+
+        {step === 1 && (
+
+          <>
+
+            <div className="bg-white border border-gray-400 rounded-lg p-4 text-center mb-8 w-[80%] mx-auto">
+
+              Selecciona tus categorías favoritas
+
+            </div>
+
+
+            <div className="space-y-4 max-w-[320px] mx-auto">
+
+              {categorias.map(cat => (
+
+            <button
+              key={cat.id}
+              onClick={()=>toggleCategoria(cat.id)}
+              className="flex items-center gap-3 text-left"
+            >
+              <div
+                className={`w-4 h-4 rounded-full border flex items-center justify-center
+                  ${categoriasSeleccionadas.includes(cat.id)
+                    ? "border-purple-500"
+                    : "border-gray-400"
+                  }
+                `}
+              >
+                {categoriasSeleccionadas.includes(cat.id) && (
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                )}
+              </div>
+
+              <span className="text-gray-800">
+                {cat.nombre}
+              </span>
+            </button>
+
+              ))}
+
+            </div>
+
+
+            {/* BOTONES */}
+
+            <div className="flex justify-center mt-10">
+
+              <button
+                onClick={()=>setStep(2)}
+                disabled={categoriasSeleccionadas.length === 0}
+                className="flex items-center gap-2
+                bg-gradient-to-r from-purple-400 to-pink-400
+                text-white px-6 py-3 rounded-lg opacity-95"
+              >
+
+                Siguiente
+              </button>
+            </div>
+          </>
+        )}
+
+
+        {/* PASO 2 */}
+
+        {step === 2 && (
+
+          <>
+
+            <div className="border rounded-xl p-4 text-center mb-6">
+
+              Selecciona tus subcategorías favoritas
+
+            </div>
+
+
+            <div className="space-y-4 max-w-[500px] mx-auto max-h-[320px] overflow-y-auto pr-4">
+
+              {subcategorias.map(sub => (
+
+                <button
+                  key={sub.id_subcategoria}
+                  onClick={()=>toggleSubcategoria(sub.id_subcategoria)}
+                  className="flex items-center gap-3 text-left"
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center
+                      ${subcategoriasSeleccionadas.includes(sub.id_subcategoria)
+                        ? "border-purple-500"
+                        : "border-gray-400"
+                      }
+                    `}
+                  >
+                    {subcategoriasSeleccionadas.includes(sub.id_subcategoria) && (
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    )}
+                  </div>
+
+                  <span className="text-gray-800">
+                    {sub.nombre_subcategoria}
+                  </span>
+
+                </button>
+
+              ))}
+
+            </div>
+
+
+            <div className="flex justify-center mt-10">
+
+              <button
+                onClick={guardar}
+                disabled={subcategoriasSeleccionadas.length === 0}
+                className="flex items-center gap-2
+                bg-gradient-to-r from-purple-400 to-pink-400
+                text-white px-6 py-3 rounded-lg
+                disabled:opacity-85"
+              >
+
+                Generar Feed <ChevronRight/>
+
+              </button>
+
+            </div>
+
+          </>
+
+        )}
+
+      </div>
+
     </div>
+
   );
+
 }

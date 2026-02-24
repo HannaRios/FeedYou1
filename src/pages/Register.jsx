@@ -98,7 +98,7 @@ export default function Register() {
       nombre: usuario.nombre
     });
 
-    setTimeout(() => navigate("/interest-test"), 1000);
+    setTimeout(() => navigate("/test-intro"), 1000);
 
 
     } catch (err) {

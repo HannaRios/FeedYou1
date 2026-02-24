@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import TestIntro from "./pages/TestIntro";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -13,10 +14,25 @@ import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import SeguidosPage from "./pages/SeguidosPage";
 import ResetPassword from "./pages/ResetPassword";
+import PostDetail from "./components/PostDetail";
+import socket from "./socket";
+import { useEffect } from "react";
 
 import { SearchProvider } from "./Context/SearchContext";
 
 function App() {
+  useEffect(() => {
+    socket.connect();
+    
+    socket.on("connect", () => {
+      console.log("🟢 Conectado al servidor de sockets");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("🔴 Desconectado del servidor de sockets");
+    });
+  }, []);
+
   return (
     <Router>
       <SearchProvider>
@@ -27,6 +43,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/interest-test" element={<InterestTest />} />
+          <Route path="/test-intro" element={<TestIntro />} />
+          
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/favorites" element={<Favorites />} />
@@ -35,6 +53,7 @@ function App() {
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/seguidos" element={<SeguidosPage />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/post/:id" element={<PostDetail />} />
         </Routes>
       </SearchProvider>
     </Router>
