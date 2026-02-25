@@ -75,13 +75,6 @@ app.use((err, req, res, next) => {
 });
 
 
-app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).json({ 
-    error: "Error interno del servidor",
-    details: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
 
 // ================= SOCKET.IO =================
 
@@ -106,7 +99,7 @@ export { io };
 
 //Puerto
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Servidor FeedYou corriendo en puerto ${PORT}`);
   console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "Configurado" : "NO configurado"}`);
 });

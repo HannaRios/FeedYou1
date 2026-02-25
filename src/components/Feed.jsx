@@ -14,131 +14,63 @@ function Feed() {
   const [loading, setLoading] = useState(true);
   const [hasInterests, setHasInterests] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const navigate = useNavigate();
 
   const isImageValid = (url) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
-
-function Feed() {
-  const [feed, setFeed] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false); 
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+    });
+  };
 
   useEffect(() => {
-    const getFeed = async () => {
+    if (!user) return; 
+    
+    const loadFeed = async () => {
       try {
-        const userData = localStorage.getItem("user");
-        if (!userData) {
-          console.error("No hay datos de usuario en localStorage");
+        if (!user?.email) {
+          setHasInterests(false);
           setLoading(false);
           return;
         }
 
-        const user = JSON.parse(userData);
-
-        if (!user || !user.email) {
-          console.error("El objeto usuario no tiene email");
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(`http://localhost:4000/api/feed?email=${user.email}`);
-        
-        if (!response.ok) throw new Error(`Error en el servidor: ${response.status}`);
-
-        const data = await response.json();
+        const data = await fetchFeed(user.email);
         console.log("Feed recibido:", data);
 
-        if (data && Array.isArray(data)) setFeed(data);
-        else if (data && data.results && Array.isArray(data.results)) setFeed(data.results);
-        else setFeed([]);
+        const validatedFeed = await Promise.all(
+          data.map(async (post) => {
+            if (!post.url_media) return post;
+
+            const imageUrl = post.url_media.startsWith("http")
+              ? post.url_media
+              : `${API_URL}${post.url_media}`;
+
+            const valid = await isImageValid(imageUrl);
+            return valid ? post : null;
+          })
+        );
+
+        const filteredFeed = validatedFeed.filter(Boolean);
+
+        setFeed(filteredFeed);
+
+        if (filteredFeed.length === 0) {
+          setHasInterests(false);
+        }
       } catch (error) {
-        console.error("Error al obtener feed:", error);
-        setFeed([]);
+        console.error("Error cargando feed:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    getFeed();
-  }, []);
+    loadFeed();
+  }, [user]);
 
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-      };
-    });
-
-useEffect(() => {
-
-  //  LIMPIAR ESTADO ANTES DE CARGAR NUEVO FEED
-  setFeed([]);
-  setLoading(true);
-  setHasInterests(true);
-
-  const loadFeed = async () => {
-    if (!user?.email) {
-
-      setHasInterests(false);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const data = await fetchFeed(user.email);
-
-      const validatedFeed = await Promise.all(
-        data.map(async (post) => {
-
-          if (!post.url_media) return post;
-
-          const imageUrl = post.url_media.startsWith("http")
-            ? post.url_media
-            : `${API_URL}${post.url_media}`;
-
-          const valid = await isImageValid(imageUrl);
-
-          return valid ? post : null;
-        })
-      );
-
-      const filteredFeed = validatedFeed.filter(Boolean);
-
-      setFeed(filteredFeed);
-
-      if (filteredFeed.length === 0) {
-        setHasInterests(false);
-      }
-
-    } catch (error) {
-      console.error("Error al cargar feed:", error);
-
-    } finally {
-      setLoading(false);
-
-    }
-
-  };
-
-  loadFeed();
-
-  // LIMPIAR CUANDO EL COMPONENTE SE DESMONTA
-  return () => {
-
-    setFeed([]);
-    setLoading(true);
-    setHasInterests(true);
-
-  };
-
-}, [user]);
-
-
-  /* =========================
-      LOADING
-  ========================== */
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -147,9 +79,6 @@ useEffect(() => {
     );
   }
 
-  /* =========================
-      SIN INTERESES / SIN FEED
-  ========================== */
   if (!hasInterests) {
     return (
       <div className="flex justify-center py-20">
@@ -166,14 +95,10 @@ useEffect(() => {
     );
   }
 
-  /* =========================
-      FEED TIPO THREADS
-  ========================== */
   return (
     <div className="flex justify-center px-4 py-6">
       <div className="w-full max-w-4xl flex flex-col gap-6">
 
-        {/* Selector Para ti / Seguidos */}
         <div className="relative flex justify-center border-b pb-3">
           <button
             onClick={() => setShowMenu(!showMenu)}
@@ -208,14 +133,12 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Publicaciones */}
         {feed.map((item) => (
           <PostCard key={item.id_publicacion} post={item} />
         ))}
 
       </div>
 
-      {/* Botón para abrir/ocultar el chat */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
         className="fixed bottom-6 right-6 bg-pink-400 hover:bg-pink-500 text-white rounded-full w-14 h-14 flex items-center justify-center z-40 shadow-lg"
@@ -223,11 +146,9 @@ useEffect(() => {
         💬
       </button>
 
-      {/* ChatBot solo se monta si chatOpen es true */}
       {chatOpen && <ChatBot onClose={() => setChatOpen(false)} />}
     </div>
   );
 }
 
-}
 export default Feed;

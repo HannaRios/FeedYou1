@@ -3,7 +3,7 @@ import db from "../../db.js";
 import "dotenv/config";
 
 export async function getFeed(req, res) {
-  const email = req.query.email || req.body.email;
+  const email = req.params.email || req.query.email || req.body.email;
 
   if (!email) {
     return res.status(400).json({ error: "Email es requerido" });
@@ -26,7 +26,7 @@ export async function getFeed(req, res) {
 }
 
 export const feedParaTi = async (req, res) => {
-  const email = req.query.email || req.body.email;
+  const email = req.params.email || req.query.email || req.body.email;
 
   if (!email) {
     return res.status(400).json({ error: "Email es requerido" });
