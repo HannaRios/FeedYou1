@@ -168,8 +168,7 @@ export default function Login() {
               <p className="mt-1 text-sm text-red-500">{errors.email}</p>
             )}
           </div>
-
-          <div>
+<div>
             <input
               type="password"
               name="password"
@@ -181,6 +180,15 @@ export default function Login() {
             {errors.password && (
               <p className="mt-1 text-sm text-red-500">{errors.password}</p>
             )}
+          
+            <div className="text-right mt-1">
+              <Link 
+                to="/forgot-password" 
+                className="text-xs text-blue-500 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </div>
 
           <button

@@ -58,12 +58,13 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/publicaciones", publicacionRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/intereses", interesesRoutes);
-app.use("/api", chatRoutes);
+// app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/newsapi", newsApiRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/interacciones", interaccionesRoutes);
 app.use("/api/chat", chatRoutes);
+
 
 
 app.use((err, req, res, next) => {

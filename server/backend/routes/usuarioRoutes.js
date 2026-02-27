@@ -4,46 +4,57 @@ import { validationResult } from "express-validator";
 import db from "../../db.js";
 import { validarRegistro, validarLogin } from "../validations/usuarioValidation.js";
 import { uploadPerfil } from "../middlewares/uploadPerfil.js";
+import { sendWelcomeEmail } from "../services/emailService.js";
 
 const router = express.Router();
 
-// 📌 Registrar usuario
+// Registrar usuario
+
 router.post("/register", validarRegistro, async (req, res) => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) {
+    console.log("Errores de validación:", errores.array());
     return res.status(400).json({ errores: errores.array() });
   }
 
   const { nombre, email, contrasena } = req.body;
 
   try {
-    // Verificar si el email ya existe
+    // 1. Verificar si el email ya existe
     const [existing] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
     if (existing.length > 0) {
       return res.status(400).json({ error: "El correo ya está registrado" });
     }
 
-    // Encriptar la contraseña
+    // 2. Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
-    // Guardar usuario
-await db.query(
-  "INSERT INTO usuarios (nombre, email, contrasena, provider) VALUES (?, ?, ?, ?)",
-  [
-    nombre,
-    email,
-    hashedPassword,
-    "local"
-  ]);
+    // 3. Guardar usuario
+    await db.query(
+      "INSERT INTO usuarios (nombre, email, contrasena, provider) VALUES (?, ?, ?, ?)",
+      [nombre, email, hashedPassword, "local"]
+    );
+
+    console.log(`Usuario ${nombre} guardado en DB.`);
+
+    // 4. --- AQUÍ ESTÁ EL TRUCO: ENVIAR EL CORREO ---
+    try {
+      console.log("Intentando enviar correo de bienvenida...");
+      await sendWelcomeEmail(email, nombre);
+      console.log("Correo enviado con éxito");
+    } catch (mailError) {
+      // Logueamos el error pero no detenemos el registro del usuario
+      console.error("El usuario se registró pero el correo falló:", mailError);
+    }
 
     res.json({ mensaje: "Usuario registrado correctamente" });
   } catch (error) {
-    console.error("❌ Error al registrar:", error);
+    console.error("Error al registrar:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
-// 📌 Login de usuario
+// Login de usuario
 router.post("/login", validarLogin, async (req, res) => {
   const errores = validationResult(req);
   if (!errores.isEmpty()) {
@@ -84,13 +95,13 @@ router.post("/login", validarLogin, async (req, res) => {
       usuario: { email: usuario.email, nombre: usuario.nombre },
     });
   } catch (error) {
-    console.error("❌ Error al iniciar sesión:", error);
+    console.error("Error al iniciar sesión:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
 
 
-// ✅ Obtener usuario por email
+// Obtener usuario por email
 router.get("/:email", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -185,8 +196,6 @@ router.put("/actualizar", async (req, res) => {
   }
 
 });
-
-
 
 
 export default router;

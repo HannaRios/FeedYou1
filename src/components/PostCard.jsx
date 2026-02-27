@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Heart, Star, MessageCircle, Link } from "lucide-react";
 import socket from "../socket";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Heart, Star, MessageCircle, Link, Trash2 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -271,6 +271,21 @@ const handleFavorite = async () => {
     }
 };
 
+const handleDeleteComment = async (id) => {
+    try {
+        await fetch(`${API_URL}/api/interacciones/${id}`, {
+        method: "DELETE",
+        });
+
+        setComments(prev =>
+        prev.filter(comment => comment.id_interaccion !== id)
+        );
+
+    } catch (error) {
+        console.error("Error eliminando comentario:", error);
+    }
+};
+
 const handleShare = async () => {
 
     if (!userEmail) {
@@ -280,7 +295,7 @@ const handleShare = async () => {
 
     try {
 
-        // 🔥 SIEMPRE abrir tu modal
+        //  SIEMPRE abrir tu modal
         setShowShareModal(true);
 
         // Registrar interacción
@@ -435,11 +450,108 @@ const copyToClipboard = async () => {
         </div>
 
 
-        {/* ========================= COMENTARIOS ========================= */}
-        {showComments && (
-        <div className="px-4 pb-4 border-t bg-gray-50">
+{/* ========================= MODAL COMENTARIOS ========================= */}
+{showComments && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
 
-            <form onSubmit={handleSubmitComment} className="flex gap-2 mt-3">
+        <div className="bg-white w-full max-w-4xl h-[75vh] rounded-2xl shadow-2xl flex overflow-hidden relative">
+
+        {/* LOGO */}
+        <div className="absolute top-4 left-4">
+            <img src="/logo.png" alt="FeedYou" className="h-10" />
+        </div>
+
+        {/* BOTÓN CERRAR */}
+        <button
+            onClick={() => setShowComments(false)}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+        >
+            ✕
+        </button>
+
+        {/* IMAGEN IZQUIERDA */}
+        <div className="w-1/2 bg-gray-100 flex items-center justify-center p-8">
+            {mediaSrc && (
+                <img
+                    src={mediaSrc}
+                    alt="Contenido"
+                    className="max-h-full max-w-full object-contain rounded-xl shadow-md"
+                />
+            )}
+        </div>
+
+        {/* PANEL DERECHO */}
+        <div className="w-[45%] flex flex-col bg-white">
+
+            {/* LISTA COMENTARIOS */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+
+            {comments.length === 0 ? (
+            <p className="text-sm text-gray-400">
+                No hay comentarios aún.
+            </p>
+            ) : (
+                comments.map((comment, index) => (
+                <div
+                    key={comment.id_interaccion}
+                    className={`flex gap-3 py-3 ${
+                    index !== comments.length - 1 ? "border-b border-gray-100" : ""
+                    }`}
+                >
+                    {/* FOTO */}
+                    <img
+                    src={
+                        comment.foto_perfil
+                        ? comment.foto_perfil.startsWith("http")
+                            ? comment.foto_perfil
+                            : `${API_URL}${comment.foto_perfil}`
+                        : "/avatar-default.png"
+                    }
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full object-cover"
+                    />
+
+                    {/* CONTENIDO */}
+                    <div className="flex-1">
+
+                    {/* USERNAME */}
+                    <div className="flex items-center justify-between">
+                        <span className="font-semibold text-gray-900 text-sm">
+                        {comment.email.split("@")[0]}
+                        </span>
+
+                        {comment.email === userEmail && (
+                        <button
+                            onClick={() => handleDeleteComment(comment.id_interaccion)}
+                            className="text-gray-400 hover:text-red-500 transition duration-200 hover:scale-110"
+                        >
+                            <Trash2 size={16} strokeWidth={1.8} />
+                        </button>
+                        )}
+                    </div>
+
+                    {/* BURBUJA COMENTARIO */}
+                    <div className="bg-gray-100 mt-1 px-3 py-2 rounded-xl text-sm text-gray-800 inline-block max-w-[90%]">
+                        {comment.comentario}
+                    </div>
+
+                    {/* FECHA */}
+                    <div className="text-xs text-gray-400 mt-1">
+                        {new Date(comment.fecha_interaccion).toLocaleDateString()}
+                    </div>
+
+                    </div>
+                </div>
+                ))
+        )}
+            
+</div>
+
+            {/* INPUT ABAJO */}
+            <form
+            onSubmit={handleSubmitComment}
+            className="border-t p-4 flex gap-2"
+            >
             <input
                 type="text"
                 placeholder="Escribe un comentario..."
@@ -449,41 +561,16 @@ const copyToClipboard = async () => {
             />
             <button
                 type="submit"
-                className="bg-blue-500 text-white px-4 rounded-lg text-sm"
+                className="bg-blue-600 text-white px-4 rounded-lg text-sm"
             >
                 Enviar
             </button>
             </form>
 
-            <div className="mt-4 space-y-3">
-            {comments.length === 0 ? (
-                <p className="text-xs text-gray-400">
-                No hay comentarios aún.
-                </p>
-            ) : (
-                comments.map((comment) => (
-                <div
-                    key={comment.id_interaccion}
-                    className="bg-white p-3 rounded-lg shadow-sm"
-                >
-                    <div className="text-xs font-semibold text-gray-700">
-                    {comment.email.split("@")[0]}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                    {comment.comentario}
-                    </div>
-                    <div className="text-[10px] text-gray-400 mt-1">
-                    {new Date(
-                        comment.fecha_interaccion
-                    ).toLocaleString()}
-                    </div>
-                </div>
-                ))
-            )}
-            </div>
-
         </div>
-        )}
+        </div>
+    </div>
+)}
 
 {showShareModal && (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
