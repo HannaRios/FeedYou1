@@ -1,45 +1,48 @@
 import express from "express";
-import axios from "axios";
 import cors from "cors";
 import dotenv from "dotenv";
+import "./db.js";
+import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
+import feedRoutes from "./backend/routes/feedRoutes.js";
+import chatRoutes from "./backend/routes/chatRoutes.js";
+import authRoutes from "./backend/routes/authRoutes.js";
+
+
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+app.get("/", (req, res) => {
+  res.send("Servidor FeedYou funcionando ✅");
+});
 
-function normalizeUnsplash(item, tags) {
-  return {
-    id: `uns_${item.id}`,
-    source: "unsplash",
-    type: "image",
-    title: item.alt_description || "Imagen",
-    text: item.description || "",
-    image: item.urls.small,
-    mediaUrl: item.links.html,
-    tags,
-    publishedAt: item.created_at
-  };
-}
+app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/feed", feedRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/auth", authRoutes);
 
-app.get("/api/feed", async (req, res) => {
-  const tags = (req.query.tags || "").split(",").filter(Boolean);
-  if (!tags.length) return res.json({ results: [] });
-
-  try {
-    const query = encodeURIComponent(tags.join(","));
-    const unsplashRes = await axios.get(
-      `https://api.unsplash.com/search/photos?query=${query}&per_page=10`,
-      { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_KEY}` } }
-    );
-
-    const results = unsplashRes.data.results.map(item => normalizeUnsplash(item, tags));
-    res.json({ results });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Error obteniendo datos del feed" });
-  }
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err);
+  res.status(500).json({ 
+    error: "Error interno del servidor",
+    details: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`✅ Servidor FeedYou corriendo en puerto ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Servidor FeedYou corriendo en puerto ${PORT}`);
+  console.log(`📋 GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "✅ Configurado" : "❌ NO configurado"}`);
+});
