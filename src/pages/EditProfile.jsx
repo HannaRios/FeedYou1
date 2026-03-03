@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Upload, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
@@ -9,243 +9,159 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function EditProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [name, setName] = useState("Andrea Gómez");
-  const [email, setEmail] = useState("Andrea@example.com");
-  const [bio, setBio] = useState("");
-  const [photo, setPhoto] = useState("/avatar-default.png");
+  
+  const [formData, setFormData] = useState({
+    nombre: "",
+    username: "",
+    email: "",
+    bio: "",
+    telefono: "",
+    ciudad: "",
+    foto_perfil: ""
+  });
   const [showToast, setShowToast] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-
-  const loadProfile = async () => {
-
-    if (!user?.email) {
-      setLoading(false);
-      return;
-    }
-
-    fetch(`${API_URL}/api/usuarios/${user.email}`)
-      .then(res => res.json())
-      .then(data => {
-
-        setName(data.nombre);
-        setEmail(data.email);
-        setBio(data.bio || "");
-
-        if (data.foto_perfil){
-          setPhoto(`${API_URL}${data.foto_perfil}`);
-        } 
-        setLoading(false);
-      })
-
-        .catch(err => {
-          console.error(err);
-          setLoading(false); 
+  useEffect(() => {
+    if (user?.email) {
+      fetch(`${API_URL}/api/usuarios/perfil-completo/${user.email}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) setFormData({
+            nombre: data.user.nombre || "",
+            username: data.user.username || "",
+            email: data.user.email || "",
+            bio: data.user.bio || "",
+            telefono: data.user.telefono || "",
+            ciudad: data.user.ciudad || "",
+            foto_perfil: data.user.foto_perfil || ""
+          });
         });
-
-    };
-
-    loadProfile();
-
-}, [user]);
-
-
-const handlePhotoChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  if (!user?.email) return;
-
-
-  const formData = new FormData();
-  formData.append("email", user.email);
-  formData.append("foto", file);
-
-  const res = await fetch(
-    `${API_URL}/api/usuarios/foto-perfil`,
-    {
-      method: "POST",
-      body: formData,
     }
-  );
+  }, [user]);
 
-  const data = await res.json();
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (res.ok) {
-    // mostrar la imagen real del servidor
-    setPhoto(`${API_URL}${data.foto_perfil}`);
-  }
-};
+    const data = new FormData();
+    data.append("foto", file);
+    data.append("email", user.email);
 
+    try {
+      const res = await fetch(`${API_URL}/api/usuarios/foto-perfil`, {
+        method: "POST",
+        body: data,
+      });
+      const result = await res.json();
+      if (res.ok) setFormData({ ...formData, foto_perfil: result.foto_perfil });
+    } catch (err) { console.error("Error subiendo foto", err); }
+  };
 
-const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch(`${API_URL}/api/usuarios/actualizar`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        email: user.email,
+        ...formData 
+      })
+    });
 
-  e.preventDefault();
-
-  if (!user?.email) return;
-
-  try {
-    const res = await fetch(
-        `${API_URL}/api/usuarios/actualizar`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            bio: bio,
-            email: user.email,
-            nombre: name
-          }),
-      }
-    );
-
-    if (!res.ok) throw new Error("Error al guardar");
-
-    navigate("/profile");
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert("Error al guardar perfil");
-
-  }
-
-};
-
-
-  if (loading) return <div>Cargando...</div>;
-
-
+    if (res.ok) {
+      setShowToast(true);
+      setTimeout(() => navigate("/profile"), 2000);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-10 font-sans">
       <Navbar />
+      <div className="max-w-xl mx-auto mt-8 p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
+        <button onClick={() => navigate(-1)} className="flex items-center text-gray-400 mb-8 hover:text-blue-400 transition font-bold text-sm tracking-tight">
+          <ArrowLeft className="mr-2" size={18} /> VOLVER AL PERFIL
+        </button>
 
-      {/* ===== TOAST ===== */}
-      {showToast && (
-        <div className="fixed top-6 right-6 z-50">
-          <div className="bg-white/90 backdrop-blur-md border border-green-300 text-gray-800 shadow-xl rounded-2xl px-5 py-3 flex items-center gap-3 animate-slide-in">
-            <CheckCircle2 className="w-6 h-6 text-green-500" />
-            <p className="font-medium">Perfil actualizado correctamente</p>
+        <div className="flex flex-col items-center mb-10">
+          <div className="relative group">
+            <img 
+              src={formData.foto_perfil ? `${API_URL}${formData.foto_perfil}` : "/avatar-default.png"} 
+              className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
+              alt="Preview"
+            />
+            <label className="absolute bottom-1 right-1 bg-blue-200 p-2 rounded-full text-blue-700 cursor-pointer hover:bg-blue-300 transition shadow-md">
+              <Camera size={18} />
+              <input type="file" className="hidden" onChange={handlePhotoChange} accept="image/*" />
+            </label>
           </div>
+          <h2 className="mt-4 text-xl font-bold text-gray-800">{formData.nombre}</h2>
+          <p className="text-blue-400 font-semibold text-sm">@{formData.username}</p>
         </div>
-      )}
 
-      {/* ===== CONTENIDO ===== */}
-      <div className="flex-grow flex justify-center items-center px-4 py-10 bg-[url('/bg-dark.jpg')] bg-cover bg-center">
-        <div className="bg-white rounded-3xl shadow-xl w-full max-w-2xl p-8 relative">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Nombre</label>
+              <input 
+                type="text" value={formData.nombre} 
+                onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 transition text-sm text-gray-700"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Usuario (@)</label>
+              <input 
+                type="text" value={formData.username} 
+                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 transition text-sm text-gray-700"
+              />
+            </div>
+          </div>
 
-          <button
-            onClick={() => navigate("/profile")}
-            className="absolute top-6 left-6 text-gray-500 hover:text-gray-700 flex items-center gap-1"
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Correo</label>
+              <input 
+                type="email" value={formData.email} 
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 transition text-sm text-gray-700"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Teléfono</label>
+              <input 
+                type="text" value={formData.telefono} 
+                onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 transition text-sm text-gray-700"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Biografía</label>
+            <textarea 
+              value={formData.bio} 
+              onChange={(e) => setFormData({...formData, bio: e.target.value})}
+              className="w-full p-4 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 transition h-28 resize-none text-sm text-gray-700"
+              placeholder="Cuéntanos sobre ti..."
+            />
+          </div>
+
+          {/* BOTÓN*/}
+          <button 
+            type="submit" 
+            className="w-full bg-blue-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-blue-300 transition shadow-sm text-sm active:scale-95"
           >
-            <ArrowLeft className="w-5 h-5" /> Volver
+            Guardar Cambios
           </button>
-
-          <h1 className="text-3xl font-bold text-gray-800 text-center mb-6 mt-4">
-            Editar perfil
-          </h1>
-
-          <form onSubmit={handleSave} className="space-y-6">
-
-            {/* FOTO */}
-            <div className="flex flex-col items-center">
-              <div className="relative">
-                <img
-                  src={photo}
-                  alt="Foto de perfil"
-                  className="w-28 h-28 rounded-full object-cover border-4 border-gray-200"
-                />
-                <label
-                  htmlFor="photo"
-                  className="absolute bottom-0 right-0 bg-blue-200 p-2 rounded-full cursor-pointer hover:bg-blue-300 transition"
-                >
-                  <Upload className="w-4 h-4 text-blue-700" />
-                </label>
-                <input
-                  type="file"
-                  id="photo"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                />
-              </div>
-              <p className="text-sm text-gray-500 mt-2">
-                Cambia tu foto de perfil
-              </p>
-            </div>
-
-            {/* NOMBRE */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Nombre completo
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-300 focus:outline-none"
-              />
-            </div>
-
-            {/* EMAIL */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Correo electrónico
-              </label>
-              <input
-                type="email"
-                value={email}
-                disabled
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-300 focus:outline-none"
-              />
-            </div>
-
-            {/* BIO */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-1">
-                Descripción
-              </label>
-              <textarea
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="w-full border p-2 rounded mb-4"
-                rows="4"
-                placeholder="Cuéntanos algo sobre ti..."
-                maxLength={160}
-              ></textarea>
-
-              <p className="text-sm text-gray-400">
-                {bio.length}/160 caracteres
-              </p>
-            </div>
-
-            {/* BOTÓN */}
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-8 py-2 rounded-xl font-semibold hover:bg-blue-700 transition"
-              >
-                Guardar cambios
-              </button>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
 
-      {/* ===== ANIMACIÓN ===== */}
-      <style>{`
-        @keyframes slide-in {
-          0% { opacity: 0; transform: translateY(-10px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.4s ease-out;
-        }
-      `}</style>
+      {showToast && (
+        <div className="fixed bottom-10 right-10 bg-blue-600 text-white px-8 py-4 rounded-3xl flex items-center gap-3 shadow-2xl animate-fade-in-up font-bold text-sm">
+          <CheckCircle2 size={20} /> PERFIL ACTUALIZADO
+        </div>
+      )}
     </div>
   );
 }

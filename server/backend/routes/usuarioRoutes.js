@@ -5,102 +5,14 @@ import db from "../../db.js";
 import { validarRegistro, validarLogin } from "../validations/usuarioValidation.js";
 import { uploadPerfil } from "../middlewares/uploadPerfil.js";
 import { sendWelcomeEmail } from "../services/emailService.js";
+import { getPerfilCompleto } from "../controllers/usuarioController.js";
 
 const router = express.Router();
 
-// Registrar usuario
+// --- CONSULTAS ---
+router.get("/perfil-completo/:email", getPerfilCompleto);
 
-router.post("/register", validarRegistro, async (req, res) => {
-  const errores = validationResult(req);
-  if (!errores.isEmpty()) {
-    console.log("Errores de validación:", errores.array());
-    return res.status(400).json({ errores: errores.array() });
-  }
-
-  const { nombre, email, contrasena } = req.body;
-
-  try {
-    // 1. Verificar si el email ya existe
-    const [existing] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
-    if (existing.length > 0) {
-      return res.status(400).json({ error: "El correo ya está registrado" });
-    }
-
-    // 2. Encriptar la contraseña
-    const hashedPassword = await bcrypt.hash(contrasena, 10);
-
-    // 3. Guardar usuario
-    await db.query(
-      "INSERT INTO usuarios (nombre, email, contrasena, provider) VALUES (?, ?, ?, ?)",
-      [nombre, email, hashedPassword, "local"]
-    );
-
-    console.log(`Usuario ${nombre} guardado en DB.`);
-
-    // 4. --- AQUÍ ESTÁ EL TRUCO: ENVIAR EL CORREO ---
-    try {
-      console.log("Intentando enviar correo de bienvenida...");
-      await sendWelcomeEmail(email, nombre);
-      console.log("Correo enviado con éxito");
-    } catch (mailError) {
-      // Logueamos el error pero no detenemos el registro del usuario
-      console.error("El usuario se registró pero el correo falló:", mailError);
-    }
-
-    res.json({ mensaje: "Usuario registrado correctamente" });
-  } catch (error) {
-    console.error("Error al registrar:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
-
-// Login de usuario
-router.post("/login", validarLogin, async (req, res) => {
-  const errores = validationResult(req);
-  if (!errores.isEmpty()) {
-    return res.status(400).json({ errores: errores.array() });
-  }
-
-  const { email, contrasena } = req.body;
-
-  try {
-    const [rows] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const usuario = rows[0];
-
-    // Evitar login normal en cuentas Google
-    if (usuario.provider === "google") {
-
-      return res.status(400).json({
-        error: "Esta cuenta usa Google Login"
-      });
-    }
-
-    const passwordValida = await bcrypt.compare(
-      contrasena,
-      usuario.contrasena
-    );
-
-
-    if (!passwordValida) {
-      return res.status(401).json({ error: "Contraseña incorrecta" });
-    }
-
-    res.json({
-      mensaje: "Inicio de sesión exitoso",
-      usuario: { email: usuario.email, nombre: usuario.nombre },
-    });
-  } catch (error) {
-    console.error("Error al iniciar sesión:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
-
-//  Buscar usuarios por email
+// Buscar usuarios por username o nombre
 router.get("/buscar", async (req, res) => {
   try {
     const { q, currentEmail } = req.query;
@@ -109,22 +21,22 @@ router.get("/buscar", async (req, res) => {
       return res.json([]);
     }
 
-    const search = `%${q}%`;
+    const search = `${q}%`;
 
     let sql = `
-      SELECT email, foto_perfil
+      SELECT email, username, nombre, foto_perfil
       FROM usuarios
-      WHERE email LIKE ?
+      WHERE (username LIKE ? OR nombre LIKE ?)
     `;
 
-    const params = [search];
+    const params = [search, search];
 
     if (currentEmail) {
       sql += ` AND email != ?`;
       params.push(currentEmail);
     }
 
-    sql += ` LIMIT 10`;
+    sql += ` ORDER BY username ASC LIMIT 10`;
 
     const [usuarios] = await db.query(sql, params);
 
@@ -136,101 +48,115 @@ router.get("/buscar", async (req, res) => {
   }
 });
 
-// Obtener usuario por email
 router.get("/:email", async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT email, nombre, foto_perfil, bio FROM usuarios WHERE email = ?",
+      "SELECT email, nombre, username, foto_perfil, bio, ciudad, departamento FROM usuarios WHERE email = ?",
       [req.params.email]
     );
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const usuario = rows[0];
+    if (rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
     
+    const usuario = rows[0];
     res.json({
-      email: usuario.email,
-      nombre: usuario.nombre,
+      ...usuario,
       bio: usuario.bio || "",
       foto_perfil: usuario.foto_perfil || "/uploads/perfiles/default.png"
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Error al obtener usuario:", error);
     res.status(500).json({ error: "Error servidor" });
   }
 });
 
+// --- AUTENTICACIÓN (Registro y Login) ---
+router.post("/register", validarRegistro, async (req, res) => {
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) return res.status(400).json({ errores: errores.array() });
 
-
-//  Subir / cambiar foto de perfil
-router.post(
-  "/foto-perfil",
-  uploadPerfil.single("foto"),
-  async (req, res) => {
-    try {
-      const { email } = req.body;
-
-      if (!email || !req.file) {
-        return res.status(400).json({ message: "Datos incompletos" });
-      }
-
-      const ruta = `/uploads/perfiles/${req.file.filename}`;
-
-      await db.query(
-        "UPDATE usuarios SET foto_perfil = ? WHERE email = ?",
-        [ruta, email]
-      );
-
-      res.json({
-        message: "Foto de perfil actualizada",
-        foto_perfil: ruta,
-      });
-    } catch (error) {
-      console.error("Error foto perfil:", error);
-      res.status(500).json({ message: "Error al subir foto" });
-    }
-  }
-);
-
-router.put("/actualizar", async (req, res) => {
-
+  const { nombre, email, contrasena, username, telefono, genero, departamento, ciudad, fecha_nacimiento } = req.body;
+  
   try {
-
-    console.log("BODY RECIBIDO:", req.body);
-
-    const { email, nombre, bio } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        error: "Email es requerido"
-      });
+    // Verificar si existe
+    const [existing] = await db.query("SELECT * FROM usuarios WHERE email = ? OR username = ?", [email, username]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "El correo o nombre de usuario ya existe" });
     }
 
-    const [result] = await db.query(
-      "UPDATE usuarios SET nombre = ?, bio = ? WHERE email = ?",
-      [nombre || "", bio || "", email]
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+    
+    await db.query(
+      `INSERT INTO usuarios (nombre, email, contrasena, username, telefono, genero, departamento, ciudad, fecha_nacimiento, provider) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [nombre, email, hashedPassword, username, telefono, genero, departamento, ciudad, fecha_nacimiento, "local"]
     );
 
-    console.log("RESULTADO:", result);
+    // Intento de envío de correo (sin bloquear el registro)
+    try {
+      await sendWelcomeEmail(email, nombre);
+    } catch (mailError) {
+      console.error("Error al enviar correo de bienvenida:", mailError);
+    }
 
-    res.json({
-      message: "Perfil actualizado correctamente"
-    });
-
+    res.json({ mensaje: "Usuario registrado correctamente" });
   } catch (error) {
-
-    console.error("ERROR ACTUALIZAR PERFIL:", error);
-
-    res.status(500).json({
-      error: error.message
-    });
-
+    console.error("Error en registro:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
-
 });
 
+router.post("/login", validarLogin, async (req, res) => {
+  const { email, contrasena } = req.body;
+  try {
+    const [rows] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
+    if (rows.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    const usuario = rows[0];
+    if (usuario.provider === "google") return res.status(400).json({ error: "Usa Google Login" });
+
+    const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!passwordValida) return res.status(401).json({ error: "Contraseña incorrecta" });
+
+    res.json({
+      mensaje: "Inicio de sesión exitoso",
+      usuario: { email: usuario.email, nombre: usuario.nombre, username: usuario.username },
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Error interno" });
+  }
+});
+
+// --- ACTUALIZACIONES ---
+router.post("/foto-perfil", uploadPerfil.single("foto"), async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !req.file) return res.status(400).json({ message: "Datos incompletos" });
+
+    const ruta = `/uploads/perfiles/${req.file.filename}`;
+    await db.query("UPDATE usuarios SET foto_perfil = ? WHERE email = ?", [ruta, email]);
+    res.json({ message: "Foto actualizada correctamente", foto_perfil: ruta });
+  } catch (error) {
+    res.status(500).json({ message: "Error al subir foto" });
+  }
+});
+
+router.put("/actualizar", async (req, res) => {
+  try {
+    const { email, nombre, bio, username, telefono, genero, departamento, ciudad, fecha_nacimiento } = req.body;
+    
+    if (!email) return res.status(400).json({ error: "Email es requerido" });
+
+    await db.query(
+      `UPDATE usuarios SET 
+        nombre = ?, bio = ?, username = ?, telefono = ?, 
+        genero = ?, departamento = ?, ciudad = ?, fecha_nacimiento = ? 
+      WHERE email = ?`,
+      [nombre, bio, username, telefono, genero, departamento, ciudad, fecha_nacimiento, email]
+    );
+    res.json({ message: "Perfil actualizado correctamente" });
+  } catch (error) {
+    console.error("Error al actualizar perfil:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 export default router;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import Logo from "./Logo";
 import { useSearch } from "../Context/SearchContext";
@@ -9,7 +9,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 
 export default function Navbar() {
-  const { isSearchOpen, setIsSearchOpen, query, setQuery } = useSearch();
+  const { isSearchOpen, setIsSearchOpen, query, setQuery } = useSearch();;
+  const navigate = useNavigate();
 
   const { user } = useAuth();
   const [results, setResults] = useState([]);
@@ -100,9 +101,11 @@ useEffect(() => {
 
           {/* Botón búsqueda */}
           <button
+            type="button"
             onClick={() => setIsSearchOpen(true)}
             className="p-2 rounded-full hover:bg-gray-100 transition"
           >
+
             <Search className="w-5 h-5 text-gray-600" />
           </button>
 
@@ -164,10 +167,18 @@ useEffect(() => {
 
 {/* ========================= MODAL BÚSQUEDA ========================= */}
 {isSearchOpen && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-
-    <div className="bg-white w-full max-w-2xl h-[70vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
-
+  <div
+    className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+    onClick={() => {
+      setIsSearchOpen(false);
+      setQuery("");
+      setResults([]);
+    }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="bg-white w-full max-w-2xl h-[75vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative animate-fade-in-up"
+    >
       {/* LOGO */}
       <div className="absolute top-4 left-4">
         <img src="/logo.png" alt="FeedYou" className="h-10" />
@@ -187,9 +198,7 @@ useEffect(() => {
 
       {/* HEADER */}
       <div className="pt-16 px-8 pb-6 border-b border-gray-100">
-
         <div className="relative">
-          {/* ICONO LUPA */}
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 
           <input
@@ -200,22 +209,18 @@ useEffect(() => {
             className="w-full bg-gray-100 pl-12 pr-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-purple-400 transition"
           />
         </div>
-
       </div>
 
       {/* RESULTADOS */}
       <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4">
-
         {!query && (
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-gray-300 text-center">
             Empieza a escribir para buscar usuarios.
           </p>
         )}
 
         {loadingSearch && (
-          <p className="text-sm text-gray-400">
-            Buscando...
-          </p>
+          <p className="text-sm text-gray-400">Buscando...</p>
         )}
 
         {!loadingSearch && results.length === 0 && query && (
@@ -224,36 +229,43 @@ useEffect(() => {
           </p>
         )}
 
-        {results.map((userResult, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition duration-200"
-          >
-            <img
-              src={
-                userResult.foto_perfil
-                  ? userResult.foto_perfil.startsWith("http")
-                    ? userResult.foto_perfil
-                    : `${API_URL}${userResult.foto_perfil}`
-                  : "/avatar-default.png"
-              }
-              alt="avatar"
-              className="w-12 h-12 rounded-full object-cover"
-            />
+      {results.map((userResult, index) => (
+        <div
+          key={index}
+          onClick={() => {
+            navigate(`/profile/${userResult.email}`);
+            setIsSearchOpen(false);
+            setQuery("");
+            setResults([]);
+          }}
+          className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition duration-200"
+        >
+          <img
+            src={
+              userResult.foto_perfil
+                ? userResult.foto_perfil.startsWith("http")
+                  ? userResult.foto_perfil
+                  : `${API_URL}${userResult.foto_perfil}`
+                : "/avatar-default.png"
+            }
+            alt="avatar"
+            className="w-12 h-12 rounded-full object-cover"
+          />
 
-            <div className="flex flex-col">
-              <span className="font-semibold text-gray-900">
-                {userResult.email.split("@")[0]}
-              </span>
-              <span className="text-sm text-gray-400">
-                {userResult.email}
-              </span>
-            </div>
+          <div className="flex flex-col">
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900">
+                  {userResult.username || userResult.email.split("@")[0]}
+                </span>
+
+                <span className="text-sm text-gray-400">
+                  {userResult.nombre}
+                </span>
+              </div>
           </div>
-        ))}
-
+        </div>
+      ))}
       </div>
-
     </div>
   </div>
 )}

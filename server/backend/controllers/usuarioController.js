@@ -1,67 +1,62 @@
-import { validationResult } from "express-validator";
-import { insertarUsuario, obtenerUsuarios } from "../models/usuarioModel.js";
-import bcrypt from "bcryptjs";
+import db from "../../db.js";
+import bcrypt from "bcrypt";
+import { sendWelcomeEmail } from "../services/emailService.js";
 
-export const crearUsuario = async (req, res) => {
-  console.log("--- INTENTO DE REGISTRO RECIBIDO ---");
-  
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    console.log("Error de validación detectado:", errors.array());
-    return res.status(400).json({ errores: errors.array() });
-  }
-
-  const { 
-    email, 
-    nombre, 
-    username, 
-    telefono, 
-    genero, 
-    departamento, 
-    ciudad, 
-    fecha_nacimiento, 
-    contrasena 
-  } = req.body;
-  
+// Obtiene el perfil, posts, preferencias y seguidores en una sola llamada
+export const getPerfilCompleto = async (req, res) => {
+  const { email } = req.params;
   try {
-    const hash = await bcrypt.hash(contrasena, 10);
+    // 1. Datos básicos
+    const [usuarios] = await db.query(
+      "SELECT nombre, username, email, foto_perfil, bio, ciudad, departamento, telefono, genero FROM usuarios WHERE email = ?",
+      [email]
+    );
 
-    console.log("1. Intentando guardar en DB...");
-    ç
-    await insertarUsuario({
-      email, 
-      nombre, 
-      username, 
-      telefono, 
-      genero, 
-      departamento, 
-      ciudad, 
-      fecha_nacimiento, 
-      hash
+    if (usuarios.length === 0) return res.status(404).json({ error: "Usuario no encontrado" });
+    const usuario = usuarios[0];
+
+    // 2. Publicaciones
+    const [posts] = await db.query(
+      "SELECT * FROM publicaciones WHERE email_autor = ? ORDER BY fecha_publicacion DESC",
+      [email]
+    );
+
+    // 3. Preferencias del Test
+    const [prefs] = await db.query(`
+      SELECT c.nombre_categoria, s.hashtag_subcategoria 
+      FROM preferencias_test p
+      JOIN categorias c ON p.id_categoria = c.id_categoria
+      JOIN subcategorias s ON p.id_subcategoria = s.id_subcategoria
+      WHERE p.email = ?`, 
+      [email]
+    );
+
+    // 4. Estadísticas
+    const [seguidores] = await db.query("SELECT COUNT(*) as total FROM seguidores WHERE email_seguido = ?", [email]);
+    const [seguidos] = await db.query("SELECT COUNT(*) as total FROM seguidores WHERE email_seguidor = ?", [email]);
+
+    res.json({
+      user: usuario,
+      posts: posts || [],
+      preferencias: prefs || [],
+      stats: {
+        seguidores: seguidores[0]?.total || 0,
+        seguidos: seguidos[0]?.total || 0,
+        postCount: posts.length || 0
+      }
     });
-
-    console.log("2. Guardado en DB con éxito.");
-
-    console.log("3. Iniciando envío de correo...");
-    await sendWelcomeEmail(email, nombre); 
-    console.log("4. Correo enviado exitosamente.");
-
-    res.json({ mensaje: "Usuario registrado correctamente" });
-
-  } catch (err) {
-    console.error("FALLO EN EL CONTROLADOR:", err); 
-
-    // 3. Manejo de duplicados mejorado
-    if (err.code === "ER_DUP_ENTRY") {
-      if (err.sqlMessage.includes(email)) {
-        return res.status(400).json({ error: "El correo ya está registrado" });
-      }
-      if (err.sqlMessage.includes(username)) {
-        return res.status(400).json({ error: "El nombre de usuario ya está en uso" });
-      }
-      res.status(400).json({ error: "Datos duplicados detectados" });
-    } else {
-      res.status(500).json({ error: "Error interno del servidor" });
-    }
+  } catch (error) {
+    console.error("Error en getPerfilCompleto:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
+};
+
+// Función auxiliar para insertar (usada por el registro)
+export const insertarUsuario = async (datos) => {
+  const { email, nombre, username, telefono, genero, departamento, ciudad, fecha_nacimiento, hash } = datos;
+  return await db.query(
+    `INSERT INTO usuarios (email, nombre, username, telefono, genero, departamento, ciudad, fecha_nacimiento, contrasena, provider) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [email, nombre, username, telefono, genero, departamento, ciudad, fecha_nacimiento, hash, "local"]
+  );
 };
