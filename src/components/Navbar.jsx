@@ -12,6 +12,8 @@ export default function Navbar() {
   const { isSearchOpen, setIsSearchOpen, query, setQuery } = useSearch();
 
   const { user } = useAuth();
+  const [results, setResults] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
   const [profile, setProfile] = useState({
     name: "Usuario",
     photo: null,
@@ -48,6 +50,39 @@ useEffect(() => {
   loadProfile();
 
 }, [user]);
+
+
+useEffect(() => {
+  if (!query || query.trim() === "") {
+    setResults([]);
+    return;
+  }
+
+  const buscarUsuarios = async () => {
+    try {
+      setLoadingSearch(true);
+
+      const res = await fetch(
+        `${API_URL}/api/usuarios/buscar?q=${query}&currentEmail=${user?.email}`
+      );
+
+      const data = await res.json();
+      setResults(data);
+
+    } catch (error) {
+      console.error("Error buscando usuarios:", error);
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
+  const delay = setTimeout(() => {
+    buscarUsuarios();
+  }, 300); 
+
+  return () => clearTimeout(delay);
+
+}, [query, user]);
 
 
   return (
@@ -127,38 +162,102 @@ useEffect(() => {
         </NavLink>
       </div>
 
-      {/* MODAL DE BÚSQUEDA */}
-      {isSearchOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 flex justify-center items-start pt-32 z-[9999]"
-          onClick={() => setIsSearchOpen(false)}
-        >
-          <div
-            className="bg-white rounded-3xl w-full max-w-2xl p-6 shadow-xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-4">
-              <input
-                type="text"
-                placeholder="Buscar en FeedYou..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 bg-gray-100 rounded-full px-5 py-3 outline-none"
-              />
-              <button className="bg-blue-200 px-6 py-2 rounded-full font-medium">
-                Buscar
-              </button>
-            </div>
+{/* ========================= MODAL BÚSQUEDA ========================= */}
+{isSearchOpen && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
 
-            <button
-              onClick={() => setIsSearchOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-black"
-            >
-              ✕
-            </button>
-          </div>
+    <div className="bg-white w-full max-w-2xl h-[70vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
+
+      {/* LOGO */}
+      <div className="absolute top-4 left-4">
+        <img src="/logo.png" alt="FeedYou" className="h-10" />
+      </div>
+
+      {/* BOTÓN CERRAR */}
+      <button
+        onClick={() => {
+          setIsSearchOpen(false);
+          setQuery("");
+          setResults([]);
+        }}
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+      >
+        ✕
+      </button>
+
+      {/* HEADER */}
+      <div className="pt-16 px-8 pb-6 border-b border-gray-100">
+
+        <div className="relative">
+          {/* ICONO LUPA */}
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+          <input
+            type="text"
+            placeholder="Buscar usuarios..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full bg-gray-100 pl-12 pr-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-purple-400 transition"
+          />
         </div>
-      )}
+
+      </div>
+
+      {/* RESULTADOS */}
+      <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4">
+
+        {!query && (
+          <p className="text-sm text-gray-300">
+            Empieza a escribir para buscar usuarios.
+          </p>
+        )}
+
+        {loadingSearch && (
+          <p className="text-sm text-gray-400">
+            Buscando...
+          </p>
+        )}
+
+        {!loadingSearch && results.length === 0 && query && (
+          <p className="text-sm text-gray-400">
+            No se encontraron usuarios.
+          </p>
+        )}
+
+        {results.map((userResult, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition duration-200"
+          >
+            <img
+              src={
+                userResult.foto_perfil
+                  ? userResult.foto_perfil.startsWith("http")
+                    ? userResult.foto_perfil
+                    : `${API_URL}${userResult.foto_perfil}`
+                  : "/avatar-default.png"
+              }
+              alt="avatar"
+              className="w-12 h-12 rounded-full object-cover"
+            />
+
+            <div className="flex flex-col">
+              <span className="font-semibold text-gray-900">
+                {userResult.email.split("@")[0]}
+              </span>
+              <span className="text-sm text-gray-400">
+                {userResult.email}
+              </span>
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+    </div>
+  </div>
+)}
+
     </nav>
   );
 }

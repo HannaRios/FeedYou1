@@ -100,6 +100,41 @@ router.post("/login", validarLogin, async (req, res) => {
   }
 });
 
+//  Buscar usuarios por email
+router.get("/buscar", async (req, res) => {
+  try {
+    const { q, currentEmail } = req.query;
+
+    if (!q || q.trim() === "") {
+      return res.json([]);
+    }
+
+    const search = `%${q}%`;
+
+    let sql = `
+      SELECT email, foto_perfil
+      FROM usuarios
+      WHERE email LIKE ?
+    `;
+
+    const params = [search];
+
+    if (currentEmail) {
+      sql += ` AND email != ?`;
+      params.push(currentEmail);
+    }
+
+    sql += ` LIMIT 10`;
+
+    const [usuarios] = await db.query(sql, params);
+
+    res.json(usuarios);
+
+  } catch (error) {
+    console.error("Error buscando usuarios:", error);
+    res.status(500).json({ error: "Error en búsqueda" });
+  }
+});
 
 // Obtener usuario por email
 router.get("/:email", async (req, res) => {
