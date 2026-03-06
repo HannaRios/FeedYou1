@@ -30,3 +30,20 @@ export default {
 
   plugins: [],
 };
+
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        'fy-blue-start': '#c1bbff', 
+        'fy-pink-end': '#f4b8ec', 
+        'fy-sidebar-active': '#d0e0ff',
+        'fy-table-header': '#f1f5f9',
+        'fy-btn-red': '#ef4444',
+        'fy-btn-gray': '#94a3b8', 
+      },
+    },
+  },
+  plugins: [],
+}

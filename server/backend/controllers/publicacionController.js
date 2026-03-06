@@ -23,7 +23,7 @@ export const crearPublicacionController = async (req, res) => {
             return res.status(400).json({ message: "Faltan campos obligatorios" });
         }
 
-        // ✅ Verificar que el email del autor exista
+        // Verificar que el email del autor exista
         const [usuario] = await db.query(
             "SELECT email FROM usuarios WHERE email = ?",
             [email_autor]
@@ -51,7 +51,7 @@ export const crearPublicacionController = async (req, res) => {
             enlace_externo,
         });
 
-        // ✅ Respuesta exitosa
+        // Respuesta exitosa
         res.status(201).json({
         message: "Publicación creada con éxito",
         id_publicacion: result.insertId,

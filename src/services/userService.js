@@ -1,28 +1,37 @@
-const API_URL = "http://localhost:4000/api/usuarios";
-export async function registrarUsuario(usuario) {
+export const registrarUsuario = async (datosFrontend) => {
   try {
+    const datosBackend = {
+      nombre: datosFrontend.fullName,         
+      email: datosFrontend.email,
+      username: datosFrontend.username,
+      telefono: datosFrontend.telefono,
+      genero: datosFrontend.genero,
+      departamento: datosFrontend.departamento,
+      ciudad: datosFrontend.ciudad,
+      fecha_nacimiento: datosFrontend.fechaNacimiento, 
+      contrasena: datosFrontend.password      
+    };
+
     const response = await fetch("http://localhost:4000/api/usuarios/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(usuario),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(datosBackend), 
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const text = await response.text();
-      let mensajeError = "Error al registrar usuario";
-
-      if (text.startsWith("<!DOCTYPE")) {
-        throw new Error("No se pudo conectar con el backend (verifica la URL)");
-      }
-
-      const data = JSON.parse(text);
-      throw new Error(data.error || mensajeError);
+      const errorMsg = Array.isArray(data.errors) 
+        ? data.errors.map(e => e.msg).join(", ") 
+        : data.error || "Error en el registro";
+      throw new Error(errorMsg);
     }
 
-    const data = await response.json();
     return data;
   } catch (error) {
-    console.error("❌ Error en registrarUsuario:", error.message);
+    console.error("Error en registrarUsuario:", error.message);
     throw error;
   }
-}
+};

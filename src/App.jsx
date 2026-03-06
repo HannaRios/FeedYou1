@@ -18,6 +18,7 @@ import PostDetail from "./components/PostDetail";
 import socket from "./socket";
 import { useEffect } from "react";
 import { SearchProvider } from "./context/SearchContext";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   useEffect(() => {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/seguidos" element={<SeguidosPage />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
       </SearchProvider>
     </Router>

@@ -1,34 +1,65 @@
+import db from "../../db.js";
+import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
-import { insertarUsuario, obtenerUsuarios } from "../models/usuarioModel.js";
-import bcrypt from "bcryptjs";
+import { sendWelcomeEmail } from "../services/emailService.js";
 
-export const crearUsuario = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errores: errors.array() });
-  }
 
-  const { email, nombre, contrasena } = req.body;
-  const hash = await bcrypt.hash(contrasena, 10);
-
+export const getPerfilCompleto = async (req, res) => {
+  const { email } = req.params;
   try {
-    await insertarUsuario(email, nombre, hash);
-    res.json({ mensaje: "Usuario registrado correctamente" });
-  } catch (err) {
-    if (err.code === "ER_DUP_ENTRY") {
-      res.status(400).json({ error: "El correo ya está registrado" });
-    } else {
-      console.error(err);
-      res.status(500).json({ error: "Error al registrar el usuario" });
+    // 1. Datos del usuario
+    const [usuarios] = await db.query(
+      "SELECT nombre, username, email, foto_perfil, bio, ciudad, departamento, telefono, genero FROM usuarios WHERE email = ?",
+      [email]
+    );
+
+    if (usuarios.length === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
+
+    const usuario = usuarios[0];
+
+    // 2. Publicaciones del usuario
+    const [posts] = await db.query(
+      "SELECT * FROM publicaciones WHERE email_autor = ? ORDER BY fecha_publicacion DESC",
+      [email]
+    );
+
+    // 3. Preferencias del Test
+    const [prefs] = await db.query(`
+      SELECT c.nombre_categoria, s.hashtag_subcategoria 
+      FROM preferencias_test p
+      JOIN categorias c ON p.id_categoria = c.id_categoria
+      JOIN subcategorias s ON p.id_subcategoria = s.id_subcategoria
+      WHERE p.email = ?`, 
+      [email]
+    );
+
+    // 4. Estadísticas (Seguidores/Seguidos)
+    const [seguidores] = await db.query("SELECT COUNT(*) as total FROM seguidores WHERE email_seguido = ?", [email]);
+    const [seguidos] = await db.query("SELECT COUNT(*) as total FROM seguidores WHERE email_seguidor = ?", [email]);
+
+    res.json({
+      user: usuario,
+      posts: posts || [],
+      preferencias: prefs || [],
+      stats: {
+        seguidores: seguidores[0]?.total || 0,
+        seguidos: seguidos[0]?.total || 0,
+        postCount: posts.length || 0
+      }
+    });
+  } catch (error) {
+    console.error("Error en getPerfilCompleto:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 };
 
-export const listarUsuarios = async (req, res) => {
-  try {
-    const usuarios = await obtenerUsuarios();
-    res.json(usuarios);
-  } catch (err) {
-    res.status(500).json({ error: "Error al obtener los usuarios" });
-  }
+export const insertarUsuario = async (datos) => {
+  const { email, nombre, username, telefono, genero, departamento, ciudad, fecha_nacimiento, hash } = datos;
+  return await db.query(
+    `INSERT INTO usuarios (email, nombre, username, telefono, genero, departamento, ciudad, fecha_nacimiento, contrasena, provider) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [email, nombre, username, telefono, genero, departamento, ciudad, fecha_nacimiento, hash, "local"]
+  );
 };

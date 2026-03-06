@@ -44,7 +44,7 @@ export default function Login() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Envío del formulario
+// Envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -66,24 +66,28 @@ export default function Login() {
 
       if (!res.ok) throw new Error(data.error || "Error al iniciar sesión");
 
-    
+  
       localStorage.setItem("user", JSON.stringify(data.usuario));
+      localStorage.setItem("userRole", data.usuario.rol); 
 
       setMensaje("Inicio de sesión exitoso ✅");
 
-      // Guardar usuario autenticado
-      // Guardar usuario autenticado
       login({
         email: data.usuario.email,
-        nombre: data.usuario.nombre
+        nombre: data.usuario.nombre,
+        rol: data.usuario.rol 
       });
 
+      setTimeout(() => {
+        if (data.usuario.rol === "admin") {
+          navigate("/admin-dashboard"); 
+        } else {
+          navigate("/feed"); 
+        }
+      }, 1000);
 
-
-      // Redirige al feed (puedes cambiar la ruta si quieres)
-      setTimeout(() => navigate("/feed"), 1000);
     } catch (err) {
-      setMensaje(err.message || "Error al iniciar sesión ");
+      setMensaje(err.message || "Error al iniciar sesión");
     } finally {
       setIsSubmitting(false);
     }
@@ -168,8 +172,7 @@ export default function Login() {
               <p className="mt-1 text-sm text-red-500">{errors.email}</p>
             )}
           </div>
-
-          <div>
+<div>
             <input
               type="password"
               name="password"
@@ -181,6 +184,15 @@ export default function Login() {
             {errors.password && (
               <p className="mt-1 text-sm text-red-500">{errors.password}</p>
             )}
+          
+            <div className="text-right mt-1">
+              <Link 
+                to="/forgot-password" 
+                className="text-xs text-blue-500 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </div>
 
           <button
