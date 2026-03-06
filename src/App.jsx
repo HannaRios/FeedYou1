@@ -18,6 +18,7 @@ import socket from "./socket";
 import { useEffect } from "react";
 import { SearchProvider } from "./context/SearchContext";
 import PublicProfile from "./pages/PublicProfile";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   useEffect(() => {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/usuario/:email" element={<PublicProfile />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
       </SearchProvider>
     </Router>

@@ -3,9 +3,9 @@ import { useAuth } from "../context/AuthContext";
 import socket from "../socket";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star, MessageCircle, Link, Trash2, BadgeCheck } from "lucide-react";
+import { Heart, Star, MessageCircle, Link, Trash2, BadgeCheck, Flag } from "lucide-react";
 import FollowButton from "./FollowButton";
-
+import Swal from "sweetalert2";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -72,6 +72,66 @@ useEffect(() => {
     console.log("POST:", post);
     const username = post.username_autor || post.username || post.email_autor?.split("@")[0];
     const nombre = post.nombre_autor || post.nombre || "";
+
+    // ============================
+    // LÓGICA DE REPORTE (NUEVO)
+    // ============================
+    const handleReportar = () => {
+        if (!userEmail) {
+            setShowAuthModal(true);
+            return;
+        }
+
+        Swal.fire({
+            title: 'Reportar publicación',
+            text: "¿Por qué quieres reportar este contenido?",
+            icon: 'warning',
+            input: 'select',
+            inputOptions: {
+                'Contenido Inapropiado': 'Contenido Inapropiado',
+                'Spam': 'Spam',
+                'Acoso': 'Acoso',
+                'Odio': 'Lenguaje de odio',
+                'Información Falsa': 'Información Falsa'
+            },
+            inputPlaceholder: 'Selecciona un motivo',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', 
+            confirmButtonText: 'Enviar Reporte',
+            cancelButtonText: 'Cancelar',
+            customClass: { popup: 'rounded-2xl' }
+        }).then(async (result) => {
+            if (result.isConfirmed && result.value) {
+                try {
+                    const res = await fetch(`${API_URL}/api/usuarios/denunciar-publicacion`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email_emisor: userEmail,
+                            email_acusado: post.email_autor,
+                            id_publicacion: post.id_publicacion,
+                            motivo: result.value,
+                            comentario_adicional: "Reportado desde el feed principal"
+                        })
+                    });
+
+                    if (res.ok) {
+                        Swal.fire({
+                            title: 'Reporte Enviado',
+                            text: 'Gracias por ayudarnos a mantener la comunidad segura.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error al reportar:", error);
+                    Swal.fire('Error', 'No se pudo procesar el reporte en este momento.', 'error');
+                }
+            }
+        });
+    };
+
 
     // ✅ FUNCIÓN PRIMERO
     const getYoutubeEmbedUrl = (url) => {
@@ -379,6 +439,16 @@ const copyToClipboard = async () => {
                 </span>
                 </div>
             </div>
+            
+                {/* Botón Reportar (NUEVO) */}
+        <button 
+            onClick={handleReportar}
+            className="p-2 hover:bg-rose-50 rounded-full transition-colors group"
+            title="Reportar publicación"
+        >
+            <Flag size={18} className="text-gray-400 group-hover:text-rose-500 transition-colors" />
+        </button>
+
     </div>
 
         {/* DESCRIPCIÓN */}
