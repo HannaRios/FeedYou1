@@ -35,7 +35,7 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
     const [subcategorias, setSubcategorias] = useState([]);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
     const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState("");
-
+    const [interesesUsuario, setInteresesUsuario] = useState([]);
 
     // Cargar categorías al iniciar
     useEffect(() => {
@@ -45,7 +45,18 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         .then((res) => res.json())
         .then((data) => setCategorias(data))
         .catch((err) => console.error(err));
-    }, []);
+        if (user?.email) {
+            fetch(`${API_URL}/api/usuarios/perfil-completo/${user.email}?visitor=${user.email}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.preferencias) {
+                    setInteresesUsuario(data.preferencias);
+                }
+            })
+            .catch((err) => console.error("Error cargando intereses:", err));
+}
+    }, [user]);
+
 
     // Limpiar estados al cerrar modal
 useEffect(() => {
@@ -223,10 +234,14 @@ try {
             className="w-full mt-3 border rounded-xl p-2"
             >
             <option value="">Selecciona una categoría</option>
-            {categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                {cat.nombre}
-                </option>
+            {categorias
+            .filter(cat =>
+                interesesUsuario.some(pref => pref.nombre_categoria === cat.nombre)
+            )
+            .map((cat) => (
+            <option key={cat.id} value={cat.id}>
+            {cat.nombre}
+            </option>
             ))}
             </select>
 
@@ -238,9 +253,24 @@ try {
                 className="w-full mt-3 border rounded-xl p-2"
             >
                 <option value="">Selecciona una subcategoría</option>
-                {subcategorias.map((sub) => (
+                {subcategorias
+                .filter(sub =>
+                        interesesUsuario.some(pref =>
+                        pref.hashtag_subcategoria
+                        .replace("#","")
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g,"")
+                        === 
+                        sub.nombre
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g,"")
+                    )
+                )
+                .map((sub) => (
                 <option key={sub.id} value={sub.id}>
-                    {sub.nombre}
+                {sub.nombre}
                 </option>
                 ))}
             </select>

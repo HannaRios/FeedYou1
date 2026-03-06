@@ -17,7 +17,7 @@ import interaccionesRoutes from "./backend/routes/interaccionesRoutes.js";
 
 import chatRoutes from "./backend/routes/chatRoutes.js";
 import authRoutes from "./backend/routes/authRoutes.js";
-
+import notificacionesRoutes from "./backend/routes/notificacionesRoutes.js";
 
 dotenv.config();
 
@@ -58,12 +58,12 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/publicaciones", publicacionRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/intereses", interesesRoutes);
-// app.use("/api", chatRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/newsapi", newsApiRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/interacciones", interaccionesRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/notificaciones", notificacionesRoutes);
 
 
 

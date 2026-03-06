@@ -3,7 +3,9 @@ import { useAuth } from "../context/AuthContext";
 import socket from "../socket";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star, MessageCircle, Link, Trash2 } from "lucide-react";
+import { Heart, Star, MessageCircle, Link, Trash2, BadgeCheck } from "lucide-react";
+import FollowButton from "./FollowButton";
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -68,6 +70,8 @@ useEffect(() => {
 
 
     console.log("POST:", post);
+    const username = post.username_autor || post.username || post.email_autor?.split("@")[0];
+    const nombre = post.nombre_autor || post.nombre || "";
 
     // ✅ FUNCIÓN PRIMERO
     const getYoutubeEmbedUrl = (url) => {
@@ -328,29 +332,54 @@ const copyToClipboard = async () => {
     return (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden w-full max-w-3xl mx-auto">
 
-        {/* HEADER */}
-        <div className="flex items-center gap-3 px-4 pt-4">
-            <img
-            src={
-                post.foto_perfil
-                ? post.foto_perfil.startsWith("http")
-                    ? post.foto_perfil
-                    : `${API_URL}${post.foto_perfil}`
-                : "/avatar-default.png"
-            }
-            alt="Foto de perfil"
-            className="w-10 h-10 rounded-full object-cover border"
-            />
+            {/* HEADER */}
+            <div className="flex items-center justify-between px-4 pt-4">
 
-            <div className="flex flex-col">
-            <span className="font-semibold text-gray-900 text-sm mt-2">
-                {post.email_autor?.split("@")[0] || "Usuario"}
-            </span>
-            <span className="text-xs text-gray-500 mb-3">
-                {post.email_autor}
-            </span>
+            <div className="flex items-center gap-3">
+                <img
+                src={
+                    post.foto_perfil
+                    ? post.foto_perfil.startsWith("http")
+                        ? post.foto_perfil
+                        : `${API_URL}${post.foto_perfil}`
+                    : "/avatar-default.png"
+                }
+                alt="Foto de perfil"
+                className="w-10 h-10 rounded-full object-cover border"
+                />
+                
+                <div className="flex flex-col">
+
+                {/* LINEA USERNAME + CHECK + SEGUIR */}
+                <div className="flex items-center gap-1 text-sm">
+
+                    <span className="font-semibold text-gray-900">
+                    {username}
+                    </span>
+
+                    {post.verificado === 1 && (
+                    <BadgeCheck size={14} className="text-blue-500 fill-blue-500" />
+                    )}
+
+                    {userEmail &&
+                    userEmail !== post.email_autor && (
+                        <>
+                        <span className="text-gray-400 mx-1">  </span>
+                        <FollowButton
+                            currentUser={userEmail}
+                            targetUser={post.email_autor}
+                        />
+                        </>
+                    )
+                }
+                </div>
+                {/* NOMBRE REAL */}
+                <span className="text-xs text-gray-500">
+                    {post.nombre_autor}
+                </span>
+                </div>
             </div>
-        </div>
+    </div>
 
         {/* DESCRIPCIÓN */}
         {post.descripcion && (

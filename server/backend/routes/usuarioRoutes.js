@@ -9,6 +9,79 @@ import { getPerfilCompleto } from "../controllers/usuarioController.js";
 
 const router = express.Router();
 
+// seguir a un usuario
+router.post("/seguir", async (req, res) => {
+  try {
+    const { seguidor, seguido } = req.body;
+
+    if (seguidor === seguido) {
+      return res.status(400).json({ error: "No puedes seguirte a ti mismo" });
+    }
+
+    const [exists] = await db.query(
+      "SELECT id_seguimiento FROM seguidores WHERE email_seguidor = ? AND email_seguido = ?",
+      [seguidor, seguido]
+    );
+
+    if (exists.length > 0) {
+      return res.status(400).json({ error: "Ya sigues a este usuario" });
+    }
+
+    await db.query(
+      "INSERT INTO seguidores (email_seguidor, email_seguido) VALUES (?, ?)",
+      [seguidor, seguido]
+    );
+
+    await db.query(
+      `INSERT INTO notificaciones
+      (email_destino,email_origen,tipo)
+      VALUES (?,?,?)`,
+      [seguido, seguidor, "seguir"]
+      );
+
+    res.json({ message: "Ahora sigues a este usuario" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al seguir usuario" });
+  }
+});
+
+// dejar de seguir a un usuario
+router.delete("/dejar-seguir", async (req, res) => {
+  try {
+    const { seguidor, seguido } = req.body;
+
+    await db.query(
+      "DELETE FROM seguidores WHERE email_seguidor = ? AND email_seguido = ?",
+      [seguidor, seguido]
+    );
+
+    res.json({ message: "Dejaste de seguir al usuario" });
+
+  } catch (error) {
+    res.status(500).json({ error: "Error al dejar de seguir" });
+  }
+});
+
+// verificar si un usuario sigue a otro
+router.get("/sigo", async (req, res) => {
+  try {
+    const { seguidor, seguido } = req.query;
+
+    const [rows] = await db.query(
+      "SELECT id_seguimiento FROM seguidores WHERE email_seguidor = ? AND email_seguido = ?",
+      [seguidor, seguido]
+    );
+
+    res.json({ siguiendo: rows.length > 0 });
+
+  } catch (error) {
+    console.error("Error en sigo:", error);
+    res.status(500).json({ error: "Error verificando seguimiento" });
+  }
+});
+
 // --- CONSULTAS ---
 router.get("/perfil-completo/:email", getPerfilCompleto);
 
@@ -157,6 +230,33 @@ router.put("/actualizar", async (req, res) => {
     console.error("Error al actualizar perfil:", error);
     res.status(500).json({ error: error.message });
   }
+});
+
+router.get("/seguidores/:email", async (req, res) => {
+  const { email } = req.params;
+
+  const [rows] = await db.query(`
+    SELECT u.email, u.username, u.nombre, u.foto_perfil
+    FROM seguidores s
+    JOIN usuarios u ON s.email_seguidor = u.email
+    WHERE s.email_seguido = ?
+  `, [email]);
+
+  res.json(rows);
+});
+
+
+router.get("/seguidos/:email", async (req, res) => {
+  const { email } = req.params;
+
+  const [rows] = await db.query(`
+    SELECT u.email, u.username, u.nombre, u.foto_perfil
+    FROM seguidores s
+    JOIN usuarios u ON s.email_seguido = u.email
+    WHERE s.email_seguidor = ?
+  `, [email]);
+
+  res.json(rows);
 });
 
 export default router;

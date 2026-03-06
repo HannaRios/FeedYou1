@@ -9,7 +9,6 @@ import InterestTest from "./pages/InterestTest";
 import FeedPage from "./pages/FeedPage";
 import Trending from "./pages/Trending";
 import Favorites from "./pages/Favorites";
-import Categories from "./pages/Categories";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import SeguidosPage from "./pages/SeguidosPage";
@@ -18,6 +17,7 @@ import PostDetail from "./components/PostDetail";
 import socket from "./socket";
 import { useEffect } from "react";
 import { SearchProvider } from "./context/SearchContext";
+import PublicProfile from "./pages/PublicProfile";
 
 function App() {
   useEffect(() => {
@@ -46,12 +46,12 @@ function App() {
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/favorites" element={<Favorites />} />
-          <Route path="/categories" element={<Categories />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/seguidos" element={<SeguidosPage />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/usuario/:email" element={<PublicProfile />} />
         </Routes>
       </SearchProvider>
     </Router>

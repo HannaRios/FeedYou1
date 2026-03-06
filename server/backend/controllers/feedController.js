@@ -10,13 +10,40 @@ export async function getFeed(req, res) {
   }
 
   try {
-    const [feed] = await db.query(
-      `
-      SELECT * 
-      FROM publicaciones
-      ORDER BY fecha_publicacion DESC
-      `
-    );
+const [feed] = await db.query(
+`
+SELECT 
+  p.*,
+  u.username AS username_autor,
+  u.nombre AS nombre_autor,
+  u.foto_perfil,
+
+  COUNT(CASE WHEN i.tipo_interaccion = 'me_gusta' THEN 1 END) AS total_likes,
+  COUNT(CASE WHEN i.tipo_interaccion = 'favorito' THEN 1 END) AS total_favoritos,
+
+  MAX(CASE 
+      WHEN i.tipo_interaccion = 'me_gusta' 
+      AND i.email = ? 
+      THEN 1 ELSE 0 
+  END) AS user_liked,
+
+  MAX(CASE 
+      WHEN i.tipo_interaccion = 'favorito' 
+      AND i.email = ? 
+      THEN 1 ELSE 0 
+  END) AS user_favorited
+
+FROM publicaciones p
+JOIN usuarios u ON p.email_autor = u.email
+LEFT JOIN interacciones i ON p.id_publicacion = i.id_publicacion
+
+WHERE p.estado = 'aprobado'
+
+GROUP BY p.id_publicacion
+ORDER BY p.fecha_publicacion DESC
+`,
+[email, email]
+);
 
     res.json(feed);
   } catch (error) {
@@ -43,6 +70,7 @@ export const feedParaTi = async (req, res) => {
       `,
       [email]
     );
+
 
     if (rows.length === 0) {
       return res.status(400).json({ error: "Usuario sin preferencias" });
@@ -78,12 +106,17 @@ export const feedParaTi = async (req, res) => {
       })
     );
 
+    
+
     await Promise.all(promises);
+
 
     const [feed] = await db.query(
       `
       SELECT 
         u.foto_perfil,
+        u.username AS username_autor,
+        u.nombre AS nombre_autor,
         p.id_publicacion,
         p.email_autor,
         p.titulo,
@@ -131,5 +164,77 @@ export const feedParaTi = async (req, res) => {
   } catch (error) {
     console.error("Error feed Para Ti:", error);
     res.status(500).json({ message: "Error al cargar el feed Para Ti" });
+  }
+};
+
+
+export const feedSeguidos = async (req, res) => {
+  const email = req.params.email;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email es requerido" });
+  }
+
+  try {
+
+    const [rows] = await db.query(
+      `
+      SELECT 
+        u.foto_perfil,
+        u.username AS username_autor,
+        u.nombre AS nombre_autor,
+
+        p.id_publicacion,
+        p.email_autor,
+        p.titulo,
+        p.descripcion,
+        p.tipo,
+        p.url_media,
+        p.enlace_externo,
+        p.fecha_publicacion,
+
+        COUNT(CASE WHEN i.tipo_interaccion = 'me_gusta' THEN 1 END) AS total_likes,
+        COUNT(CASE WHEN i.tipo_interaccion = 'comentario' THEN 1 END) AS total_comentarios,
+        COUNT(CASE WHEN i.tipo_interaccion = 'favorito' THEN 1 END) AS total_favoritos,
+        COUNT(CASE WHEN i.tipo_interaccion = 'compartir' THEN 1 END) AS total_compartidos,
+
+        MAX(CASE 
+            WHEN i.tipo_interaccion = 'me_gusta' 
+            AND i.email = ? 
+            THEN 1 ELSE 0 
+        END) AS user_liked,
+
+        MAX(CASE 
+            WHEN i.tipo_interaccion = 'favorito' 
+            AND i.email = ? 
+            THEN 1 ELSE 0 
+        END) AS user_favorited
+
+      FROM publicaciones p
+
+      JOIN usuarios u 
+      ON p.email_autor = u.email
+
+      JOIN seguidores s
+      ON s.email_seguido = p.email_autor
+
+      LEFT JOIN interacciones i
+      ON i.id_publicacion = p.id_publicacion
+
+      WHERE s.email_seguidor = ?
+      AND p.estado = 'aprobado'
+
+      GROUP BY p.id_publicacion
+
+      ORDER BY p.fecha_publicacion DESC
+      `,
+      [email, email, email]
+    );
+
+    res.json(rows);
+
+  } catch (error) {
+    console.error("Error feed Seguidos:", error);
+    res.status(500).json({ error: "Error cargando feed de seguidos" });
   }
 };

@@ -46,6 +46,8 @@ router.get("/favoritos/:email", async (req, res) => {
             `
             SELECT 
                 u.foto_perfil,
+                u.username AS username_autor,
+                u.nombre AS nombre_autor,
                 p.*,
 
                 COUNT(CASE WHEN i.tipo_interaccion = 'me_gusta' THEN 1 END) AS total_likes,
@@ -104,6 +106,40 @@ router.post("/", async (req, res) => {
             VALUES (?, ?, ?, ?)`,
             [email, id_publicacion, tipo_interaccion, comentario]
         );
+        
+ // ===============================
+        // OBTENER AUTOR DEL POST
+        // ===============================
+        const [[post]] = await pool.query(
+            `
+            SELECT email_autor
+            FROM publicaciones
+            WHERE id_publicacion = ?
+            `,
+            [id_publicacion]
+        );
+
+
+        // ===============================
+        // CREAR NOTIFICACIÓN
+        // ===============================
+        if (post && post.email_autor !== email) {
+
+            await pool.query(
+                `
+                INSERT INTO notificaciones
+                (email_destino,email_origen,tipo,id_publicacion)
+                VALUES (?,?,?,?)
+                `,
+                [
+                    post.email_autor,
+                    email,
+                    tipo_interaccion,
+                    id_publicacion
+                ]
+            );
+
+        }
 
         // EMITIR EVENTO EN TIEMPO REAL
         // io.emit("post_updated", {
@@ -125,6 +161,8 @@ router.post("/", async (req, res) => {
         res.status(500).json({ message: "Error al crear interacción" });
     }
 });
+
+
 
 // ===============================
 // ELIMINAR COMENTARIO POR ID

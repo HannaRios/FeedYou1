@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import Logo from "./Logo";
-import { useSearch } from "../Context/SearchContext";
+import { useSearch } from "../context/SearchContext";
 import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -142,16 +142,6 @@ useEffect(() => {
             Favoritos
           </NavLink>
 
-          <NavLink
-            to="/categories"
-            className={({ isActive }) =>
-              `font-medium ${
-                isActive ? "text-purple-600" : "text-gray-600 hover:text-gray-800"
-              }`
-            }
-          >
-            Categorías
-          </NavLink>
         </div>
 
         {/* Perfil */}
@@ -231,9 +221,9 @@ useEffect(() => {
 
       {results.map((userResult, index) => (
         <div
-          key={index}
+          key={userResult.email}
           onClick={() => {
-            navigate(`/profile/${userResult.email}`);
+            navigate(`/usuario/${userResult.email}`);
             setIsSearchOpen(false);
             setQuery("");
             setResults([]);

@@ -17,7 +17,7 @@ export default function InterestTest() {
 
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
   const [subcategoriasSeleccionadas, setSubcategoriasSeleccionadas] = useState([]);
-  
+  const [tieneIntereses, setTieneIntereses] = useState(false);
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -25,6 +25,24 @@ export default function InterestTest() {
       navigate("/login");
     }
   }, [loading, user, navigate]);
+
+  useEffect(() => {
+  if (!user) return;
+
+  fetch(`${API}/api/test/preferencias/${user.email}`)
+    .then(res => res.json())
+    .then(data => {
+
+      const categorias = [...new Set(data.map(p => p.id_categoria))];
+      const subcategorias = data.map(p => p.id_subcategoria);
+
+      setCategoriasSeleccionadas(categorias);
+      setSubcategoriasSeleccionadas(subcategorias);
+
+      setTieneIntereses(data.length > 0);
+    });
+
+}, [user]);
 
 
   // cargar categorias
@@ -328,7 +346,7 @@ useEffect(() => {
                 disabled:opacity-85"
               >
 
-                Generar Feed <ChevronRight/>
+                {tieneIntereses ? "Actualizar intereses" : "Generar Feed"} <ChevronRight/>
 
               </button>
 
