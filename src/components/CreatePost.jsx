@@ -18,6 +18,11 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
 
     export default function CreatePost({ isOpen, onClose, onPublicacionCreada }) {
     // Estados
+
+    const [showMessageModal, setShowMessageModal] = useState(false);
+    const [messageTitle, setMessageTitle] = useState("");
+    const [messageText, setMessageText] = useState("");
+
     const [description, setDescription] = useState("");
     const [mediaUrl, setMediaUrl] = useState("");
     const [file, setFile] = useState(null);
@@ -30,7 +35,7 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
     const [subcategorias, setSubcategorias] = useState([]);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
     const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState("");
-
+    const [interesesUsuario, setInteresesUsuario] = useState([]);
 
     // Cargar categorías al iniciar
     useEffect(() => {
@@ -40,12 +45,22 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         .then((res) => res.json())
         .then((data) => setCategorias(data))
         .catch((err) => console.error(err));
-    }, []);
+        if (user?.email) {
+            fetch(`${API_URL}/api/usuarios/perfil-completo/${user.email}?visitor=${user.email}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.preferencias) {
+                    setInteresesUsuario(data.preferencias);
+                }
+            })
+            .catch((err) => console.error("Error cargando intereses:", err));
+}
+    }, [user]);
+
 
     // Limpiar estados al cerrar modal
-    useEffect(() => {
-        if (!isOpen) return;
-        return () => {
+useEffect(() => {
+    if (!isOpen) {
         if (preview && file) URL.revokeObjectURL(preview);
         setPreview(null);
         setFile(null);
@@ -53,8 +68,8 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         setCategoriaSeleccionada("");
         setSubcategoriaSeleccionada("");
         setDescription("");
-        };
-    }, [isOpen]);
+    }
+}, [isOpen]);
 
     // Cambiar categoría y cargar subcategorías
     const handleCategoriaChange = (e) => {
@@ -93,12 +108,16 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         setPublicando(true);
 
         if (!categoriaSeleccionada || !subcategoriaSeleccionada) {
-        alert("Selecciona categoría y subcategoría");
+        setMessageTitle("Selecciona categoría");
+        setMessageText("Debes seleccionar una categoría y subcategoría antes de publicar.");
+        setShowMessageModal(true);
         setPublicando(false);
         return;
         }
         if (!description.trim()) {
-        alert("Escribe una descripción");
+        setMessageTitle("Añade una descripción");
+        setMessageText("Escribe algo para que tu publicación tenga contenido.");
+        setShowMessageModal(true);
         setPublicando(false);
         return;
         }
@@ -118,7 +137,9 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         }
 
         if (!user?.email) {
-        alert("No hay usuario logueado");
+        setMessageTitle("Debes iniciar sesión");
+        setMessageText("Necesitas estar autenticada para publicar contenido.");
+        setShowMessageModal(true);
         setPublicando(false);
         return;
         }
@@ -134,7 +155,7 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         if (enlace_externo) formData.append("enlace_externo", enlace_externo);
         if (file) formData.append("archivo", file);
 
-        try {
+try {
         const response = await fetch(`${API_URL}/api/publicaciones`, {
             method: "POST",
             body: formData,
@@ -143,8 +164,9 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
         const data = await response.json();
 
         if (response.ok) {
-            alert("✅ Publicación creada con éxito");
-            console.log("Publicación creada:", data);
+            setMessageTitle("Publicación creada");
+            setMessageText("Tu publicación se creó correctamente y ya está visible.");
+            setShowMessageModal(true);
 
             // Limpiar formulario
             setDescription("");
@@ -154,19 +176,32 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
             setCategoriaSeleccionada("");
             setSubcategoriaSeleccionada("");
 
-            onClose();
-            if (typeof onPublicacionCreada === "function") onPublicacionCreada(data);
+            if (typeof onPublicacionCreada === "function") {
+                onPublicacionCreada(data);
+            }
+
+            setTimeout(() => {
+                setShowMessageModal(false);
+                onClose();
+            }, 1500);
+
         } else {
             console.error("Error backend:", data);
-            alert("❌ Error al publicar: " + (data.message || "Error desconocido"));
+            setMessageTitle("Error al publicar");
+            setMessageText("Error al publicar: " + (data.message || "Error desconocido"));
+            setShowMessageModal(true);
         }
-        } catch (error) {
+
+    } catch (error) {
         console.error("Error de fetch:", error);
-        alert("❌ Error al publicar");
-        } finally {
+        setMessageTitle("Error al publicar");
+        setMessageText("Ocurrió un problema. Intenta nuevamente.");
+        setShowMessageModal(true);
+
+    } finally {
         setPublicando(false);
-        }
-    };
+    }
+};
 
     if (!isOpen) return null;
 
@@ -199,10 +234,14 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
             className="w-full mt-3 border rounded-xl p-2"
             >
             <option value="">Selecciona una categoría</option>
-            {categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                {cat.nombre}
-                </option>
+            {categorias
+            .filter(cat =>
+                interesesUsuario.some(pref => pref.nombre_categoria === cat.nombre)
+            )
+            .map((cat) => (
+            <option key={cat.id} value={cat.id}>
+            {cat.nombre}
+            </option>
             ))}
             </select>
 
@@ -214,9 +253,24 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
                 className="w-full mt-3 border rounded-xl p-2"
             >
                 <option value="">Selecciona una subcategoría</option>
-                {subcategorias.map((sub) => (
+                {subcategorias
+                .filter(sub =>
+                        interesesUsuario.some(pref =>
+                        pref.hashtag_subcategoria
+                        .replace("#","")
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g,"")
+                        === 
+                        sub.nombre
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g,"")
+                    )
+                )
+                .map((sub) => (
                 <option key={sub.id} value={sub.id}>
-                    {sub.nombre}
+                {sub.nombre}
                 </option>
                 ))}
             </select>
@@ -280,6 +334,48 @@ const isYouTube = (url) => url.includes("youtube.com") || url.includes("youtu.be
             {publicando ? "Publicando..." : "Publicar"}
             </button>
         </div>
+
+        {showMessageModal && (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+        
+        <div className="bg-white rounded-2xl p-8 w-[430px] shadow-2xl relative">
+
+            {/* LOGO */}
+            <div className="absolute top-6 left-6">
+                <img
+                    src="/logo.png"
+                    alt="FeedYou"
+                    className="h-8 object-contain"
+                />
+            </div>
+
+            {/* CONTENIDO */}
+            <div className="text-center mt-6">
+
+                <h3 className="text-xl font-semibold text-gray-800 mb-4 tracking-tight">
+                    {messageTitle}
+                </h3>
+
+                <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                    {messageText}
+                </p>
+
+                <div className="flex justify-center gap-4">
+
+                    <button
+                        onClick={() => setShowMessageModal(false)}
+                        className="px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shadow-md"
+                    >
+                        Aceptar
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+)}
         </div>
     );
 }
+

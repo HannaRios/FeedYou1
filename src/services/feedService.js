@@ -22,3 +22,22 @@ export const fetchFeed = async (email) => {
 
 };
 
+export const fetchFeedSeguidos = async (email) => {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/feed/seguidos/${email}`
+    );
+
+    const data = await res.json();
+    console.log("Feed de seguidos:", data);
+
+    return data;
+
+  } catch (error) {
+
+    console.error("Error fetchFeedSeguidos:", error);
+
+    return [];
+  }
+};
+

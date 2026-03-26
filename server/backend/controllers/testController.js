@@ -9,15 +9,6 @@ export const guardarPreferenciasTest = async (req, res) => {
 
         const { email, preferencias } = req.body;
 
-        /*
-        preferencias formato esperado:
-
-        [
-            { id_categoria: 7, id_subcategoria: 23 },
-            { id_categoria: 6, id_subcategoria: 20 },
-            { id_categoria: 4, id_subcategoria: 47 }
-        ]
-        */
 
         if (!preferencias || preferencias.length === 0) {
             return res.status(400).json({
@@ -134,4 +125,25 @@ export const obtenerSubcategoriasPorCategorias = async (req, res) => {
 
     }
 };
+
+export const obtenerPreferenciasUsuario = async (req, res) => {
+    const { email } = req.params;
+
+    try {
+
+        const [rows] = await db.query(
+        "SELECT id_categoria, id_subcategoria FROM preferencias_test WHERE email = ?",
+        [email]
+        );
+
+        res.json(rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ error: "Error obteniendo preferencias" });
+
+    }
+
+    };
 

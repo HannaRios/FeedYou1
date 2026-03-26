@@ -2,12 +2,14 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Instagram, Facebook, Youtube, PlusCircle, Bot } from "lucide-react";
 
+import CreatePost from "../components/CreatePost";
 import Navbar from "../components/Navbar";
 import Feed from "../components/Feed";
 import Logo from "../components/Logo";
 import ChatBot from "../components/ChatBot";
 
 export default function FeedPage() {
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   // Controla si el chatbot está abierto
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -31,7 +33,10 @@ export default function FeedPage() {
       </main>
 
       {/* Botón flotante para crear publicación */}
-      <button className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40">
+      <button
+        onClick={() => setIsCreatePostOpen(true)}
+        className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+      >
         <PlusCircle className="w-6 h-6 text-blue-700" />
       </button>
 
@@ -47,6 +52,12 @@ export default function FeedPage() {
       {isChatOpen && (
         <ChatBot onClose={() => setIsChatOpen(false)} />
       )}
+
+      <CreatePost
+        isOpen={isCreatePostOpen}
+        onClose={() => setIsCreatePostOpen(false)}
+      />
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">

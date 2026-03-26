@@ -1,8 +1,8 @@
 // server/backend/routes/publicacionRoutes.js
 import express from "express";
 import pool from "../../db.js";
-import { crearPublicacionController } from "../controllers/publicacionController.js";
-import { obtenerPublicacionesController } from "../controllers/publicacionController.js";
+import { crearPublicacionController, obtenerPublicacionesController, obtenerTrending } from "../controllers/publicacionController.js";
+
 
 import { uploadPublicacion as upload, uploadPublicacion } from "../middlewares/uploadPublicacion.js";
 
@@ -11,10 +11,12 @@ const router = express.Router();
 router.post("/", uploadPublicacion.single("archivo"), crearPublicacionController);
 //obtener publicaciones
 router.get("/", obtenerPublicacionesController);
+// obtener trendig
+router.get("/trending/:email", obtenerTrending);
 
 router.get("/:id", async (req, res) => {
     const { id } = req.params;
-    const { email } = req.query; // 👈 viene como query param
+    const { email } = req.query; 
 
     try {
 
@@ -22,6 +24,8 @@ router.get("/:id", async (req, res) => {
             `
             SELECT 
                 u.foto_perfil,
+                u.username AS username_autor,
+                u.nombre AS nombre_autor,
                 p.*,
 
                 COUNT(CASE WHEN i.tipo_interaccion = 'me_gusta' THEN 1 END) AS total_likes,

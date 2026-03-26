@@ -25,6 +25,8 @@ export default function Register() {
     fullName: "", email: "", username: "", telefono: "", genero: "",
     departamento: "", ciudad: "", fechaNacimiento: "", password: "", confirmPassword: "",
   });
+  
+  console.log("Datos enviados:", formData);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,7 @@ export default function Register() {
     if (!formData.ciudad) newErrors.ciudad = "Requerido";
     if (!formData.fechaNacimiento) newErrors.fechaNacimiento = "Requerido";
 
-    // Contraseña
+    // --- VALIDACIÓN DE CONTRASEÑA ---
     const pass = formData.password;
     if (!pass) {
       newErrors.password = "La contraseña es requerida";
@@ -146,6 +148,7 @@ const handleSubmit = async (e) => {
                 <option value="">Género</option>
                 <option value="Masculino">Masculino</option>
                 <option value="Femenino">Femenino</option>
+                
                 <option value="Otro">Otro</option>
               </select>
               {isSubmitted && errors.genero && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.genero}</p>}
