@@ -63,7 +63,7 @@ export default function EditProfile() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
-        email_original: user.email,
+        email: user.email,
         ...formData 
       })
     });

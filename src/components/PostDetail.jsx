@@ -5,16 +5,19 @@ import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function PostDetail() {
+export default function PostDetail({ postId }) {
 
-    const { id } = useParams();
+    const params = useParams();
+    const id = postId || params.id; 
+
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const isStandalonePage = !postId;
     const { user } = useAuth();
 
 useEffect(() => {
-
+    if (!id) return;
+    setLoading(true);
     const fetchPost = async () => {
         try {
             const url = user?.email
@@ -30,7 +33,7 @@ useEffect(() => {
         } catch (error) {
             console.error("Error cargando publicación:", error);
         } finally {
-            setLoading(false); // 👈 ESTA ES LA CLAVE
+            setLoading(false);
         }
     };
 
@@ -47,9 +50,12 @@ useEffect(() => {
     }
 
     return (
-        <div className="flex justify-center mt-10">
-            <div className="max-w-xl w-full">
-                <PostCard post={post} />
+        <div className="flex justify-center">
+            <div className="w-full">
+                <PostCard 
+                post={post} 
+                showUser 
+                />
             </div>
         </div>
     );

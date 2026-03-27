@@ -55,10 +55,12 @@ function Feed() {
         );
 
         const filteredFeed = validatedFeed.filter(Boolean);
+        
+        // Mezclar publicaciones aleatoriamente
+        const shuffledFeed = [...filteredFeed].sort(() => Math.random() - 0.5);
+        setFeed(shuffledFeed);
 
-        setFeed(filteredFeed);
-
-        if (filteredFeed.length === 0) {
+        if (shuffledFeed.length === 0) {
           setHasInterests(false);
         }
       } catch (error) {
@@ -131,6 +133,7 @@ function Feed() {
               </button>
             </div>
           )}
+
         </div>
 
         {feed.map((item) => (
