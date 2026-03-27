@@ -78,17 +78,17 @@ export default function Favorites() {
 {/* Botón crear publicación */}
 <button
   onClick={() => setIsCreatePostOpen(true)}
-  className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg"
+  className="fixed bottom-4 left-4 md:bottom-6 md:left-6 bg-blue-200 p-3 md:p-4 rounded-full shadow-lg z-40"
 >
-  <PlusCircle className="w-6 h-6 text-blue-700" />
+  <PlusCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-700" />
 </button>
 
 {/* Botón YouBot */}
 <button
   onClick={() => setIsChatOpen(!isChatOpen)}
-  className="fixed bottom-6 right-6 bg-blue-200 p-4 rounded-full shadow-lg"
+  className="fixed bottom-4 right-4 md:bottom-6 md:right-6 bg-blue-200 p-3 md:p-4 rounded-full shadow-lg z-40"
 >
-  <Bot className="w-6 h-6 text-blue-700" />
+  <Bot className="w-5 h-5 md:w-6 md:h-6 text-blue-700" />
 </button>
 
 <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />

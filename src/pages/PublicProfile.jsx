@@ -75,7 +75,7 @@ const API_URL = import.meta.env.VITE_API_URL;
         <div className="max-w-3xl mx-auto mt-6 px-6">
             {/* CABECERA */}
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-            <div className="flex items-start gap-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
                 <img
                 src={
                     user.foto_perfil
@@ -84,11 +84,11 @@ const API_URL = import.meta.env.VITE_API_URL;
                         : `${API_URL}${user.foto_perfil}`
                     : "/avatar-default.png"
                 }
-                className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-sm"
                 alt="perfil"
                 />
 
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                 <h1 className="text-2xl font-bold text-gray-800">
                     {user.nombre}
                 </h1>
@@ -97,12 +97,12 @@ const API_URL = import.meta.env.VITE_API_URL;
                     @{user.username}
                 </p>
 
-                <p className="text-gray-600 text-sm mt-2">
+                <p className="text-gray-600 text-sm mt-2 max-w-md mx-auto sm:mx-0">
                     {user.bio || "Este usuario aún no ha agregado una bio."}
                 </p>
 
                 {/* STATS */}
-                <div className="flex gap-10 mt-5">
+                <div className="flex justify-center sm:justify-start gap-6 sm:gap-10 mt-5">
                     <div className="text-center">
                     <span className="block font-bold text-gray-800">
                         {stats.postCount}
@@ -177,7 +177,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                 {showPostModal && selectedPost && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
 
-                    <div className="bg-white w-[620px] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+                    <div className="bg-white w-[95%] sm:w-[620px] max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
 
                     {/* HEADER */}
                     <div className="flex items-center justify-between px-6 py-4 border-b">
@@ -210,7 +210,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                 {showModal && (
             <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
 
-                <div className="bg-white rounded-2xl w-[480px] max-h-[75vh] shadow-2xl relative flex flex-col">
+                <div className="bg-white rounded-2xl w-[90%] sm:w-[480px] h-[80vh] sm:max-h-[75vh] shadow-2xl relative flex flex-col">
 
                 {/* LOGO */}
                 <div className="absolute top-6 left-6">

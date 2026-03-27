@@ -77,13 +77,13 @@ export default function EditProfile() {
   return (
     <div className="min-h-screen bg-gray-50 pb-10 font-sans">
       <Navbar />
-      <div className="max-w-xl mx-auto mt-8 p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
+      <div className="w-[95%] sm:max-w-xl mx-auto mt-4 sm:mt-8 p-6 sm:p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
         <button onClick={() => navigate(-1)} className="flex items-center text-gray-400 mb-8 hover:text-blue-400 transition font-bold text-sm tracking-tight">
           <ArrowLeft className="mr-2" size={18} /> VOLVER AL PERFIL
         </button>
 
         <div className="flex flex-col items-center mb-10">
-          <div className="relative group">
+          <div className="relative group mt-10">
             <img 
               src={formData.foto_perfil ? `${API_URL}${formData.foto_perfil}` : "/avatar-default.png"} 
               className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
@@ -99,7 +99,7 @@ export default function EditProfile() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Nombre</label>
               <input 
@@ -118,7 +118,7 @@ export default function EditProfile() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold text-gray-400 uppercase mb-2 tracking-wider">Correo</label>
               <input 

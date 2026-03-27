@@ -551,39 +551,50 @@ const copyToClipboard = async () => {
 
 {/* ========================= MODAL COMENTARIOS ========================= */}
 {showComments && (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-2 sm:p-0">
 
-        <div className="bg-white w-full max-w-4xl h-[75vh] rounded-2xl shadow-2xl flex overflow-hidden relative">
+        <div className="bg-white w-full sm:w-[95%] md:w-full max-w-4xl max-h-[85vh] sm:h-[80vh] md:h-[75vh] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden relative">
 
-        {/* LOGO */}
-        <div className="absolute top-4 left-4">
+        {/* HEADER MÓVIL (Aparece solo en móviles) */}
+        <div className="flex md:hidden items-center justify-between px-5 py-4 border-b border-gray-100 bg-white z-10 w-full shrink-0">
+            <h3 className="font-bold text-gray-800 tracking-tight">Comentarios</h3>
+            <button
+                onClick={() => setShowComments(false)}
+                className="text-gray-400 hover:text-gray-700 p-1 bg-gray-100 rounded-full"
+            >
+                ✕
+            </button>
+        </div>
+
+        {/* LOGO DESKTOP */}
+        <div className="hidden md:block absolute top-4 left-4 pointer-events-none z-20">
             <img src="/logo.png" alt="FeedYou" className="h-10" />
         </div>
 
-        {/* BOTÓN CERRAR */}
+        {/* BOTÓN CERRAR DESKTOP */}
         <button
             onClick={() => setShowComments(false)}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+            className="hidden md:block absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl z-20 bg-white rounded-full px-2 shadow-sm"
         >
             ✕
         </button>
 
         {/* IMAGEN IZQUIERDA */}
-        <div className="w-1/2 bg-gray-100 flex items-center justify-center p-8">
+        <div className="hidden md:flex w-1/2 bg-gray-50 items-center justify-center p-8 border-r border-gray-100">
             {mediaSrc && (
                 <img
                     src={mediaSrc}
                     alt="Contenido"
-                    className="max-h-full max-w-full object-contain rounded-xl shadow-md"
+                    className="max-h-full max-w-full object-contain rounded-xl shadow-sm"
                 />
             )}
         </div>
 
         {/* PANEL DERECHO */}
-        <div className="w-[45%] flex flex-col bg-white">
+        <div className="w-full md:w-1/2 flex flex-col bg-white">
 
             {/* LISTA COMENTARIOS */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-[40vh] md:min-h-0 md:pt-14">
 
             {comments.length === 0 ? (
             <p className="text-sm text-gray-400">
@@ -649,18 +660,18 @@ const copyToClipboard = async () => {
             {/* INPUT ABAJO */}
             <form
             onSubmit={handleSubmitComment}
-            className="border-t p-4 flex gap-2"
+            className="border-t border-gray-100 p-4 bg-gray-50 sm:bg-white flex gap-2 shrink-0"
             >
             <input
                 type="text"
                 placeholder="Escribe un comentario..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 border rounded-lg px-3 py-2 text-sm"
+                className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
             />
             <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 rounded-lg text-sm"
+                className="bg-blue-600 text-white px-5 rounded-full text-sm font-medium hover:bg-blue-700 transition"
             >
                 Enviar
             </button>
@@ -674,7 +685,7 @@ const copyToClipboard = async () => {
 {showShareModal && (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
         
-        <div className="bg-white rounded-2xl p-8 w-[430px] shadow-2xl relative">
+        <div className="bg-white rounded-2xl p-6 md:p-8 w-[90%] md:w-[430px] shadow-2xl relative">
 
             {/* LOGO */}
             <div className="absolute top-6 left-6">
@@ -738,7 +749,7 @@ const copyToClipboard = async () => {
 
 {showAuthModal && (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-8 w-[420px] shadow-2xl relative">
+        <div className="bg-white rounded-2xl p-6 md:p-8 w-[90%] md:w-[420px] shadow-2xl relative">
 
             {/* LOGO */}
             <div className="absolute top-6 left-6">

@@ -87,17 +87,17 @@ useEffect(() => {
 
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <nav className="bg-white shadow-sm sticky top-0 z-10 w-full overflow-hidden">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
 
         {/* Logo */}
         <div className="flex items-center gap-2">
           <Logo size="md" showText={false} />
-          <h1 className="text-xl font-bold">FeedYou</h1>
+          <h1 className="text-xl font-bold hidden sm:block">FeedYou</h1>
         </div>
 
         {/* Navegación */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
 
           {/* Botón búsqueda */}
           <button
@@ -112,7 +112,7 @@ useEffect(() => {
           <NavLink
             to="/feed"
             className={({ isActive }) =>
-              `font-medium ${
+              `font-medium text-[13px] sm:text-base whitespace-nowrap ${
                 isActive ? "text-purple-600" : "text-gray-600 hover:text-gray-800"
               }`
             }
@@ -123,7 +123,7 @@ useEffect(() => {
           <NavLink
             to="/trending"
             className={({ isActive }) =>
-              `font-medium ${
+              `font-medium text-[13px] sm:text-base whitespace-nowrap ${
                 isActive ? "text-purple-600" : "text-gray-600 hover:text-gray-800"
               }`
             }
@@ -134,7 +134,7 @@ useEffect(() => {
           <NavLink
             to="/favorites"
             className={({ isActive }) =>
-              `font-medium ${
+              `font-medium text-[13px] sm:text-base whitespace-nowrap ${
                 isActive ? "text-purple-600" : "text-gray-600 hover:text-gray-800"
               }`
             }
@@ -151,7 +151,7 @@ useEffect(() => {
             alt="Perfil"
             className="w-8 h-8 rounded-full object-cover border"
           />
-        <span className="font-medium">{profile.name}</span>
+        <span className="font-medium text-sm sm:text-base hidden sm:block">{profile.name}</span>
         </NavLink>
       </div>
 
@@ -167,7 +167,7 @@ useEffect(() => {
   >
     <div
       onClick={(e) => e.stopPropagation()}
-      className="bg-white w-full max-w-2xl h-[75vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative animate-fade-in-up"
+      className="bg-white w-[95%] sm:w-full max-w-2xl h-[85vh] sm:h-[75vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative animate-fade-in-up"
     >
       {/* LOGO */}
       <div className="absolute top-4 left-4">

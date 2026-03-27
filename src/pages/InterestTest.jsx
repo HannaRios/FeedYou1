@@ -180,46 +180,46 @@ useEffect(() => {
       style={{backgroundImage:"url('/fondoFeedyou.png')"}}
     >
 
-      <div className="bg-[#ffffff] rounded-[30px] shadow-[0_10px_35px_rgba(0,0,0,0.25)] w-[800px] p-12 relative overflow-hidden">
+      <div className="bg-[#ffffff] rounded-[28px] shadow-[0_10px_35px_rgba(0,0,0,0.25)] w-[90%] sm:w-[80%] md:w-[700px] py-10 px-6 sm:py-[60px] sm:px-[65px] relative overflow-hidden">
       
-      <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute bottom-[-40px] left-[-40px] w-40 h-40 bg-blue-200 rounded-full "></div>
-          <div className="absolute bottom-10 left-32 w-16 h-16 bg-yellow-200 rounded-full "></div>
-          <div className="absolute bottom-0 right-10 w-20 h-20 bg-purple-200 rounded-full "></div>
-          <div className="absolute bottom-8 right-0 w-24 h-24 bg-orange-200 rounded-full "></div>
+      <div className="absolute bottom-0 left-0 w-full h-full pointer-events-none opacity-50 sm:opacity-100">
+          <div className="absolute bottom-[-40px] left-[-40px] w-20 h-20 sm:w-40 sm:h-40 bg-blue-200 rounded-full "></div>
+          <div className="absolute bottom-10 left-[20%] sm:left-32 w-12 h-12 sm:w-16 sm:h-16 bg-yellow-200 rounded-full "></div>
+          <div className="absolute bottom-0 right-10 w-16 h-16 sm:w-20 sm:h-20 bg-purple-200 rounded-full "></div>
+          <div className="absolute bottom-8 right-0 w-16 h-16 sm:w-24 sm:h-24 bg-orange-200 rounded-full "></div>
       </div>
 
         {/* LOGO */}
 
         <img
           src="/logo.png"
-          className="absolute top-7 left-7 w-12"
+          className="absolute top-4 sm:top-[30px] left-4 sm:left-[35px] w-8 sm:w-12"
         />
 
       {/* BOTÓN VOLVER */}
       {step === 1 ? (
         <button
           onClick={() => navigate("/register")}
-          className="absolute top-7 right-7 bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+          className="absolute top-4 sm:top-[30px] right-4 sm:right-[35px] bg-gray-200 p-1.5 sm:p-2 rounded-lg hover:bg-gray-300 z-20"
         >
-          <ChevronLeft />
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       ) : (
         <button
           onClick={() => setStep(1)}
-          className="absolute top-7 right-7 bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+          className="absolute top-4 sm:top-[30px] right-4 sm:right-[35px] bg-gray-200 p-1.5 sm:p-2 rounded-lg hover:bg-gray-300 z-20"
         >
-          <ChevronLeft />
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       )}
 
         {/* TITULO */}
 
         <h1
-          className="text-center text-5xl font-extrabold mb-6
+          className="text-center text-3xl sm:text-[48px] font-extrabold mt-8 sm:mt-0 mb-4 sm:mb-6
           text-transparent bg-clip-text
           bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5]"
-          style={{ fontFamily:"Comic Sans MS, cursive" }}
+          style={{ fontFamily:"Comic Sans MS, cursive", lineHeight: 1.2 }}
         >
           ¿Qué te interesa?
         </h1>
@@ -231,14 +231,14 @@ useEffect(() => {
 
           <>
 
-            <div className="bg-white border border-gray-400 rounded-lg p-4 text-center mb-8 w-[80%] mx-auto">
+            <div className="bg-white border border-gray-200 rounded-lg p-2.5 sm:p-4 text-center text-sm sm:text-[15px] mb-4 sm:mb-6 w-full sm:w-[80%] mx-auto relative z-10 shadow-sm">
 
               Selecciona tus categorías favoritas
 
             </div>
 
 
-            <div className="space-y-4 max-w-[320px] mx-auto">
+            <div className="space-y-2.5 sm:space-y-4 max-w-[320px] mx-auto relative z-10">
 
               {categorias.map(cat => (
 
@@ -260,7 +260,7 @@ useEffect(() => {
                 )}
               </div>
 
-              <span className="text-gray-800">
+              <span className="text-gray-800 text-sm sm:text-[15px]">
                 {cat.nombre}
               </span>
             </button>
@@ -272,14 +272,14 @@ useEffect(() => {
 
             {/* BOTONES */}
 
-            <div className="flex justify-center mt-10">
+            <div className="flex justify-center mt-6 sm:mt-10 relative z-10">
 
               <button
                 onClick={()=>setStep(2)}
                 disabled={categoriasSeleccionadas.length === 0}
                 className="flex items-center gap-2
-                bg-gradient-to-r from-purple-400 to-pink-400
-                text-white px-6 py-3 rounded-lg opacity-95"
+                bg-gradient-to-r from-purple-400 to-pink-400 hover:opacity-100
+                text-white px-8 py-2.5 sm:py-3 rounded-[10px] text-sm sm:text-base opacity-95 shadow-[0_5px_10px_rgba(0,0,0,0.2)]"
               >
 
                 Siguiente
@@ -295,14 +295,14 @@ useEffect(() => {
 
           <>
 
-            <div className="border rounded-xl p-4 text-center mb-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-2.5 sm:p-4 text-sm sm:text-[15px] text-center mb-4 sm:mb-6 w-full sm:w-[80%] mx-auto relative z-10 shadow-sm">
 
               Selecciona tus subcategorías favoritas
 
             </div>
 
 
-            <div className="space-y-4 max-w-[500px] mx-auto max-h-[320px] overflow-y-auto pr-4">
+            <div className="space-y-2.5 sm:space-y-4 max-w-[500px] mx-auto max-h-[250px] sm:max-h-[320px] overflow-y-auto pr-4 relative z-10">
 
               {subcategorias.map(sub => (
 
@@ -324,7 +324,7 @@ useEffect(() => {
                     )}
                   </div>
 
-                  <span className="text-gray-800">
+                  <span className="text-gray-800 text-sm sm:text-[15px]">
                     {sub.nombre_subcategoria}
                   </span>
 
@@ -335,18 +335,18 @@ useEffect(() => {
             </div>
 
 
-            <div className="flex justify-center mt-10">
+            <div className="flex justify-center mt-6 sm:mt-10 relative z-10">
 
               <button
                 onClick={guardar}
                 disabled={subcategoriasSeleccionadas.length === 0}
                 className="flex items-center gap-2
-                bg-gradient-to-r from-purple-400 to-pink-400
-                text-white px-6 py-3 rounded-lg
-                disabled:opacity-85"
+                bg-gradient-to-r from-purple-400 to-pink-400 hover:opacity-100
+                text-white px-8 py-2.5 sm:py-3 rounded-[10px] text-sm sm:text-base
+                disabled:opacity-85 shadow-[0_5px_10px_rgba(0,0,0,0.2)]"
               >
 
-                {tieneIntereses ? "Actualizar intereses" : "Generar Feed"} <ChevronRight/>
+                {tieneIntereses ? "Actualizar intereses" : "Generar Feed"} <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
 
               </button>
 

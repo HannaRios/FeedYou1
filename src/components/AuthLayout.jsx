@@ -38,12 +38,12 @@ export default function AuthLayout({ children }) {
       <div
         className="
           relative z-10
-          w-full max-w-md
+          w-full max-w-[95%] sm:max-w-md
           bg-white
           backdrop-blur-xl
-          rounded-3xl
+          rounded-2xl sm:rounded-3xl
           shadow-2xl
-          p-8
+          p-4 sm:p-8
         "
       >
         {/* Logo */}
