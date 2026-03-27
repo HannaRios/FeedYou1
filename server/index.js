@@ -5,6 +5,7 @@ import http from "http";
 import { Server } from "socket.io";
 import "./db.js";
 import path from "path";
+import { fileURLToPath } from 'url';
 
 import newsApiRoutes from "./backend/routes/newsApiRoutes.js";
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
@@ -19,7 +20,7 @@ import chatRoutes from "./backend/routes/chatRoutes.js";
 import authRoutes from "./backend/routes/authRoutes.js";
 import notificacionesRoutes from "./backend/routes/notificacionesRoutes.js";
 
-
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
@@ -105,4 +106,17 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`Servidor FeedYou corriendo en puerto ${PORT}`);
   console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "Configurado" : "NO configurado"}`);
+});
+
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Cualquier ruta que no sea de la API, devuelve el index.html de React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
