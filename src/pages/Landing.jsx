@@ -1,5 +1,6 @@
 import React from 'react';
-import { Instagram, Facebook, Youtube } from 'lucide-react';
+import { Instagram, Facebook, Youtube  } from 'lucide-react';
+import { SiTiktok } from 'react-icons/si';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import PhoneMockup from "../components/PhoneMockup";
 
@@ -99,9 +100,19 @@ export default function FeedYouLanding() {
             <div>
               <Logo size="md" />
               <div className="flex gap-3 mt-4">
-                <Instagram className="w-5 h-5 hover:text-pink-400 cursor-pointer" />
-                <Facebook className="w-5 h-5 hover:text-blue-400 cursor-pointer" />
-                <Youtube className="w-5 h-5 hover:text-red-400 cursor-pointer" />
+                <div className="flex gap-3 mt-4">
+  <a href="https://www.instagram.com/feedyou_hvn?igsh=bWpiYWJ2NmJrMTZk&utm_source=ig_contact_invite" target="_blank" rel="noopener noreferrer">
+    <Instagram className="w-5 h-5 hover:text-pink-400 cursor-pointer" />
+  </a>
+
+  <a href="https://www.facebook.com/profile.php?id=61577519739122" target="_blank" rel="noopener noreferrer">
+    <Facebook className="w-5 h-5 hover:text-blue-400 cursor-pointer" />
+  </a>
+
+  <a href="https://www.tiktok.com/@feedyou_use?_r=1&_t=ZS-951nYV9LvwS" target="_blank" rel="noopener noreferrer">
+  <SiTiktok className="w-5 h-5 hover:text-white cursor-pointer" />
+</a>
+</div>
               </div>
             </div>
 
@@ -137,7 +148,7 @@ export default function FeedYouLanding() {
           </div>
 
           <div className="border-t border-white/10 mt-8 pt-6 flex flex-wrap justify-between items-center text-sm text-gray-300">
-            <p>© 2025 FeedYou. Todos los derechos reservados.</p>
+            <p>© 2026 FeedYou. Todos los derechos reservados.</p>
             <button className="hover:text-white">Accesibilidad</button>
           </div>
 
