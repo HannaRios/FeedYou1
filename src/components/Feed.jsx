@@ -142,12 +142,6 @@ function Feed() {
 
       </div>
 
-      <button
-        onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-6 right-6 bg-pink-400 hover:bg-pink-500 text-white rounded-full w-14 h-14 flex items-center justify-center z-40 shadow-lg"
-      >
-        💬
-      </button>
 
       {chatOpen && <ChatBot onClose={() => setChatOpen(false)} />}
     </div>

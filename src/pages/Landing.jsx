@@ -70,7 +70,7 @@ export default function FeedYouLanding() {
 
       {/* CÍRCULO GIGANTE CUARTO DE BOLA (Corner-anchored Quarter Sphere) */}
       <div
-        className="absolute top-0 right-0 w-[600px] h-[600px] lg:w-[1000px] lg:h-[1000px] rounded-full z-10 shadow-[-20px_0_60px_rgba(0,0,0,0.08)] pointer-events-none transform translate-x-[28%] -translate-y-[28%]"
+        className="absolute top-0 right-0 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] lg:w-[1000px] lg:h-[1000px] rounded-full z-10 shadow-[-20px_0_60px_rgba(0,0,0,0.08)] pointer-events-none transform translate-x-[28%] -translate-y-[28%]"
         style={{
           background: 'radial-gradient(ellipse at 40% 40%, #E2FAFD 0%, #EEF5DF 60%, #FCF2DE 100%)',
         }}
@@ -82,14 +82,14 @@ export default function FeedYouLanding() {
           <Logo />
         </div>
 
-        <div className="flex gap-4 lg:gap-6 pointer-events-auto">
+        <div className="flex gap-2 sm:gap-4 lg:gap-6 pointer-events-auto">
           <Link to="/login">
-            <button className="px-5 lg:px-6 py-2.5 rounded-xl bg-[#D6D8F0] border border-slate-300 text-gray-800 font-semibold text-sm hover:bg-[#c3c6e2] shadow-md transition-colors">
+            <button className="px-3 md:px-5 lg:px-6 py-2.5 rounded-xl bg-[#D6D8F0] border border-slate-300 text-gray-800 font-semibold text-xs md:text-sm hover:bg-[#c3c6e2] shadow-md transition-colors whitespace-nowrap">
               Iniciar Sesión
             </button>
           </Link>
           <Link to="/register">
-            <button className="px-5 lg:px-6 py-2.5 rounded-xl bg-[#FCFDFE] text-gray-800 font-semibold text-sm hover:bg-white shadow-md border border-slate-200 transition-colors">
+            <button className="px-3 md:px-5 lg:px-6 py-2.5 rounded-xl bg-[#FCFDFE] text-gray-800 font-semibold text-xs md:text-sm hover:bg-white shadow-md border border-slate-200 transition-colors whitespace-nowrap">
               Crear Cuenta
             </button>
           </Link>
@@ -100,11 +100,11 @@ export default function FeedYouLanding() {
       <main className="flex-1 w-full max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center relative z-20 px-6 lg:px-10 py-12 lg:py-4 min-h-[calc(100vh-90px)]">
 
         {/* === COLUMNA IZQUIERDA (Texto balanceado) === */}
-        <div className="flex flex-col items-center text-center w-full lg:w-[50%] mb-16 lg:mb-0 animate-fadeInUp">
-          <h2 className="text-base md:text-lg text-slate-100 font-serif mb-2 tracking-wide font-medium">Bienvenido a</h2>
+        <div className="flex flex-col items-center text-center w-full lg:w-[50%] mt-4 lg:mt-0 mb-12 lg:mb-0 animate-fadeInUp">
+          <h2 className="text-sm sm:text-base md:text-lg text-slate-100 font-serif mb-2 tracking-wide font-medium">Bienvenido a</h2>
 
           <h1
-            className="text-5xl md:text-[5.5rem] font-bold mb-6 leading-none drop-shadow-xl"
+            className="text-5xl sm:text-6xl md:text-[5.5rem] font-bold mb-4 md:mb-6 leading-none drop-shadow-xl"
             style={{
               background: 'linear-gradient(90deg, #DCEBFC 0%, #F1DDF3 50%, #FBE5CB 100%)',
               WebkitBackgroundClip: 'text',
@@ -132,9 +132,9 @@ export default function FeedYouLanding() {
         </div>
 
         {/* === COLUMNA DERECHA (Mockup centrado matemáticamente en la bola) === */}
-        <div className="relative w-full lg:w-[50%] flex justify-center lg:justify-end xl:justify-center lg:pr-[5%] xl:pr-0 xl:pl-[15%] items-center animate-fadeIn" style={{ animationDelay: "0.4s" }}>
+        <div className="relative w-full lg:w-[50%] flex justify-center lg:justify-end xl:justify-center lg:pr-[5%] xl:pr-0 xl:pl-[15%] items-center animate-fadeIn pb-8 lg:pb-0" style={{ animationDelay: "0.4s" }}>
 
-          <div className="relative w-[280px] h-[580px] z-30">
+          <div className="relative w-[280px] h-[580px] z-30 transform scale-[0.75] sm:scale-[0.85] md:scale-100 origin-top lg:origin-center -mb-28 sm:-mb-16 md:-mb-0">
 
             {/* --- EL CELULAR (Mismo alto sin deformar) --- */}
             <div className="absolute inset-0 bg-[#313337] rounded-[3.5rem] p-[10px] shadow-[0_30px_60px_rgba(0,0,0,0.3)] border-4 border-[#5E6061] overflow-hidden">
@@ -317,14 +317,14 @@ export default function FeedYouLanding() {
         </div>
 
         {/* Bottom Bar Footer (Aligned like Mockup) */}
-        <div className="max-w-7xl mx-auto px-6 md:px-12 mt-16 text-sm grid grid-cols-3 items-center">
-          <div className="text-left">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 mt-12 md:mt-16 text-sm flex flex-col md:grid md:grid-cols-3 items-center gap-6 md:gap-0">
+          <div className="text-center md:text-left order-2 md:order-1">
             <span className="hover:text-white cursor-pointer">Español | English</span>
           </div>
-          <div className="text-center md:pl-8">
+          <div className="text-center md:pl-8 order-1 md:order-2 opacity-70 md:opacity-100">
             <p>Derechos de autor © 2025<br />FeedYou</p>
           </div>
-          <div className="text-right">
+          <div className="text-center md:text-right order-3 md:order-3">
             <span className="hover:text-white cursor-pointer">Accesibilidad</span>
           </div>
         </div>

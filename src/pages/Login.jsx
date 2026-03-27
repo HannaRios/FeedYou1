@@ -148,10 +148,10 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <div className="pt-12">
+      <div className="pt-8 sm:pt-12">
         {/* Título */}
         <h1
-          className="text-center text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] mb-8"
+          className="text-center text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] mb-6 sm:mb-8"
           style={{ fontFamily: "Comic Sans MS, cursive" }}
         >
           FeedYou

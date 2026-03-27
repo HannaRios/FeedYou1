@@ -122,7 +122,7 @@ const colorCategoria = {
       <div className="max-w-3xl mx-auto mt-6 px-6">
         {/* CABECERA */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6">
             <img
               src={
                     userData.foto_perfil
@@ -131,34 +131,35 @@ const colorCategoria = {
                         : `${API_URL}${userData.foto_perfil}`
                       : "/avatar-default.png"
                   }
-              className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-sm"
               alt="Perfil"
             />
             
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col w-full">
 
                 {/* NOMBRE + CONFIGURACIÓN */}
-                <div className="flex items-start justify-between">
-                  <div>
+                <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between w-full">
+                  <div className="flex flex-col items-center sm:items-start">
                     <h1 className="text-2xl font-bold text-gray-800 leading-tight">
                       {userData.nombre}
                     </h1>
 
-                    <p className="text-sm text-blue-500 font-medium -mt-1">
+                    <p className="text-sm text-blue-500 font-medium -mt-1 mb-2 sm:mb-0">
                       @{userData.username}
                     </p>
                   </div>
 
-                  <div className="relative">
+                  <div className="relative mt-2 sm:mt-0 flex justify-center w-full sm:w-auto">
                     <button
                       onClick={() => setMenuOpen(!menuOpen)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition text-gray-400"
+                      className="py-1.5 px-4 sm:p-2 sm:px-2 bg-gray-100 sm:bg-transparent hover:bg-gray-200 sm:hover:bg-gray-100 rounded-full transition text-gray-600 sm:text-gray-400 font-bold flex items-center gap-2"
                     >
-                      <Settings size={22} />
+                      <Settings size={18} className="sm:w-[22px] sm:h-[22px]" />
+                      <span className="text-xs sm:hidden"></span>
                     </button>
 
                     {menuOpen && (
-                      <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden py-1">
+                      <div className="absolute top-10 sm:top-10 sm:right-0 mt-2 w-44 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden py-1">
                         <button
                           onClick={() => navigate("/edit-profile")}
                           className="w-full flex items-center gap-3 px-4 py-2 hover:bg-blue-50 text-gray-600 text-sm transition"
@@ -178,12 +179,12 @@ const colorCategoria = {
                 </div>
 
                 {/* BIO */}
-                <p className="text-gray-600 text-sm leading-relaxed mt-3 max-w-md">
+                <p className="text-gray-600 text-sm leading-relaxed mt-3 max-w-md mx-auto sm:mx-0">
                   {userData.bio || "Escribe algo interesante sobre ti..."}
                 </p>
 
                 {/* STATS */}
-                <div className="flex gap-10 mt-5">
+                <div className="flex justify-center sm:justify-start gap-6 sm:gap-10 mt-5">
                   <div className="text-center">
                     <span className="block font-bold text-gray-800">
                       {stats.postCount}
@@ -231,7 +232,7 @@ const colorCategoria = {
     <button
       key={tab.id}
       onClick={() => setActiveTab(tab.id)}
-      className={`flex items-center gap-2 py-4 px-4 text-xs font-bold uppercase tracking-widest relative transition ${
+      className={`flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-3 sm:py-4 px-2 sm:px-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest relative transition ${
         activeTab === tab.id ? "text-[#D4A373]" : "text-gray-400 hover:text-gray-600"
       }`}
       style={activeTab === tab.id ? { color: '#000000' } : {}} 
@@ -375,7 +376,7 @@ const colorCategoria = {
 {showModal && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
 
-    <div className="bg-white rounded-2xl w-[480px] max-h-[75vh] shadow-2xl relative flex flex-col">
+    <div className="bg-white rounded-2xl w-[90%] sm:w-[480px] h-[80vh] sm:max-h-[75vh] shadow-2xl relative flex flex-col">
 
       {/* LOGO */}
       <div className="absolute top-6 left-6">
@@ -451,7 +452,7 @@ const colorCategoria = {
 
 {showPostModal && selectedPost && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
-<div className="bg-white w-[600px] max-h-[90vh] rounded-3xl shadow-2xl relative flex flex-col overflow-hidden">
+<div className="bg-white w-[95%] sm:w-[600px] h-[90vh] sm:max-h-[90vh] rounded-3xl shadow-2xl relative flex flex-col overflow-hidden">
     
 
       {/* HEADER */}
@@ -485,16 +486,16 @@ const colorCategoria = {
       {/* TUS BOTONES FLOTANTES (ESTILO EXACTO) */}
       <button 
         onClick={() => setIsCreatePostOpen(true)}
-        className="fixed bottom-6 left-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+        className="fixed bottom-4 left-4 md:bottom-6 md:left-6 bg-blue-200 p-3 md:p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
       >
-        <PlusCircle className="w-6 h-6 text-blue-700" />
+        <PlusCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-700" />
       </button>
 
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className="fixed bottom-6 right-6 bg-blue-200 p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+        className="fixed bottom-4 right-4 md:bottom-6 md:right-6 bg-blue-200 p-3 md:p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
       >
-        <Bot className="w-6 h-6 text-blue-700" />
+        <Bot className="w-5 h-5 md:w-6 md:h-6 text-blue-700" />
       </button>
 
       <CreatePost isOpen={isCreatePostOpen} onClose={() => setIsCreatePostOpen(false)} onPublicacionCreada={loadProfile} />

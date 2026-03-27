@@ -108,65 +108,65 @@ const handleSubmit = async (e) => {
   };
 
   const inputClass = (fieldName) => `
-    w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-sm
+    w-full px-3 py-2 sm:px-4 sm:py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition text-[11px] sm:text-sm
     ${isSubmitted && errors[fieldName] ? "border-red-500 shadow-sm" : "border-gray-300 focus:ring-blue-300"}
   `;
 
   return (
     <AuthLayout>
-      <div className="pt-8 pb-8">
-        <h1 className="text-center text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] mb-6" style={{ fontFamily: "Comic Sans MS, cursive" }}>
+      <div className="pt-2 sm:pt-8 pb-2 sm:pb-8">
+        <h1 className="text-center text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c3b8ff] via-[#f5b6ec] to-[#ffd6a5] mb-4 sm:mb-6" style={{ fontFamily: "Comic Sans MS, cursive" }}>
           FeedYou
         </h1>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-3">
+        <form onSubmit={handleSubmit} noValidate className="space-y-2 sm:space-y-3">
           {/* Nombre */}
           <div>
             <input type="text" name="fullName" placeholder="Nombre completo" value={formData.fullName} onChange={handleChange} className={inputClass("fullName")} />
             {isSubmitted && errors.fullName && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.fullName}</p>}
           </div>
 
-          <div className="flex gap-2 items-start">
-            <div className="flex-[2]">
-              <input type="email" name="email" placeholder="Correo electrónico" value={formData.email} onChange={handleChange} className={inputClass("email")} />
-              {isSubmitted && errors.email && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.email}</p>}
+          <div className="flex gap-2 items-start w-full">
+            <div className="flex-[2] min-w-0">
+              <input type="email" name="email" placeholder="Correo" value={formData.email} onChange={handleChange} className={inputClass("email")} />
+              {isSubmitted && errors.email && <p className="text-[9px] sm:text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.email}</p>}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <input type="text" name="username" placeholder="Usuario" value={formData.username} onChange={handleChange} className={inputClass("username")} />
-              {isSubmitted && errors.username && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.username}</p>}
+              {isSubmitted && errors.username && <p className="text-[9px] sm:text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.username}</p>}
             </div>
           </div>
 
           {/* Teléfono y Género */}
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
+          <div className="flex gap-2 items-start w-full">
+            <div className="flex-1 min-w-0">
               <input type="tel" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleChange} className={inputClass("telefono")} />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <select name="genero" value={formData.genero} onChange={handleChange} className={inputClass("genero")}>
                 <option value="">Género</option>
                 <option value="Masculino">Masculino</option>
                 <option value="Femenino">Femenino</option>
               </select>
-              {isSubmitted && errors.genero && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.genero}</p>}
+              {isSubmitted && errors.genero && <p className="text-[9px] sm:text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.genero}</p>}
             </div>
           </div>
 
           {/* Ubicación */}
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
+          <div className="flex gap-2 items-start w-full">
+            <div className="flex-1 min-w-0">
               <select name="departamento" value={formData.departamento} onChange={handleChange} className={inputClass("departamento")}>
-                <option value="">Departamento</option>
+                <option value="">Dep.</option>
                 {Object.keys(UBICACIONES).map(d => <option key={d} value={d}>{d}</option>)}
               </select>
-              {isSubmitted && errors.departamento && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.departamento}</p>}
+              {isSubmitted && errors.departamento && <p className="text-[9px] sm:text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.departamento}</p>}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <select name="ciudad" value={formData.ciudad} onChange={handleChange} disabled={!formData.departamento} className={inputClass("ciudad")}>
                 <option value="">Ciudad</option>
                 {formData.departamento && UBICACIONES[formData.departamento].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              {isSubmitted && errors.ciudad && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.ciudad}</p>}
+              {isSubmitted && errors.ciudad && <p className="text-[9px] sm:text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.ciudad}</p>}
             </div>
           </div>
 
@@ -177,22 +177,22 @@ const handleSubmit = async (e) => {
           </div>
 
           {/* Contraseñas */}
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
+          <div className="flex gap-2 items-start w-full">
+            <div className="flex-1 min-w-0">
               <input type="password" name="password" placeholder="Contraseña" value={formData.password} onChange={handleChange} className={inputClass("password")} />
-              {isSubmitted && errors.password && <p className="text-[9px] text-red-500 ml-1 mt-0.5 font-bold italic leading-tight">⚠ {errors.password}</p>}
+              {isSubmitted && errors.password && <p className="text-[8px] sm:text-[9px] text-red-500 ml-1 mt-0.5 font-bold italic leading-tight">⚠ {errors.password}</p>}
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <input type="password" name="confirmPassword" placeholder="Confirmar" value={formData.confirmPassword} onChange={handleChange} className={inputClass("confirmPassword")} />
-              {isSubmitted && errors.confirmPassword && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.confirmPassword}</p>}
+              {isSubmitted && errors.confirmPassword && <p className="text-[9px] sm:text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.confirmPassword}</p>}
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <button type="submit" disabled={isSubmitting} className="flex-1 bg-blue-200 text-gray-800 py-2.5 rounded-lg font-semibold hover:bg-blue-300 transition text-sm">
-              {isSubmitting ? "Registrando..." : "Registrarte"}
+          <div className="flex gap-2 pt-2 sm:pt-4">
+            <button type="submit" disabled={isSubmitting} className="flex-[2] bg-blue-200 text-gray-800 py-2 sm:py-2.5 rounded-lg font-semibold hover:bg-blue-300 transition text-[11px] sm:text-sm">
+              {isSubmitting ? "Cargando..." : "Registrarte"}
             </button>
-            <Link to="/login" className="flex-1 bg-gray-200 text-gray-800 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition text-center text-sm">Volver</Link>
+            <Link to="/login" className="flex-1 bg-gray-200 text-gray-800 py-2 sm:py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center text-center text-[11px] sm:text-sm">Volver</Link>
           </div>
         </form>
       </div>
