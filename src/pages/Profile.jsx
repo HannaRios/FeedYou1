@@ -451,11 +451,11 @@ const colorCategoria = {
 
 {showPostModal && selectedPost && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
-
-    <div className="bg-white w-[600px] rounded-3xl shadow-2xl relative">
+<div className="bg-white w-[600px] max-h-[90vh] rounded-3xl shadow-2xl relative flex flex-col overflow-hidden">
+    
 
       {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-4 border-b">
+      <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white z-10">
 
         <img src="/logo.png" className="h-11" alt="FeedYou" />
 
@@ -469,9 +469,9 @@ const colorCategoria = {
       </div>
 
       {/* CONTENIDO */}
-      <div className="flex justify-center py-6 px-6">
+      <div className="flex justify-center py-6 px-6 flex-1 overflow-y-auto min-h-0">
 
-        <div className="w-full max-w-[420px]">
+        <div className="h-full overflow-y-auto">
           <PostDetail 
             postId={selectedPost.id_publicacion} 
             isModal 
