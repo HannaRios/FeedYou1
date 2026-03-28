@@ -85,7 +85,7 @@ export default function EditProfile() {
         <div className="flex flex-col items-center mb-10">
           <div className="relative group mt-10">
             <img 
-              src={formData.foto_perfil ? `${API_URL}${formData.foto_perfil}` : "/avatar-default.png"} 
+              src={formData.foto_perfil ? `${API_URL}${formData.foto_perfil}` : `${API_URL}/uploads/perfiles/default.png`} 
               className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
               alt="Preview"
             />

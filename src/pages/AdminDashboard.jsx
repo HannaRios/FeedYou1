@@ -49,11 +49,11 @@ import {
         foto_perfil: ""
     });
 
-    const API_URL = "http://localhost:4000";
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
     
     // Función segura para obtener la imagen, a prueba de barras invertidas o espacios
     const getSecureImageUrl = (path) => {
-        if (!path) return "/avatar-default.png";
+        if (!path) return `${API_URL}/uploads/perfiles/default.png`;
         if (path.startsWith("http")) return path;
         const cleanPath = path.toString().replace(/\\/g, '/').replace(/^\/+/, '');
         return `${API_URL}/${cleanPath}`;
@@ -203,7 +203,7 @@ import {
                       src={`${API_URL}/uploads/perfiles/default.png`} 
                       alt="Perfil" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform bg-white" 
-                      onError={(e) => { e.target.onerror = null; e.target.src = "/avatar-default.png"; }}
+                      onError={(e) => { e.target.onerror = null; e.target.src = `${API_URL}/uploads/perfiles/default.png`; }}
                     />
                 </div>
                 </div>

@@ -194,7 +194,7 @@ const welcomeEmailTemplate = (nombre) => {
             </tr>
             <tr>
               <td align="center" style="padding:30px 0;">
-                <a href="http://localhost:5173/login" style="display:inline-block;padding:15px 40px;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;background:linear-gradient(90deg, #22c55e, #3b82f6);color:#ffffff;">
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="display:inline-block;padding:15px 40px;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;background:linear-gradient(90deg, #22c55e, #3b82f6);color:#ffffff;">
                   Comenzar ahora
                 </a>
               </td>

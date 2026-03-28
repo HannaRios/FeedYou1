@@ -29,7 +29,7 @@ export const forgotPassword = async (req, res) => {
       [resetToken, expires, user.email]
     );
 
-    const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
     await sendResetEmail(email, resetLink);
 

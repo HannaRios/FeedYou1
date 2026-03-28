@@ -129,7 +129,7 @@ const colorCategoria = {
                       ? userData.foto_perfil.startsWith("http")
                         ? userData.foto_perfil
                         : `${API_URL}${userData.foto_perfil}`
-                      : "/avatar-default.png"
+                      : `${API_URL}/uploads/perfiles/default.png`
                   }
               className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-sm"
               alt="Perfil"
@@ -267,7 +267,7 @@ const colorCategoria = {
                           ? post.url_media.startsWith("http")
                             ? post.url_media
                             : `${API_URL}${post.url_media}`
-                          : "/avatar-default.png"
+                          : `${API_URL}/uploads/perfiles/default.png`
                       }
                       className="w-full h-full object-cover"
                       alt="Post"
@@ -426,7 +426,7 @@ const colorCategoria = {
                       ? u.foto_perfil.startsWith("http")
                         ? u.foto_perfil
                         : `${API_URL}${u.foto_perfil}`
-                      : "/avatar-default.png"
+                      : `${API_URL}/uploads/perfiles/default.png`
                   }
                   className="w-10 h-10 rounded-full object-cover"
                   alt="avatar"

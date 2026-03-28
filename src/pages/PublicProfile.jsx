@@ -82,7 +82,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                     ? user.foto_perfil.startsWith("http")
                         ? user.foto_perfil
                         : `${API_URL}${user.foto_perfil}`
-                    : "/avatar-default.png"
+                    : `${API_URL}/uploads/perfiles/default.png`
                 }
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-sm"
                 alt="perfil"
@@ -159,7 +159,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                         ? post.url_media.startsWith("http")
                             ? post.url_media
                             : `${API_URL}${post.url_media}`
-                        : "/avatar-default.png"
+                        : `${API_URL}/uploads/perfiles/default.png`
                     }
                     className="w-full h-full object-cover"
                     alt="post"
@@ -256,7 +256,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                         src={
                             u.foto_perfil
                             ? `${API_URL}${u.foto_perfil}`
-                            : "/avatar-default.png"
+                            : `${API_URL}/uploads/perfiles/default.png`
                         }
                         className="w-10 h-10 rounded-full object-cover"
                         />

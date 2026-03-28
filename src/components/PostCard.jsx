@@ -402,7 +402,7 @@ const copyToClipboard = async () => {
                     ? post.foto_perfil.startsWith("http")
                         ? post.foto_perfil
                         : `${API_URL}${post.foto_perfil}`
-                    : "/avatar-default.png"
+                    : `${API_URL}/uploads/perfiles/default.png`
                 }
                 alt="Foto de perfil"
                 className="w-10 h-10 rounded-full object-cover border"
@@ -615,7 +615,7 @@ const copyToClipboard = async () => {
                         ? comment.foto_perfil.startsWith("http")
                             ? comment.foto_perfil
                             : `${API_URL}${comment.foto_perfil}`
-                        : "/avatar-default.png"
+                        : `${API_URL}/uploads/perfiles/default.png`
                     }
                     alt="avatar"
                     className="w-10 h-10 rounded-full object-cover"

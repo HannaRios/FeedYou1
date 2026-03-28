@@ -13,7 +13,7 @@ const handleSubmit = async (e) => {
     console.log("Enviando petición...");
 
     const response = await fetch(
-      "http://localhost:4000/api/auth/forgot-password",
+      `${import.meta.env.VITE_API_URL || "http://localhost:4000"}/api/auth/forgot-password`,
       {
         method: "POST",
         headers: {

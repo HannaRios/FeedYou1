@@ -236,7 +236,7 @@ useEffect(() => {
                 ? userResult.foto_perfil.startsWith("http")
                   ? userResult.foto_perfil
                   : `${API_URL}${userResult.foto_perfil}`
-                : "/avatar-default.png"
+                : `${API_URL}/uploads/perfiles/default.png`
             }
             alt="avatar"
             className="w-12 h-12 rounded-full object-cover"
