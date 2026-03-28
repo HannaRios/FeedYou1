@@ -80,8 +80,13 @@ export { io };
 // ================== FRONTEND ==================
 app.use(express.static(path.join(__dirname, "..", "dist")));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "dist", "index.html"), (err) => {
+    if (err) {
+      // Si hay error, es porque la carpeta dist no existe
+      res.status(404).send("Error: No se encontró el build del frontend. Revisa el Build Command en Railway.");
+    }
+  });
 });
 
 // ================== MANEJO DE ERRORES ==================
