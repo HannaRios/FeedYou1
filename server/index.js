@@ -78,13 +78,21 @@ io.on("connection", (socket) => {
 export { io };
 
 // ================== FRONTEND ==================
-app.use(express.static(path.join(__dirname, "..", "dist")));
+// Usamos path.join con process.cwd() para ir a la raíz y luego a /dist
+const distPath = path.join(process.cwd(), "..", "dist");
+
+app.use(express.static(distPath));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "dist", "index.html"), (err) => {
+  // Verificamos si es una ruta de API para no enviar el HTML por error
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: "Ruta de API no encontrada" });
+  }
+  
+  res.sendFile(path.join(distPath, "index.html"), (err) => {
     if (err) {
-      // Si hay error, es porque la carpeta dist no existe
-      res.status(404).send("Error: No se encontró el build del frontend. Revisa el Build Command en Railway.");
+      console.error("Error enviando index.html:", err);
+      res.status(404).send("El frontend aún no se ha compilado. Revisa los logs de Build en Railway.");
     }
   });
 });
