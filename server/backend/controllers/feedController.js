@@ -39,7 +39,7 @@ LEFT JOIN interacciones i ON p.id_publicacion = i.id_publicacion
 
 WHERE p.estado = 'aprobado'
 
-GROUP BY p.id_publicacion
+GROUP BY p.id_publicacion, u.username, u.nombre, u.foto_perfil
 ORDER BY p.fecha_publicacion DESC
 `,
 [email, email]
@@ -154,7 +154,7 @@ export const feedParaTi = async (req, res) => {
         WHERE email = ?
       )
 
-      GROUP BY p.id_publicacion
+      GROUP BY p.id_publicacion, u.foto_perfil, u.username, u.nombre, p.email_autor, p.titulo, p.descripcion, p.tipo, p.url_media, p.enlace_externo, p.fecha_publicacion
       ORDER BY p.fecha_publicacion DESC
       `,
       [email, email, email]
@@ -224,7 +224,7 @@ export const feedSeguidos = async (req, res) => {
       WHERE s.email_seguidor = ?
       AND p.estado = 'aprobado'
 
-      GROUP BY p.id_publicacion
+      GROUP BY p.id_publicacion, u.foto_perfil, u.username, u.nombre, p.email_autor, p.titulo, p.descripcion, p.tipo, p.url_media, p.enlace_externo, p.fecha_publicacion
 
       ORDER BY p.fecha_publicacion DESC
       `,

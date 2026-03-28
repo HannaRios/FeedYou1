@@ -40,7 +40,7 @@ export const getPerfilCompleto = async (req, res) => {
         WHERE p.email_autor = ?
         AND p.estado = 'aprobado'
 
-        GROUP BY p.id_publicacion
+        GROUP BY p.id_publicacion, u.username, u.nombre, u.foto_perfil
         ORDER BY p.fecha_publicacion DESC
         `,
   [email]
@@ -72,7 +72,7 @@ export const getPerfilCompleto = async (req, res) => {
       WHERE email = ?
     )
 
-    GROUP BY p.id_publicacion
+    GROUP BY p.id_publicacion, u.username, u.nombre, u.foto_perfil
     ORDER BY p.fecha_publicacion DESC
     `,
     [email, visitor]
