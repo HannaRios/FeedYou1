@@ -47,11 +47,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ================== RUTA TEST ==================
-app.get("/", (req, res) => {
-  res.send("Servidor FeedYou funcionando 🚀");
-});
-
 // ================== RUTAS API ==================
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/feed", feedRoutes);
@@ -99,8 +94,6 @@ app.use((err, req, res, next) => {
 
 // ================== PUERTO ==================
 const PORT = process.env.PORT || 4000;
-
-// Agregamos '0.0.0.0' para que Railway pueda ver la app
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor FeedYou corriendo en puerto ${PORT}`);
   console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "Configurado" : "NO configurado"}`);
