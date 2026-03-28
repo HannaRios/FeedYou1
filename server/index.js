@@ -5,8 +5,9 @@ import http from "http";
 import { Server } from "socket.io";
 import "./db.js";
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 
+// ================== IMPORTAR RUTAS ==================
 import newsApiRoutes from "./backend/routes/newsApiRoutes.js";
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
 import feedRoutes from "./backend/routes/feedRoutes.js";
@@ -15,47 +16,43 @@ import categoriasRoutes from "./backend/routes/categorias.js";
 import interesesRoutes from "./backend/routes/interesesRoutes.js";
 import testRoutes from "./backend/routes/testRoutes.js";
 import interaccionesRoutes from "./backend/routes/interaccionesRoutes.js";
-
 import chatRoutes from "./backend/routes/chatRoutes.js";
 import authRoutes from "./backend/routes/authRoutes.js";
 import notificacionesRoutes from "./backend/routes/notificacionesRoutes.js";
-
-import { fileURLToPath } from 'url';
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-// Middlewares
 
+// ================== CONFIG PATH ==================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ================== CORS ==================
 app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "*", // 🔥 permite Railway y frontend
+  methods: ["GET", "POST", "PUT", "DELETE"],
 }));
 
-// Parsear JSON
+// ================== MIDDLEWARES ==================
 app.use(express.json());
 
-// Servir archivos estáticos (fotos de perfil, publicaciones, etc.)
-app.use(
-  "/uploads",
-  express.static(path.join(process.cwd(), "uploads"))
-);
+// Archivos estáticos (uploads)
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-// Logger
+// ================== LOGGER ==================
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
 });
 
-
+// ================== RUTA TEST ==================
 app.get("/", (req, res) => {
-  res.send("Servidor FeedYou funcionando ");
+  res.send("Servidor FeedYou funcionando 🚀");
 });
 
-// Rutas
+// ================== RUTAS API ==================
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/publicaciones", publicacionRoutes);
@@ -68,25 +65,10 @@ app.use("/api/interacciones", interaccionesRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
 
-
-
-app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(500).json({ 
-    error: "Error interno del servidor",
-    details: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
-
-
-
-// ================= SOCKET.IO =================
-
+// ================== SOCKET.IO ==================
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true
+    origin: "*"
   }
 });
 
@@ -98,25 +80,27 @@ io.on("connection", (socket) => {
   });
 });
 
-// Exportar después de crear io
 export { io };
 
-//Puerto
+// ================== FRONTEND ==================
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+// ================== MANEJO DE ERRORES ==================
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  res.status(500).json({
+    error: "Error interno del servidor"
+  });
+});
+
+// ================== PUERTO ==================
 const PORT = process.env.PORT || 4000;
+
 server.listen(PORT, () => {
   console.log(`Servidor FeedYou corriendo en puerto ${PORT}`);
   console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "Configurado" : "NO configurado"}`);
-});
-
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, '../dist')));
-
-// Cualquier ruta que no sea de la API, devuelve el index.html de React
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
