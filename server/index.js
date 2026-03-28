@@ -5,6 +5,10 @@ import http from "http";
 import { Server } from "socket.io";
 import "./db.js";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import newsApiRoutes from "./backend/routes/newsApiRoutes.js";
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
@@ -38,7 +42,7 @@ app.use(express.json());
 // Servir archivos estáticos (fotos de perfil, publicaciones, etc.)
 app.use(
   "/uploads",
-  express.static(path.join(process.cwd(), "uploads"))
+  express.static(path.join(__dirname, "uploads"))
 );
 
 // Logger

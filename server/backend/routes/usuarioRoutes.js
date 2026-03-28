@@ -436,30 +436,66 @@ router.get("/stats/categorias", async (req, res) => {
 });
 
 router.get("/seguidores/:email", async (req, res) => {
-  const { email } = req.params;
+  try {
+    const { email } = req.params;
 
-  const [rows] = await db.query(`
-    SELECT u.email, u.username, u.nombre, u.foto_perfil
-    FROM seguidores s
-    JOIN usuarios u ON s.email_seguidor = u.email
-    WHERE s.email_seguido = ?
-  `, [email]);
+    // Primero obtenemos los emails de los seguidores
+    const [seguidoresRows] = await db.query(
+      "SELECT email_seguidor FROM seguidores WHERE email_seguido = ?", 
+      [email]
+    );
 
-  res.json(rows);
+    if (seguidoresRows.length === 0) {
+      return res.json([]);
+    }
+
+    const emails = seguidoresRows.map(s => s.email_seguidor);
+    const placeholders = emails.map(() => '?').join(',');
+
+    // Luego buscamos los perfiles de esos usuarios evitando JOIN para sortear problemas de collation en bbdd
+    const [rows] = await db.query(`
+      SELECT email, username, nombre, foto_perfil
+      FROM usuarios
+      WHERE email IN (${placeholders})
+    `, emails);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al obtener seguidores:", error);
+    res.status(500).json({ error: "Error en el servidor al obtener seguidores" });
+  }
 });
 
 
 router.get("/seguidos/:email", async (req, res) => {
-  const { email } = req.params;
+  try {
+    const { email } = req.params;
 
-  const [rows] = await db.query(`
-    SELECT u.email, u.username, u.nombre, u.foto_perfil
-    FROM seguidores s
-    JOIN usuarios u ON s.email_seguido = u.email
-    WHERE s.email_seguidor = ?
-  `, [email]);
+    // Primero obtenemos los emails q este usuario sigue
+    const [seguidosRows] = await db.query(
+      "SELECT email_seguido FROM seguidores WHERE email_seguidor = ?", 
+      [email]
+    );
 
-  res.json(rows);
+    if (seguidosRows.length === 0) {
+      return res.json([]);
+    }
+
+    const emails = seguidosRows.map(s => s.email_seguido);
+    const placeholders = emails.map(() => '?').join(',');
+
+    // Luego buscamos los perfiles
+    const [rows] = await db.query(`
+      SELECT email, username, nombre, foto_perfil
+      FROM usuarios
+      WHERE email IN (${placeholders})
+    `, emails);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error al obtener seguidos:", error);
+    res.status(500).json({ error: "Error en el servidor al obtener seguidos" });
+  }
 });
 
 export default router;
