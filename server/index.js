@@ -83,10 +83,10 @@ io.on("connection", (socket) => {
 export { io };
 
 // ================== FRONTEND ==================
-app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.static(path.join(__dirname, "..", "dist")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
 });
 
 // ================== MANEJO DE ERRORES ==================
@@ -100,7 +100,8 @@ app.use((err, req, res, next) => {
 // ================== PUERTO ==================
 const PORT = process.env.PORT || 4000;
 
-server.listen(PORT, () => {
+// Agregamos '0.0.0.0' para que Railway pueda ver la app
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor FeedYou corriendo en puerto ${PORT}`);
   console.log(`GOOGLE_CLIENT_ID: ${process.env.GOOGLE_CLIENT_ID ? "Configurado" : "NO configurado"}`);
 });
