@@ -192,10 +192,10 @@ const API_URL = import.meta.env.VITE_API_URL;
                 {showPostModal && selectedPost && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
 
-                    <div className="bg-white w-[95%] sm:w-[620px] max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+                    <div className="bg-white w-[95%] sm:w-[600px] h-[90vh] sm:max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative">
 
                     {/* HEADER */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b">
+                    <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white z-10">
 
                         <img src="/logo.png" className="h-11" alt="FeedYou" />
 
@@ -209,7 +209,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                     </div>
 
                     {/* CONTENIDO */}
-                    <div className="flex justify-center py-6 px-6">
+                    <div className="flex justify-center py-6 px-6 flex-1 overflow-y-auto min-h-0">
 
                         <div className="w-full max-w-sm">
                         <PostDetail postId={selectedPost.id_publicacion} isModal />
