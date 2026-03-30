@@ -6,9 +6,28 @@ import { Server } from "socket.io";
 import "./db.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// ================= COPIA DE SEGURIDAD DE DEFAULT.PNG =================
+// Asegurar que exista la carpeta y la imagen por defecto en el volumen persistente de Railway
+const defaultProfilePath = path.join(__dirname, "uploads", "perfiles", "default.png");
+const assetsDefaultPath = path.join(__dirname, "assets", "default.png");
+
+try {
+  if (!fs.existsSync(path.join(__dirname, "uploads", "perfiles"))) {
+    fs.mkdirSync(path.join(__dirname, "uploads", "perfiles"), { recursive: true });
+  }
+  if (!fs.existsSync(defaultProfilePath) && fs.existsSync(assetsDefaultPath)) {
+    console.log("Copiando imagen de perfil por defecto al volumen de uploads...");
+    fs.copyFileSync(assetsDefaultPath, defaultProfilePath);
+  }
+} catch (error) {
+  console.error("Error al asegurar la imagen de perfil por defecto:", error);
+}
+// ====================================================================
 
 import newsApiRoutes from "./backend/routes/newsApiRoutes.js";
 import usuarioRoutes from "./backend/routes/usuarioRoutes.js";
@@ -45,9 +64,10 @@ app.use(
   express.static(path.join(__dirname, "uploads"))
 );
 
-// Fallback para fotos de perfil perdidas (ej. redeploy en Railway)
+// Fallback para fotos de perfil perdidas (ej. redeploy en Railway o rutas faltantes)
 app.use("/uploads/perfiles", (req, res) => {
-  res.sendFile(path.join(__dirname, "uploads", "perfiles", "default.png"));
+  // Enviar el archivo directo desde assets para que nunca falle (aunque no esté en uploads)
+  res.sendFile(path.join(__dirname, "assets", "default.png"));
 });
 
 // Logger
