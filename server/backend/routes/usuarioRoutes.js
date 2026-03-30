@@ -243,12 +243,10 @@ router.post("/register", validarRegistro, async (req, res) => {
       [nombre, email, hashedPassword, username, telefono, genero, departamento, ciudad, fecha_nacimiento, "local"]
     );
 
-    // Intento de envío de correo (sin bloquear el registro)
-    try {
-      await sendWelcomeEmail(email, nombre);
-    } catch (mailError) {
-      console.error("Error al enviar correo de bienvenida:", mailError);
-    }
+    // Intento de envío de correo (en segundo plano y sin bloquear el registro)
+    sendWelcomeEmail(email, nombre).catch(mailError => {
+      console.error("Error en segundo plano al enviar correo de bienvenida:", mailError);
+    });
 
     res.json({ mensaje: "Usuario registrado correctamente" });
   } catch (error) {
