@@ -222,12 +222,17 @@ export const feedSeguidos = async (req, res) => {
         SELECT email_seguido COLLATE utf8mb4_unicode_ci FROM seguidores WHERE email_seguidor = ?
       )
       AND p.estado = 'aprobado'
+      AND p.id_subcategoria IN (
+        SELECT id_subcategoria
+        FROM preferencias_test
+        WHERE email = ?
+      )
 
       GROUP BY p.id_publicacion, u.foto_perfil, u.username, u.nombre, p.email_autor, p.titulo, p.descripcion, p.tipo, p.url_media, p.enlace_externo, p.fecha_publicacion
 
       ORDER BY p.fecha_publicacion DESC
       `,
-      [email, email, email]
+      [email, email, email, email]
     );
 
     res.json(rows);
