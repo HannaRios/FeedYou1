@@ -45,6 +45,11 @@ app.use(
   express.static(path.join(__dirname, "uploads"))
 );
 
+// Fallback para fotos de perfil perdidas (ej. redeploy en Railway)
+app.use("/uploads/perfiles", (req, res) => {
+  res.sendFile(path.join(__dirname, "uploads", "perfiles", "default.png"));
+});
+
 // Logger
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
