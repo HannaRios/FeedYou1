@@ -211,7 +211,7 @@ const API_URL = import.meta.env.VITE_API_URL;
                     {/* CONTENIDO */}
                     <div className="flex justify-center py-6 px-6 flex-1 overflow-y-auto min-h-0">
 
-                        <div className="w-full max-w-sm">
+                        <div className="h-full overflow-y-auto w-full">
                         <PostDetail postId={selectedPost.id_publicacion} isModal />
                         </div>
 
