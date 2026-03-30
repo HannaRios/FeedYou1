@@ -215,13 +215,12 @@ export const feedSeguidos = async (req, res) => {
       JOIN usuarios u 
       ON p.email_autor = u.email
 
-      JOIN seguidores s
-      ON s.email_seguido = p.email_autor
-
       LEFT JOIN interacciones i
       ON i.id_publicacion = p.id_publicacion
 
-      WHERE s.email_seguidor = ?
+      WHERE p.email_autor IN (
+        SELECT email_seguido FROM seguidores WHERE email_seguidor = ?
+      )
       AND p.estado = 'aprobado'
 
       GROUP BY p.id_publicacion, u.foto_perfil, u.username, u.nombre, p.email_autor, p.titulo, p.descripcion, p.tipo, p.url_media, p.enlace_externo, p.fecha_publicacion
@@ -235,6 +234,6 @@ export const feedSeguidos = async (req, res) => {
 
   } catch (error) {
     console.error("Error feed Seguidos:", error);
-    res.status(500).json({ error: "Error cargando feed de seguidos" });
+    res.status(500).json({ error: "Error cargando feed de seguidos", details: error.message || String(error) });
   }
 };

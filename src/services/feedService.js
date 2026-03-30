@@ -8,18 +8,18 @@ export const fetchFeed = async (email) => {
     );
 
     const data = await res.json();
+    if (!res.ok || !Array.isArray(data)) {
+      console.error("Error del servidor fetchFeed:", data);
+      return [];
+    }
+    
     console.log("Feed recibido correctamente:", data);
-
     return data;
 
   } catch (error) {
-
     console.error("Error fetchFeed:", error);
-
     return [];
-
   }
-
 };
 
 export const fetchFeedSeguidos = async (email) => {
@@ -29,15 +29,16 @@ export const fetchFeedSeguidos = async (email) => {
     );
 
     const data = await res.json();
+    if (!res.ok || !Array.isArray(data)) {
+      console.error("Error del servidor fetchFeedSeguidos:", data);
+      return [];
+    }
+    
     console.log("Feed de seguidos:", data);
-
     return data;
 
   } catch (error) {
-
     console.error("Error fetchFeedSeguidos:", error);
-
     return [];
   }
 };
-
