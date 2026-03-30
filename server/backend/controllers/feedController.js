@@ -218,8 +218,8 @@ export const feedSeguidos = async (req, res) => {
       LEFT JOIN interacciones i
       ON i.id_publicacion = p.id_publicacion
 
-      WHERE p.email_autor IN (
-        SELECT email_seguido FROM seguidores WHERE email_seguidor = ?
+      WHERE p.email_autor COLLATE utf8mb4_unicode_ci IN (
+        SELECT email_seguido COLLATE utf8mb4_unicode_ci FROM seguidores WHERE email_seguidor = ?
       )
       AND p.estado = 'aprobado'
 
