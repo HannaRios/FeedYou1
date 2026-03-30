@@ -23,10 +23,14 @@ export const registrarUsuario = async (datosFrontend) => {
     const data = await response.json();
 
     if (!response.ok) {
-      const errorMsg = Array.isArray(data.errors) 
-        ? data.errors.map(e => e.msg).join(", ") 
+      const errorList = data.errores || data.errors;
+      const errorMsg = Array.isArray(errorList) 
+        ? errorList.map(e => e.msg).join(", ") 
         : data.error || "Error en el registro";
-      throw new Error(errorMsg);
+        
+      const error = new Error(errorMsg);
+      error.status = response.status;
+      throw error;
     }
 
     return data;

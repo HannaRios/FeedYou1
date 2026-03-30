@@ -9,7 +9,7 @@ export const validarRegistro = [
   check("username")
     .trim()
     .notEmpty().withMessage("El nombre de usuario es obligatorio")
-    .isAlphanumeric().withMessage("El username solo admite letras y números"),
+    .matches(/^[a-zA-Z0-9_\.]+$/).withMessage("El username solo admite letras, números, puntos y guiones bajos"),
 
   check("email")
     .trim()
@@ -17,7 +17,7 @@ export const validarRegistro = [
 
   check("telefono")
     .optional({ checkFalsy: true })
-    .isMobilePhone().withMessage("Número de teléfono no válido"),
+    .isLength({ min: 7, max: 15 }).withMessage("Número de teléfono no válido"),
 
   check("genero")
     .notEmpty().withMessage("El género es obligatorio"),

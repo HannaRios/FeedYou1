@@ -25,7 +25,6 @@ export default function Register() {
     fullName: "", email: "", username: "", telefono: "", genero: "",
     departamento: "", ciudad: "", fechaNacimiento: "", password: "", confirmPassword: "",
   });
-  console.log("Datos enviados:", formData);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,12 +92,10 @@ const handleSubmit = async (e) => {
       navigate("/test-intro");
 
     } catch (err) {
-      
       console.error("Error detallado:", err);
 
-      if (err.response && (err.response.status === 400 || err.response.status === 409)) {
-      
-        setErrors({ email: "Este correo o usuario ya existe" });
+      if (err.status === 400 || err.status === 409) {
+        setErrors({ email: err.message || "Error en los datos de registro" });
       } else {
         setErrors({ email: "Error de conexión con el servidor" });
       }
