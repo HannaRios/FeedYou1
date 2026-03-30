@@ -73,6 +73,15 @@ useEffect(() => {
     const username = post.username_autor || post.username || post.email_autor?.split("@")[0];
     const nombre = post.nombre_autor || post.nombre || "";
 
+    const handleProfileClick = () => {
+        if (!post.email_autor) return;
+        if (post.email_autor === userEmail) {
+            navigate("/profile");
+        } else {
+            navigate(`/usuario/${post.email_autor}`);
+        }
+    };
+
     // ============================
     // LÓGICA DE REPORTE (NUEVO)
     // ============================
@@ -397,6 +406,7 @@ const copyToClipboard = async () => {
 
             <div className="flex items-center gap-3">
                 <img
+                onClick={handleProfileClick}
                 src={
                     post.foto_perfil
                     ? post.foto_perfil.startsWith("http")
@@ -405,7 +415,7 @@ const copyToClipboard = async () => {
                     : `${API_URL}/uploads/perfiles/default.png`
                 }
                 alt="Foto de perfil"
-                className="w-10 h-10 rounded-full object-cover border"
+                className="w-10 h-10 rounded-full object-cover border cursor-pointer hover:opacity-80 transition"
                 />
                 
                 <div className="flex flex-col">
@@ -413,7 +423,10 @@ const copyToClipboard = async () => {
                 {/* LINEA USERNAME + CHECK + SEGUIR */}
                 <div className="flex items-center gap-1 text-sm">
 
-                    <span className="font-semibold text-gray-900">
+                    <span 
+                        onClick={handleProfileClick}
+                        className="font-semibold text-gray-900 cursor-pointer hover:underline"
+                    >
                     {username}
                     </span>
 

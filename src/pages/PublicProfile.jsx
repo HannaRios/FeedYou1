@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import PostDetail from "../components/PostDetail";
 import { useAuth } from "../context/AuthContext";
+import FollowButton from "../components/FollowButton";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -88,16 +89,30 @@ const API_URL = import.meta.env.VITE_API_URL;
                 alt="perfil"
                 />
 
-                <div className="flex-1 w-full">
-                <h1 className="text-2xl font-bold text-gray-800">
-                    {user.nombre}
-                </h1>
+                <div className="flex-1 w-full flex flex-col sm:block items-center sm:items-start">
+                
+                <div className="flex flex-col sm:flex-row items-center gap-3 justify-center sm:justify-start">
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        {user.nombre}
+                    </h1>
 
-                <p className="text-blue-500 font-medium">
-                    @{user.username}
-                </p>
+                    {loggedUser && loggedUser.email !== user.email && (
+                        <div className="scale-90 sm:scale-100 origin-left">
+                            <FollowButton
+                                currentUser={loggedUser.email}
+                                targetUser={user.email}
+                            />
+                        </div>
+                    )}
+                </div>
 
-                <p className="text-gray-600 text-sm mt-2 max-w-md mx-auto sm:mx-0">
+                <div className="flex items-center mt-1 justify-center sm:justify-start">
+                    <p className="text-blue-500 font-medium">
+                        @{user.username}
+                    </p>
+                </div>
+
+                <p className="text-gray-600 text-sm mt-3 max-w-md mx-auto sm:mx-0">
                     {user.bio || "Este usuario aún no ha agregado una bio."}
                 </p>
 
