@@ -11,21 +11,26 @@ import fs from "fs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ================= COPIA DE SEGURIDAD DE DEFAULT.PNG =================
-// Asegurar que exista la carpeta y la imagen por defecto en el volumen persistente de Railway
-const defaultProfilePath = path.join(__dirname, "uploads", "perfiles", "default.png");
-const assetsDefaultPath = path.join(__dirname, "assets", "default.png");
+// ================= COPIA DE SEGURIDAD DE IMÁGENES ESTÁTICAS =================
+// Asegurar que exista la carpeta y las imágenes críticas (default.png, newsapi.png) en el volumen persistente de Railway
+const perfilesPath = path.join(__dirname, "uploads", "perfiles");
+const imagesToCopy = [
+  { source: path.join(__dirname, "assets", "default.png"), target: path.join(perfilesPath, "default.png") },
+  { source: path.join(__dirname, "assets", "newsapi.png"), target: path.join(perfilesPath, "newsapi.png") }
+];
 
 try {
-  if (!fs.existsSync(path.join(__dirname, "uploads", "perfiles"))) {
-    fs.mkdirSync(path.join(__dirname, "uploads", "perfiles"), { recursive: true });
+  if (!fs.existsSync(perfilesPath)) {
+    fs.mkdirSync(perfilesPath, { recursive: true });
   }
-  if (!fs.existsSync(defaultProfilePath) && fs.existsSync(assetsDefaultPath)) {
-    console.log("Copiando imagen de perfil por defecto al volumen de uploads...");
-    fs.copyFileSync(assetsDefaultPath, defaultProfilePath);
+  for (const img of imagesToCopy) {
+    if (!fs.existsSync(img.target) && fs.existsSync(img.source)) {
+      console.log(`Copiando imagen de seguridad [${path.basename(img.target)}] al volumen persistente...`);
+      fs.copyFileSync(img.source, img.target);
+    }
   }
 } catch (error) {
-  console.error("Error al asegurar la imagen de perfil por defecto:", error);
+  console.error("Error al asegurar imágenes estáticas:", error);
 }
 // ====================================================================
 
