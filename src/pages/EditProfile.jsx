@@ -75,7 +75,7 @@ export default function EditProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10 font-sans">
+    <div className="min-h-screen bg-feedyou pb-10 font-sans">
       <Navbar />
       <div className="w-[95%] sm:max-w-xl mx-auto mt-4 sm:mt-8 p-6 sm:p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
         <button onClick={() => navigate(-1)} className="flex items-center text-gray-400 mb-8 hover:text-blue-400 transition font-bold text-sm tracking-tight">

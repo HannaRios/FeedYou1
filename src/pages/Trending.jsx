@@ -42,12 +42,12 @@ const fetchTrending = async () => {
 }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-feedyou">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-10">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight text-center">
-          Tendencias
+        <h2 className="text-center mb-8 mt-2">
+          <span className="text-2xl title-feedyou">Tendencias</span>
         </h2>
 
           {loading ? (

@@ -1,6 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* FeedYou Branded Title */
+.title-feedyou {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600; /* Más delgada */
+  display: inline-block;
+  color: #1f2937; /* Gris oscuro / casi negro (Tailwind gray-800) */
+  position: relative;
+  letter-spacing: -0.02em;
+}
 
 /* Reset global */
 * {
@@ -22,4 +34,100 @@ body {
 #root {
   width: 100%;
   min-height: 100vh;
+}
+
+@keyframes floatPremium {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-15px) scale(1.02); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+/* Base custom background for FeedYou application pages */
+.bg-feedyou {
+  background-color: #f8faff; /* Fondo base claro */
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Capa de Puntos Localizados y Círculos Finos (Outlines) */
+.bg-feedyou::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: 
+    /* Dotted pattern localized top-left */
+    url("data:image/svg+xml,%3Csvg width='180' height='150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpattern id='dots' x='0' y='0' width='30' height='30' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%2394a3b8' cx='15' cy='15' r='1.5'/%3E%3C/pattern%3E%3Crect width='180' height='150' fill='url(%23dots)'/%3E%3C/svg%3E"),
+    /* Dotted pattern localized bottom-right */
+    url("data:image/svg+xml,%3Csvg width='150' height='180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpattern id='dots' x='0' y='0' width='30' height='30' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%2394a3b8' cx='15' cy='15' r='1.5'/%3E%3C/pattern%3E%3Crect width='150' height='180' fill='url(%23dots)'/%3E%3C/svg%3E"),
+    /* Círculo gigante outline (Azul tech sutil) */
+    radial-gradient(circle at 10% 40%, transparent 22%, rgba(148, 180, 230, 0.4) 22.2%, rgba(148, 180, 230, 0.4) 22.4%, transparent 22.6%),
+    /* Círculo gigante outline (Gris plomo sutil) */
+    radial-gradient(circle at 90% 70%, transparent 25%, rgba(160, 175, 200, 0.4) 25.2%, rgba(160, 175, 200, 0.4) 25.4%, transparent 25.6%);
+  background-size: 
+    180px 150px,   /* SVG dots 1 */
+    150px 180px,   /* SVG dots 2 */
+    100% 100%, 100% 100%;
+  background-position: 
+    8% 25%,        /* Posición dots 1 (arriba izq) */
+    88% 85%,       /* Posición dots 2 (abajo der) */
+    0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+  opacity: 0.5;
+}
+
+/* Capa de Manchas de Color: Tonos Unisex Modernos (Tech Vibe) */
+.bg-feedyou::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: 
+    /* Círculo Azul Pizarra (Izquierda) */
+    radial-gradient(circle closest-side, rgba(200, 225, 245, 0.8) 99%, transparent 100%),
+    /* Círculo Índigo Frío (Derecha Abajo) */
+    radial-gradient(circle closest-side, rgba(215, 220, 245, 0.8) 99%, transparent 100%),
+    /* Círculo Menta Acuático (Arriba Derecha) */
+    radial-gradient(circle closest-side, rgba(210, 245, 240, 0.8) 99%, transparent 100%),
+    /* Círculo Arena Neutra / Beige (Abajo Izquierda) */
+    radial-gradient(circle closest-side, rgba(245, 242, 230, 0.8) 99%, transparent 100%),
+    /* Círculo pequeño decorativo superpuesto azul grisáceo */
+    radial-gradient(circle closest-side, rgba(185, 205, 230, 0.6) 99%, transparent 100%),
+    
+    /* --- NUEVAS FORMAS (Relleno extra Unisex) --- */
+    /* Cyan Pálido (Centro-Arriba) */
+    radial-gradient(circle closest-side, rgba(220, 245, 255, 0.6) 99%, transparent 100%),
+    /* Gris Nube / Plata claro (Arriba Izquierda) */
+    radial-gradient(circle closest-side, rgba(235, 240, 245, 0.7) 99%, transparent 100%),
+    /* Verde Agua minimalista (Abajo Centro) */
+    radial-gradient(circle closest-side, rgba(225, 245, 235, 0.5) 99%, transparent 100%);
+  
+  background-size: 
+    410px 410px, /* blue (ligeramente más pequeño) */
+    340px 340px, /* purple */
+    220px 220px, /* green */
+    260px 260px, /* yellow */
+    120px 120px, /* small blue */
+    /* Tamaños de las nuevas formas */
+    300px 300px, /* durazno */
+    260px 260px, /* lila extra */
+    280px 280px; /* turquesa extra */
+    
+  background-position: 
+    -100px 15%,      /* blue top-mid left */
+    102% 95%,        /* purple bottom right */
+    92% 5%,          /* green top right */
+    -20px 100%,      /* yellow bottom left */
+    18% 40%,         /* small blue overlapping */
+    
+    /* Posiciones de relleno en bordes vacíos */
+    65% -40px,       /* durazno asomándose arriba */
+    -40px -40px,     /* lila asomándose por la esquina izq. */
+    60% 105%;        /* turquesa asomándose por abajo */
+    
+  background-repeat: no-repeat;
+  animation: floatPremium 15s infinite ease-in-out;
 }

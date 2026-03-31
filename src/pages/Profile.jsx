@@ -116,7 +116,7 @@ const colorCategoria = {
 }, {});
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+    <div className="min-h-screen bg-feedyou pb-20 font-sans">
       <Navbar />
 
       <div className="max-w-3xl mx-auto mt-6 px-6">

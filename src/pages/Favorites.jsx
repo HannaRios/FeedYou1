@@ -49,10 +49,10 @@ export default function Favorites() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-gray-50 pt-20 px-4">
+      <div className="min-h-screen bg-feedyou pt-20 px-4">
         <div className="max-w-3xl mx-auto space-y-6">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-8 tracking-tight text-center">
-            Favoritos
+          <h1 className="text-center mb-8 mt-2">
+            <span className="text-2xl title-feedyou">Favoritos</span>
           </h1>
 
           {loading && <p>Cargando...</p>}
