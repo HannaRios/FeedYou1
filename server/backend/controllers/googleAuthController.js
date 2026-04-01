@@ -35,9 +35,8 @@ export const googleLogin = async (req, res) => {
   }
 
   try {
-    // Buscar usuario en la BD
     const [rows] = await db.query(
-      "SELECT email, nombre, provider, foto_perfil FROM usuarios WHERE email = ?",
+      "SELECT email, nombre, provider, foto_perfil, username FROM usuarios WHERE email = ?",
       [payload.email]
     );
 
@@ -63,7 +62,8 @@ export const googleLogin = async (req, res) => {
       email: payload.email,
       nombre: payload.name || "Sin nombre",
       provider: "google",
-      foto_perfil: payload.picture || null
+      foto_perfil: payload.picture || null,
+      isProfileComplete: false
     };
 
       console.log("Usuario Google creado:", usuario.email);
@@ -71,7 +71,6 @@ export const googleLogin = async (req, res) => {
 } else {
   usuario = rows[0];
 
-  // Si no tiene foto, guardarla
   if (!usuario.foto_perfil && payload.picture) {
     await db.query(
       "UPDATE usuarios SET foto_perfil = ? WHERE email = ?",
@@ -79,6 +78,7 @@ export const googleLogin = async (req, res) => {
     );
     usuario.foto_perfil = payload.picture;
   }
+  usuario.isProfileComplete = !!usuario.username;
   console.log("Usuario Google existente:", usuario.email);
 }
 
@@ -90,7 +90,8 @@ return res.status(200).json({
     email: usuario.email,
     nombre: usuario.nombre,
     provider: usuario.provider,
-    foto_perfil: usuario.foto_perfil || payload.picture || null
+    foto_perfil: usuario.foto_perfil || payload.picture || null,
+    isProfileComplete: usuario.isProfileComplete
   }
 });
 

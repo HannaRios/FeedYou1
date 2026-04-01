@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import SeguidosPage from "./pages/SeguidosPage";
 import ResetPassword from "./pages/ResetPassword";
+import CompleteProfile from "./pages/CompleteProfile";
 import PostDetail from "./components/PostDetail";
 import socket from "./socket";
 import { useEffect } from "react";
@@ -54,6 +55,7 @@ function App() {
           <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/usuario/:email" element={<PublicProfile />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/complete-profile" element={<CompleteProfile />} />
         </Routes>
       </SearchProvider>
     </Router>

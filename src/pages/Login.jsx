@@ -130,9 +130,13 @@ export default function Login() {
       
       setMensaje("Inicio de sesión exitoso con Google");
       
-      // Redirigir después de 500ms
+      // Redirigir dependiendo de si completó el perfil
       setTimeout(() => {
-        navigate("/feed");
+        if (!data.user.isProfileComplete) {
+          navigate("/complete-profile", { state: { email: data.user.email, nombre: data.user.nombre } });
+        } else {
+          navigate("/feed");
+        }
       }, 500);
 
     } catch (error) {
