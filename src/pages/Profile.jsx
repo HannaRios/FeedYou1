@@ -372,6 +372,7 @@ const colorCategoria = {
       )}
         </div>
       </div>
+      </div>
 
       {/* MODAL DE SEGUIDORES/SEGUIDOS */}
 {showModal && (
@@ -501,7 +502,6 @@ const colorCategoria = {
 
       <CreatePost isOpen={isCreatePostOpen} onClose={() => setIsCreatePostOpen(false)} onPublicacionCreada={loadProfile} />
       {isChatOpen && <ChatBot onClose={() => setIsChatOpen(false)} />}
-      </div>
     </>
   );
 }

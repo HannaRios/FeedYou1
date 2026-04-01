@@ -72,6 +72,8 @@ const fetchTrending = async () => {
           )}
       </div>
 
+      </div>
+
       {/* Botón crear publicación */}
       <button
         onClick={() => setIsCreatePostOpen(true)}
@@ -96,7 +98,6 @@ const fetchTrending = async () => {
       isOpen={isCreatePostOpen}
       onClose={() => setIsCreatePostOpen(false)}
     />
-      </div>
     </>
   );
 }

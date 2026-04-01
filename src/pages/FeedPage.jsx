@@ -33,6 +33,8 @@ export default function FeedPage() {
         <Feed testAnswers={testAnswers} />
       </main>
 
+      </div>
+
       {/* Botón flotante para crear publicación */}
       <button
         onClick={() => setIsCreatePostOpen(true)}
@@ -58,7 +60,6 @@ export default function FeedPage() {
         isOpen={isCreatePostOpen}
         onClose={() => setIsCreatePostOpen(false)}
       />
-      </div>
     </>
   );
 }

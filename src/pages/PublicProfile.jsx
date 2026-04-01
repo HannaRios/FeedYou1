@@ -189,6 +189,7 @@ const API_URL = import.meta.env.VITE_API_URL;
             )}
             </div>
         </div>
+        </div>
         
                 {showPostModal && selectedPost && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
@@ -291,7 +292,6 @@ const API_URL = import.meta.env.VITE_API_URL;
                 </div>
             </div>
             )}
-        </div>
         </>
     );
 }
