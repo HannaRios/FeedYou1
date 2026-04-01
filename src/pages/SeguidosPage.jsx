@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, PlusCircle, Bot } from "lucide-react";
+import CreatePost from "../components/CreatePost";
+import ChatBot from "../components/ChatBot";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import PostCard from "../components/PostCard";
@@ -14,6 +16,8 @@ export default function SeguidosPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
 
   useEffect(() => {
 
@@ -123,6 +127,31 @@ export default function SeguidosPage() {
       </div>
 
     </div>
+
+      {/* Botón flotante para crear publicación */}
+      <button
+        onClick={() => setIsCreatePostOpen(true)}
+        className="fixed bottom-4 left-4 md:bottom-6 md:left-6 bg-blue-200 p-3 md:p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+      >
+        <PlusCircle className="w-5 h-5 md:w-6 md:h-6 text-blue-700" />
+      </button>
+
+      {/* Botón flotante YouBot */}
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        className="fixed bottom-4 right-4 md:bottom-6 md:right-6 bg-blue-200 p-3 md:p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+      >
+        <Bot className="w-5 h-5 md:w-6 md:h-6 text-blue-700" />
+      </button>
+
+      {isChatOpen && (
+        <ChatBot onClose={() => setIsChatOpen(false)} />
+      )}
+
+      <CreatePost
+        isOpen={isCreatePostOpen}
+        onClose={() => setIsCreatePostOpen(false)}
+      />
     </>
   );
 }
