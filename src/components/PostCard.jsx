@@ -29,6 +29,7 @@ export default function PostCard({ post }) {
 
     const [showShareModal, setShowShareModal] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isVideoAvailable, setIsVideoAvailable] = useState(true);
 
     const shareUrl = `${window.location.origin}/post/${post.id_publicacion}`;
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -192,6 +193,22 @@ useEffect(() => {
             ? post.archivo
             : `${API_URL}${post.archivo}`
             : null;
+
+    useEffect(() => {
+        if (youtubeEmbed) {
+            const videoId = youtubeEmbed.split("/embed/")[1];
+            if (videoId) {
+                fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            setIsVideoAvailable(false);
+                        }
+                    })
+                    .catch(err => console.error("Error comprobando disponibilidad de YouTube:", err));
+            }
+        }
+    }, [youtubeEmbed]);
 
       // ============================
     // FETCH COMMENTS
@@ -507,7 +524,7 @@ const copyToClipboard = async () => {
         )}
 
         {/* YOUTUBE */}
-        {youtubeEmbed && (
+        {youtubeEmbed && isVideoAvailable && (
             <div className="w-full mt-3 aspect-video">
             <iframe
                 className="w-full h-full rounded-lg"
