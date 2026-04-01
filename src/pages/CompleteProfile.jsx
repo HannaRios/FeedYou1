@@ -76,11 +76,11 @@ export default function CompleteProfile() {
           fecha_nacimiento: formData.fecha_nacimiento
         })
       });
-      
+
       if (!res.ok) {
         throw new Error("Error guardando los datos del perfil");
       }
-      
+
       navigate("/test-intro");
     } catch (err) {
       console.error(err);
@@ -107,8 +107,8 @@ export default function CompleteProfile() {
           {errors.global && <p className="text-sm text-red-500 text-center font-bold">⚠ {errors.global}</p>}
 
           <div>
-             <input type="text" name="username" placeholder="Nuevo Usuario (Ej. Juan123)" value={formData.username} onChange={handleChange} className={inputClass("username")} />
-             {isSubmitted && errors.username && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.username}</p>}
+            <input type="text" name="username" placeholder="Nuevo Usuario (Ej. Juan123)" value={formData.username} onChange={handleChange} className={inputClass("username")} />
+            {isSubmitted && errors.username && <p className="text-[10px] text-red-500 ml-1 mt-0.5 font-bold">⚠ {errors.username}</p>}
           </div>
 
           <div className="flex gap-2 items-start w-full">

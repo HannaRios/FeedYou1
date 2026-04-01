@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import db from "../../db.js"; 
 import dotenv from "dotenv";
+import { sendWelcomeEmail } from "../services/emailService.js";
 
 dotenv.config();
 
@@ -56,6 +57,11 @@ export const googleLogin = async (req, res) => {
           "/uploads/perfiles/default.png"
         ]
       );
+
+      // Enviar correo de bienvenida a nuevos usuarios de Google
+      sendWelcomeEmail(payload.email, payload.name).catch(mailError => {
+        console.error("Error enviando correo de bienvenida Google:", mailError);
+      });
 
 
     usuario = {
