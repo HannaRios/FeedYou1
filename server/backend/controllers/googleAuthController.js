@@ -1,7 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
-import db from "../../db.js"; 
+import db from "../../db.js";
 import dotenv from "dotenv";
-import { sendWelcomeEmail } from "../services/emailService.js";
 
 dotenv.config();
 
@@ -58,48 +57,43 @@ export const googleLogin = async (req, res) => {
         ]
       );
 
-      // Enviar correo de bienvenida a nuevos usuarios de Google
-      sendWelcomeEmail(payload.email, payload.name).catch(mailError => {
-        console.error("Error enviando correo de bienvenida Google:", mailError);
-      });
 
-
-    usuario = {
-      email: payload.email,
-      nombre: payload.name || "Sin nombre",
-      provider: "google",
-      foto_perfil: payload.picture || null,
-      isProfileComplete: false
-    };
+      usuario = {
+        email: payload.email,
+        nombre: payload.name || "Sin nombre",
+        provider: "google",
+        foto_perfil: payload.picture || null,
+        isProfileComplete: false
+      };
 
       console.log("Usuario Google creado:", usuario.email);
 
-} else {
-  usuario = rows[0];
+    } else {
+      usuario = rows[0];
 
-  if (!usuario.foto_perfil && payload.picture) {
-    await db.query(
-      "UPDATE usuarios SET foto_perfil = ? WHERE email = ?",
-      [payload.picture, payload.email]
-    );
-    usuario.foto_perfil = payload.picture;
-  }
-  usuario.isProfileComplete = !!usuario.username;
-  console.log("Usuario Google existente:", usuario.email);
-}
+      if (!usuario.foto_perfil && payload.picture) {
+        await db.query(
+          "UPDATE usuarios SET foto_perfil = ? WHERE email = ?",
+          [payload.picture, payload.email]
+        );
+        usuario.foto_perfil = payload.picture;
+      }
+      usuario.isProfileComplete = !!usuario.username;
+      console.log("Usuario Google existente:", usuario.email);
+    }
 
 
     // Responder al frontend
-return res.status(200).json({ 
-  success: true, 
-  user: {
-    email: usuario.email,
-    nombre: usuario.nombre,
-    provider: usuario.provider,
-    foto_perfil: usuario.foto_perfil || payload.picture || null,
-    isProfileComplete: usuario.isProfileComplete
-  }
-});
+    return res.status(200).json({
+      success: true,
+      user: {
+        email: usuario.email,
+        nombre: usuario.nombre,
+        provider: usuario.provider,
+        foto_perfil: usuario.foto_perfil || payload.picture || null,
+        isProfileComplete: usuario.isProfileComplete
+      }
+    });
 
 
   } catch (err) {
