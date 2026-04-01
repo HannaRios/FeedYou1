@@ -70,8 +70,9 @@ const API_URL = import.meta.env.VITE_API_URL;
     };
 
     return (
-        <div className="min-h-screen bg-feedyou pb-20">
+        <>
         <Navbar />
+        <div className="min-h-screen bg-feedyou pb-20 pt-4">
 
         <div className="max-w-3xl mx-auto mt-6 px-6">
             {/* CABECERA */}
@@ -291,5 +292,6 @@ const API_URL = import.meta.env.VITE_API_URL;
             </div>
             )}
         </div>
+        </>
     );
 }

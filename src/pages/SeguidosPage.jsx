@@ -44,9 +44,9 @@ export default function SeguidosPage() {
 
 
   return (
-    <div className="min-h-screen bg-feedyou">
-
+    <>
       <Navbar />
+      <div className="min-h-screen bg-feedyou pt-4">
 
       <div className="flex justify-center px-4 py-6">
 
@@ -123,5 +123,6 @@ export default function SeguidosPage() {
       </div>
 
     </div>
+    </>
   );
 }

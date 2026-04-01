@@ -22,10 +22,11 @@ export default function FeedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-feedyou flex flex-col">
-      
+    <>
       {/* Barra de navegación */}
       <Navbar />
+
+      <div className="min-h-screen bg-feedyou flex flex-col pt-4">
 
       {/* Feed principal */}
       <main className="flex-grow">
@@ -57,6 +58,7 @@ export default function FeedPage() {
         isOpen={isCreatePostOpen}
         onClose={() => setIsCreatePostOpen(false)}
       />
-    </div>
+      </div>
+    </>
   );
 }

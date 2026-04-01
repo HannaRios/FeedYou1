@@ -42,8 +42,9 @@ const fetchTrending = async () => {
 }, [user]);
 
   return (
-    <div className="min-h-screen bg-feedyou">
+    <>
       <Navbar />
+      <div className="min-h-screen bg-feedyou pt-4">
 
       <div className="max-w-5xl mx-auto px-6 py-10">
         <h2 className="text-center mb-8 mt-2">
@@ -95,6 +96,7 @@ const fetchTrending = async () => {
       isOpen={isCreatePostOpen}
       onClose={() => setIsCreatePostOpen(false)}
     />
-    </div>
+      </div>
+    </>
   );
 }

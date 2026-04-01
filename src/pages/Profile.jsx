@@ -116,8 +116,9 @@ const colorCategoria = {
 }, {});
 
   return (
-    <div className="min-h-screen bg-feedyou pb-20 font-sans">
+    <>
       <Navbar />
+      <div className="min-h-screen bg-feedyou pb-20 font-sans pt-4">
 
       <div className="max-w-3xl mx-auto mt-6 px-6">
         {/* CABECERA */}
@@ -500,6 +501,7 @@ const colorCategoria = {
 
       <CreatePost isOpen={isCreatePostOpen} onClose={() => setIsCreatePostOpen(false)} onPublicacionCreada={loadProfile} />
       {isChatOpen && <ChatBot onClose={() => setIsChatOpen(false)} />}
-    </div>
+      </div>
+    </>
   );
 }

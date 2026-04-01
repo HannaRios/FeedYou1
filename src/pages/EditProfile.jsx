@@ -75,9 +75,10 @@ export default function EditProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-feedyou pb-10 font-sans">
+    <>
       <Navbar />
-      <div className="w-[95%] sm:max-w-xl mx-auto mt-4 sm:mt-8 p-6 sm:p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
+      <div className="min-h-screen bg-feedyou pb-10 font-sans pt-4">
+        <div className="w-[95%] sm:max-w-xl mx-auto mt-4 sm:mt-8 p-6 sm:p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
         <button onClick={() => navigate(-1)} className="flex items-center text-gray-400 mb-8 hover:text-blue-400 transition font-bold text-sm tracking-tight">
           <ArrowLeft className="mr-2" size={18} /> VOLVER AL PERFIL
         </button>
@@ -162,6 +163,7 @@ export default function EditProfile() {
           <CheckCircle2 size={20} /> PERFIL ACTUALIZADO
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
