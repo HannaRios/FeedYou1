@@ -24,6 +24,8 @@ export default function PostCard({ post }) {
 
     const [likesCount, setLikesCount] = useState(post.total_likes || 0);
     const [favoritesCount, setFavoritesCount] = useState(post.total_favoritos || 0);
+    const [commentsCount, setCommentsCount] = useState(post.total_comentarios || 0);
+    const [sharesCount, setSharesCount] = useState(post.total_compartidos || 0);
 
     const [showShareModal, setShowShareModal] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -53,6 +55,21 @@ useEffect(() => {
         }
         if (data.action === "remove") {
             setFavoritesCount(prev => Math.max(prev - 1, 0));
+        }
+        }
+
+        if (data.tipo_interaccion === "comentario") {
+        if (data.action === "add") {
+            setCommentsCount(prev => prev + 1);
+        }
+        if (data.action === "remove") {
+            setCommentsCount(prev => Math.max(prev - 1, 0));
+        }
+        }
+
+        if (data.tipo_interaccion === "compartir") {
+        if (data.action === "add") {
+            setSharesCount(prev => prev + 1);
         }
         }
 
@@ -235,6 +252,7 @@ useEffect(() => {
 
             setNewComment("");
             fetchComments();
+            setCommentsCount(prev => prev + 1);
 
         } catch (error) {
             console.error("Error enviando comentario:", error);
@@ -353,6 +371,7 @@ const handleDeleteComment = async (id) => {
         setComments(prev =>
         prev.filter(comment => comment.id_interaccion !== id)
         );
+        setCommentsCount(prev => Math.max(prev - 1, 0));
 
     } catch (error) {
         console.error("Error eliminando comentario:", error);
@@ -372,7 +391,7 @@ const handleShare = async () => {
         setShowShareModal(true);
 
         // Registrar interacción
-        await fetch(`${API_URL}/api/interacciones`, {
+        const res = await fetch(`${API_URL}/api/interacciones`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -382,6 +401,10 @@ const handleShare = async () => {
                 comentario: null
             })
         });
+
+        if (res.ok) {
+            setSharesCount(prev => prev + 1);
+        }
 
     } catch (error) {
         console.error("Error compartiendo:", error);
@@ -525,7 +548,7 @@ const copyToClipboard = async () => {
             </span>
             </button>
 
-            <button onClick={toggleComments}>
+            <button onClick={toggleComments} className="flex items-center gap-1 text-sm">
             <MessageCircle
                 size={22}
                 strokeWidth={1.8}
@@ -535,10 +558,16 @@ const copyToClipboard = async () => {
                     : "text-gray-500"
                 }`}
             />
+            <span className="text-gray-600">
+                {commentsCount > 0 ? commentsCount : 0}
+            </span>
             </button>
 
-            <button onClick={handleShare}>
+            <button onClick={handleShare} className="flex items-center gap-1 text-sm">
                 <Link size={22} strokeWidth={1.8} className="text-gray-500" />
+            <span className="text-gray-600">
+                {sharesCount > 0 ? sharesCount : 0}
+            </span>
             </button>
         </div>
 

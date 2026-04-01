@@ -20,6 +20,8 @@ SELECT
 
   COUNT(CASE WHEN i.tipo_interaccion = 'me_gusta' THEN 1 END) AS total_likes,
   COUNT(CASE WHEN i.tipo_interaccion = 'favorito' THEN 1 END) AS total_favoritos,
+  COUNT(CASE WHEN i.tipo_interaccion = 'comentario' THEN 1 END) AS total_comentarios,
+  COUNT(CASE WHEN i.tipo_interaccion = 'compartir' THEN 1 END) AS total_compartidos,
 
   MAX(CASE 
       WHEN i.tipo_interaccion = 'me_gusta' 
