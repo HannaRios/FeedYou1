@@ -101,15 +101,21 @@ export default function FeedYouLanding() {
 
         {/* === COLUMNA IZQUIERDA (Texto balanceado) === */}
         <div className="flex flex-col items-center text-center w-full lg:w-[50%] mt-4 lg:mt-0 mb-12 lg:mb-0 animate-fadeInUp">
-          <h2 className="text-sm sm:text-base md:text-lg text-slate-100 font-serif mb-2 tracking-wide font-medium">Bienvenido a</h2>
+          <h2 
+            className="text-sm sm:text-base md:text-lg text-slate-100 font-serif mb-2 tracking-wide font-medium"
+            style={{ textShadow: '0px 2px 10px rgba(0,0,0,0.9)' }}
+          >
+            Bienvenido a
+          </h2>
 
           <h1
-            className="text-5xl sm:text-6xl md:text-[5.5rem] font-bold mb-4 md:mb-6 leading-none drop-shadow-xl"
+            className="text-5xl sm:text-6xl md:text-[5.5rem] font-bold mb-4 md:mb-6 leading-none"
             style={{
               background: 'linear-gradient(90deg, #DCEBFC 0%, #F1DDF3 50%, #FBE5CB 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              WebkitTextStroke: '2px white',
+              WebkitTextStroke: '1px rgba(255,255,255,0.7)',
+              filter: 'drop-shadow(0px 8px 16px rgba(0,0,0,0.6))',
               fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif',
               letterSpacing: '-1.5px'
             }}
@@ -117,7 +123,10 @@ export default function FeedYouLanding() {
             FeedYou
           </h1>
 
-          <p className="text-sm md:text-base leading-[1.8] text-gray-100/100 mb-8 max-w-[500px] mx-auto text-center">
+          <p 
+            className="text-sm md:text-base leading-[1.8] text-gray-100 mb-8 max-w-[500px] mx-auto text-center font-medium"
+            style={{ textShadow: '0px 4px 12px rgba(0,0,0,0.9)' }}
+          >
             En FeedYou, el contenido se adapta a tus gustos desde el primer momento. 
             Música, cine, libros, moda o videojuegos: aquí ves solo lo que realmente te interesa. 
             Sin distracciones, sin contenido irrelevante.
