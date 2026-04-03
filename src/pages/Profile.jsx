@@ -253,7 +253,7 @@ const colorCategoria = {
         <div className="mt-6">
           {activeTab === "posts" && (
             <div className="grid grid-cols-3 gap-2">
-              {posts.length > 0 ? posts.map((post) => (
+              {posts.filter(p => p.url_media).length > 0 ? posts.filter(p => p.url_media).map((post) => (
                 <div
                       key={post.id_publicacion}
                       onClick={() => {
@@ -262,13 +262,11 @@ const colorCategoria = {
                       }}
                       className="aspect-square bg-gray-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition"
                     >
-                  <img
+                    <img
                       src={
-                        post.url_media
-                          ? post.url_media.startsWith("http")
-                            ? post.url_media
-                            : `${API_URL}${post.url_media}`
-                          : `${API_URL}/uploads/perfiles/default.png`
+                        post.url_media.startsWith("http")
+                          ? post.url_media
+                          : `${API_URL}${post.url_media}`
                       }
                       className="w-full h-full object-cover"
                       alt="Post"

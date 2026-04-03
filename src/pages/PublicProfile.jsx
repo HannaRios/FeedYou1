@@ -159,8 +159,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 
             {/* GRID PUBLICACIONES */}
             <div className="mt-6 grid grid-cols-3 gap-2">
-            {posts.length > 0 ? (
-                posts.map((post) => (
+            {posts.filter(p => p.url_media).length > 0 ? (
+                posts.filter(p => p.url_media).map((post) => (
                 <div
                     key={post.id_publicacion}
                     onClick={() => {
@@ -170,15 +170,13 @@ const API_URL = import.meta.env.VITE_API_URL;
                     className="aspect-square bg-gray-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition"
                 >
                     <img
-                    src={
-                        post.url_media
-                        ? post.url_media.startsWith("http")
+                        src={
+                            post.url_media.startsWith("http")
                             ? post.url_media
                             : `${API_URL}${post.url_media}`
-                        : `${API_URL}/uploads/perfiles/default.png`
-                    }
-                    className="w-full h-full object-cover"
-                    alt="post"
+                        }
+                        className="w-full h-full object-cover"
+                        alt="post"
                     />
                 </div>
                 ))

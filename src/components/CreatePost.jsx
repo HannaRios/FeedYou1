@@ -121,6 +121,13 @@ useEffect(() => {
         setPublicando(false);
         return;
         }
+        if (!file && !mediaUrl) {
+        setMessageTitle("Añade una imagen o video");
+        setMessageText("Debes incluir contenido multimedia (imagen o video) para poder publicar.");
+        setShowMessageModal(true);
+        setPublicando(false);
+        return;
+        }
 
         let tipo = "articulo";
         let url_media = null;

@@ -1,34 +1,36 @@
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: (process.env.EMAIL_USER || "").trim(),
-    pass: (process.env.EMAIL_PASS || "").trim(),
-  },
-  debug: true, 
-  logger: true 
-});
-
-transporter.verify((error) => {
-  if (error) {
-    console.log("❌ SMTP ERROR:", error);
-  } else {
-    console.log("✅ SMTP listo para enviar correos");
-  }
-});
+// Servicio de correos profesional vía API REST (Brevo) ¡Adiós bloqueos SMTP!
+// Usa la API Key proporcionada para saltarse todos los bloqueos de Railway.
+const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
+// Remitente verificado en Brevo automáticamente al loguearse con Google
+const SENDER_EMAIL = process.env.BREVO_SENDER || "lllvargasvidales@gmail.com"; 
+const BREVO_URL = "https://api.brevo.com/v3/smtp/email";
 
 export const sendResetEmail = async (to, resetLink) => {
-  const mailOptions = {
-    from: `"FeedYou" <${process.env.EMAIL_USER}>`,
-    to,
+  const data = {
+    sender: { name: "FeedYou Support", email: SENDER_EMAIL },
+    to: [{ email: to }],
     subject: "Recuperación de contraseña - FeedYou",
-    html: resetEmailTemplate(resetLink),
+    htmlContent: resetEmailTemplate(resetLink),
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const response = await fetch(BREVO_URL, {
+      method: "POST",
+      headers: {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      console.error("❌ Error API Brevo (Reset):", await response.text());
+    } else {
+      console.log("✅ API Brevo: Correo de restablecimiento enviado a", to);
+    }
+  } catch (err) {
+    console.error("❌ Fallo crítico enviando correo (Reset):", err);
+  }
 };
 
 const resetEmailTemplate = (resetLink) => {
@@ -159,14 +161,31 @@ const resetEmailTemplate = (resetLink) => {
   `;
 };
 export const sendWelcomeEmail = async (to, nombre) => {
-  const mailOptions = {
-    from: `"FeedYou" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: "¡Bienvenido a FeedYou!",
-    html: welcomeEmailTemplate(nombre),
+  const data = {
+    sender: { name: "FeedYou", email: SENDER_EMAIL },
+    to: [{ email: to }],
+    subject: "¡Bienvenido a FeedYou! ✨",
+    htmlContent: welcomeEmailTemplate(nombre),
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const response = await fetch(BREVO_URL, {
+      method: "POST",
+      headers: {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      console.error("❌ Error API Brevo (Welcome):", await response.text());
+    } else {
+      console.log("✅ API Brevo: Correo de bienvenida enviado a", to);
+    }
+  } catch (err) {
+    console.error("❌ Fallo crítico enviando correo (Welcome):", err);
+  }
 };
 
 const welcomeEmailTemplate = (nombre) => {
