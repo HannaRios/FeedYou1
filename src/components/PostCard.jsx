@@ -159,6 +159,50 @@ useEffect(() => {
         });
     };
 
+    // ============================
+    // LÓGICA DE ELIMINAR POST (NUEVO)
+    // ============================
+    const handleDeletePost = () => {
+        if (!userEmail) return;
+
+        Swal.fire({
+            title: '¿Eliminar publicación?',
+            text: "Esta acción borrará este post permanentemente.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', 
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: { popup: 'rounded-2xl' }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`${API_URL}/api/publicaciones/${post.id_publicacion}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: userEmail })
+                    });
+                    if (res.ok) {
+                        Swal.fire({
+                            title: '¡Eliminada!',
+                            text: 'Tu publicación ha sido borrada.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', 'No se pudo eliminar la publicación.', 'error');
+                    }
+                } catch (error) {
+                    console.error("Error al borrar:", error);
+                    Swal.fire('Error', 'Hubo un problema de red.', 'error');
+                }
+            }
+        });
+    };
+
 
     // ✅ FUNCIÓN PRIMERO
     const getYoutubeEmbedUrl = (url) => {
@@ -493,14 +537,26 @@ const copyToClipboard = async () => {
                 </div>
             </div>
             
-                {/* Botón Reportar (NUEVO) */}
-        <button 
-            onClick={handleReportar}
-            className="p-2 hover:bg-rose-50 rounded-full transition-colors group"
-            title="Reportar publicación"
-        >
-            <Flag size={18} className="text-gray-400 group-hover:text-rose-500 transition-colors" />
-        </button>
+                {/* Botones de acción */}
+            <div className="flex gap-1">
+                {userEmail === post.email_autor && (
+                    <button 
+                        onClick={handleDeletePost}
+                        className="p-2 hover:bg-red-50 rounded-full transition-colors group"
+                        title="Eliminar publicación"
+                    >
+                        <Trash2 size={18} className="text-gray-400 group-hover:text-red-500 transition-colors" />
+                    </button>
+                )}
+                
+                <button 
+                    onClick={handleReportar}
+                    className="p-2 hover:bg-rose-50 rounded-full transition-colors group"
+                    title="Reportar publicación"
+                >
+                    <Flag size={18} className="text-gray-400 group-hover:text-rose-500 transition-colors" />
+                </button>
+            </div>
 
     </div>
 

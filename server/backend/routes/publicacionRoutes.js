@@ -65,4 +65,32 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+// NUEVO: Eliminar publicación por ID
+router.delete("/:id", async (req, res) => {
+    const { id } = req.params;
+    const { email } = req.body; 
+
+    if (!email) return res.status(400).json({ message: "Email requerido para borrar" });
+
+    try {
+        // Verificar existencia y propiedad
+        const [pub] = await pool.query("SELECT * FROM publicaciones WHERE id_publicacion = ?", [id]);
+        if (pub.length === 0) return res.status(404).json({ message: "No encontrada" });
+        if (pub[0].email_autor !== email) return res.status(403).json({ message: "No autorizado" });
+
+        // Intentar borrar dependencias si no hay ON DELETE CASCADE
+        await pool.query("DELETE FROM notificaciones WHERE id_publicacion = ?", [id]);
+        await pool.query("DELETE FROM interacciones WHERE id_publicacion = ?", [id]);
+        await pool.query("DELETE FROM denuncias WHERE id_publicacion = ?", [id]).catch(e => console.log('Sin denuncias tabla:', e.message));
+
+        // Borrar el post
+        await pool.query("DELETE FROM publicaciones WHERE id_publicacion = ?", [id]);
+
+        res.json({ message: "Publicación eliminada correctamente" });
+    } catch (error) {
+        console.error("Error borrando publicacion:", error);
+        res.status(500).json({ message: "Error interno eliminando publicación" });
+    }
+});
+
 export default router;
