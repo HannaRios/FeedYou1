@@ -270,10 +270,14 @@ router.post("/login", validarLogin, async (req, res) => {
       });
     }
 
-    if (usuario.provider === "google") return res.status(400).json({ error: "Usa Google Login" });
-
     const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
-    if (!passwordValida) return res.status(401).json({ error: "Contraseña incorrecta" });
+    
+    if (!passwordValida) {
+      if (usuario.provider === "google" && usuario.contrasena === "GOOGLE") {
+        return res.status(401).json({ error: "Esta cuenta está vinculada a Google y no tiene contraseña. Usa el botón de Google o restablece tu contraseña." });
+      }
+      return res.status(401).json({ error: "Contraseña incorrecta" });
+    }
 
     res.json({
       mensaje: "Inicio de sesión exitoso",
