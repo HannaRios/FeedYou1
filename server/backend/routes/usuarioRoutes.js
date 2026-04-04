@@ -407,8 +407,8 @@ router.get("/stats/registros", async (req, res) => {
       SELECT DATE_FORMAT(fecha_registro, '%d %b') AS fecha, COUNT(*) AS cantidad
       FROM usuarios 
       WHERE fecha_registro >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-      GROUP BY DATE(fecha_registro)
-      ORDER BY DATE(fecha_registro) ASC
+      GROUP BY fecha
+      ORDER BY MIN(fecha_registro) ASC
     `;
     const [rows] = await db.query(query);
     res.json(rows);
