@@ -276,11 +276,16 @@ useEffect(() => {
 
     // Restaurar modal de comentarios al darle al botón 'Atrás'
     useEffect(() => {
-        const shouldRestore = sessionStorage.getItem(`restore_comments_${post.id_publicacion}`);
+        const shouldRestore = localStorage.getItem(`restore_comments_${post.id_publicacion}`);
         if (shouldRestore) {
             setShowComments(true);
             fetchComments();
-            sessionStorage.removeItem(`restore_comments_${post.id_publicacion}`);
+            // Asegurar que la pantalla baje visualmente a donde estaba la publicación
+            setTimeout(() => {
+                const element = document.getElementById(`feed_post_${post.id_publicacion}`);
+                if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+            localStorage.removeItem(`restore_comments_${post.id_publicacion}`);
         }
     }, [post.id_publicacion]);
 
@@ -497,7 +502,7 @@ const copyToClipboard = async () => {
 };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden w-full max-w-3xl mx-auto">
+        <div id={`feed_post_${post.id_publicacion}`} className="bg-white rounded-xl shadow-sm overflow-hidden w-full max-w-3xl mx-auto">
 
             {/* HEADER */}
             <div className="flex items-center justify-between px-4 pt-4">
@@ -742,7 +747,7 @@ const copyToClipboard = async () => {
                     {/* FOTO */}
                     <img
                     onClick={() => {
-                        sessionStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
+                        localStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
                         setShowComments(false);
                         if (comment.email === userEmail) navigate("/profile");
                         else navigate(`/usuario/${comment.email}`);
@@ -765,7 +770,7 @@ const copyToClipboard = async () => {
                     <div className="flex items-center justify-between">
                         <span 
                             onClick={() => {
-                                sessionStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
+                                localStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
                                 setShowComments(false);
                                 if (comment.email === userEmail) navigate("/profile");
                                 else navigate(`/usuario/${comment.email}`);
