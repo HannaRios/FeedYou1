@@ -61,6 +61,17 @@ export default function Profile() {
 
   useEffect(() => { loadProfile(); }, [user]);
 
+  useEffect(() => {
+    if (!profileData?.posts || profileData.posts.length === 0) return;
+    for (const post of profileData.posts) {
+      if (localStorage.getItem(`restore_comments_${post.id_publicacion}`)) {
+        setSelectedPost(post);
+        setShowPostModal(true);
+        break;
+      }
+    }
+  }, [profileData.posts]);
+
   const handleLogout = () => {
     logout();
     navigate("/");
