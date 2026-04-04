@@ -387,15 +387,15 @@ import {
 
             {/* MODAL DETALLE DE POST REPORTADO */}
             {selectedPostId && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in">
-                    <div className="bg-white w-full max-w-5xl h-[95vh] sm:h-[90vh] rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden relative">
+                <div className="absolute inset-0 bg-[#fcfcfd]/80 backdrop-blur-[2px] z-50 p-2 sm:p-6 animate-in fade-in flex justify-center items-start">
+                    <div className="sticky top-4 lg:top-10 bg-white w-full max-w-5xl h-[85vh] rounded-[30px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] flex flex-col md:flex-row overflow-hidden relative border border-slate-100">
                         {/* Boton Cerrar General */}
-                        <button onClick={() => setSelectedPostId(null)} className="absolute top-4 right-4 z-50 bg-white/70 hover:bg-white rounded-full p-2 shadow-sm transition">
-                            <X className="w-5 h-5 text-gray-800" />
+                        <button onClick={() => setSelectedPostId(null)} className="absolute top-4 right-4 z-50 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full p-2 shadow-sm transition">
+                            <X className="w-5 h-5" />
                         </button>
 
                         {/* DETALLE DEL POST */}
-                        <div className="w-full md:w-2/3 h-[50vh] md:h-full overflow-y-auto bg-gray-50 border-b md:border-b-0 md:border-r relative flex justify-center py-4">
+                        <div className="w-full md:w-2/3 h-[50vh] md:h-full overflow-y-auto bg-gray-50/50 border-b md:border-b-0 md:border-r border-slate-100 relative flex justify-center py-4">
                             <div className="w-full px-2 sm:px-6">
                                 <PostDetail postId={selectedPostId} isModal />
                             </div>
@@ -406,7 +406,7 @@ import {
                             <div>
                                 <h3 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-100 pb-4">Panel de Decisión</h3>
                                 <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                                    Revisa detalladamente la publicación y sus interacciones antes de tomar una decisión final. Si determinas que infringe las normas, puedes eliminarla.
+                                    Revisa detalladamente la publicación y sus interacciones. Si determinas que infringe las normas, elimínala definitivamente.
                                 </p>
                             </div>
                             
@@ -425,7 +425,7 @@ import {
                                         handleDescartarDenuncia(selectedDenunciaId);
                                         setSelectedPostId(null);
                                     }} 
-                                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl transition flex justify-center items-center gap-2"
+                                    className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold py-3.5 rounded-2xl transition flex justify-center items-center gap-2"
                                 >
                                     Descartar Reporte
                                 </button>
