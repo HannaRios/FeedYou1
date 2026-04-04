@@ -226,17 +226,21 @@ useEffect(() => {
     getYoutubeEmbedUrl(post.enlace_externo) ||
     getYoutubeEmbedUrl(post.descripcion);
 
+    // ✅ FUNCIÓN PARA IDENTIFICAR LA URL CORRECTA (FLEXIBLE PARA TIPOS)
+    const getValidMediaSrc = (url) => {
+        if (!url) return null;
+        if (url.startsWith("http") || url.startsWith("data:")) return url;
+        if (url.startsWith("/uploads") || url.startsWith("\\uploads")) return `${API_URL}${url}`;
+        if (!url.startsWith("/") && url.includes(".")) return `https://${url}`;
+        return `${API_URL}${url}`;
+    };
+
     // Definir src correcto (imagenes o videos mp4)
-    const mediaSrc =
-        post.url_media
-        ? post.url_media.startsWith("http")
-            ? post.url_media
-            : `${API_URL}${post.url_media}`
-        : post.archivo
-            ? post.archivo.startsWith("http")
-            ? post.archivo
-            : `${API_URL}${post.archivo}`
-            : null;
+    const mediaSrc = getValidMediaSrc(post.url_media || post.archivo);
+    
+    // Auto-detectar si un enlace es de video por la extension (por si no se guardó como tal)
+    const isDirectVideo = mediaSrc && mediaSrc.match(/\.(mp4|webm|ogg|mov)$/i) !== null;
+    const isVideoCard = post.tipo === "video" || isDirectVideo;
 
     useEffect(() => {
         if (youtubeEmbed) {
@@ -568,12 +572,13 @@ const copyToClipboard = async () => {
         )}
 
         {/* IMAGEN */}
-        {mediaSrc && post.tipo !== "video" && (
+        {mediaSrc && !isVideoCard && (
             <img
             src={mediaSrc}
             alt="Contenido"
             className="w-full max-h-[500px] object-cover mt-2"
             onError={(e) => {
+                // Si la imagen falla por ser de un tipo no soportado, se oculta limpiamente
                 e.target.style.display = "none";
             }}
             />
@@ -592,9 +597,10 @@ const copyToClipboard = async () => {
         )}
 
         {/* VIDEO MP4 NORMAL */}
-        {post.tipo === "video" && mediaSrc && !youtubeEmbed && (
-            <video controls className="w-full mt-3">
+        {isVideoCard && mediaSrc && !youtubeEmbed && (
+            <video controls className="w-full mt-3 rounded-lg bg-black">
             <source src={mediaSrc} />
+            Tu navegador no soporta el formato de video.
             </video>
         )}
 

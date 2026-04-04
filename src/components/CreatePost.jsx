@@ -134,13 +134,14 @@ useEffect(() => {
         let enlace_externo = null;
 
         if (mediaUrl && isYouTube(mediaUrl)) {
-        tipo = "video";
-        enlace_externo = mediaUrl;
+            tipo = "video";
+            enlace_externo = mediaUrl;
         } else if (file) {
-        tipo = file.type.startsWith("video") ? "video" : "imagen";
+            tipo = file.type.startsWith("video") ? "video" : "imagen";
         } else if (mediaUrl) {
-        tipo = "imagen";
-        url_media = mediaUrl;
+            const isVideoExt = mediaUrl.match(/\.(mp4|webm|ogg|mov)$/i);
+            tipo = isVideoExt ? "video" : "imagen";
+            url_media = mediaUrl;
         }
 
         if (!user?.email) {
@@ -209,6 +210,18 @@ try {
         setPublicando(false);
     }
 };
+
+    // Lógica para previsualizar URLs que el usuario ingresa e identificar videos
+    const getValidPreviewSrc = (url) => {
+        if (!url) return null;
+        if (url.startsWith("http") || url.startsWith("data:") || url.startsWith("blob:")) return url;
+        if (url.startsWith("/uploads") || url.startsWith("\\uploads")) return `${API_URL}${url}`;
+        if (!url.startsWith("/") && url.includes(".")) return `https://${url}`;
+        return url;
+    };
+    
+    const previewSrc = getValidPreviewSrc(preview);
+    const isDirectVideoPreview = previewSrc && previewSrc.match(/\.(mp4|webm|ogg|mov)$/i) !== null;
 
     if (!isOpen) return null;
 
@@ -305,13 +318,14 @@ try {
 
             {/* Vista previa */}
             {preview && (
-                <div className="rounded-xl overflow-hidden bg-gray-100 flex justify-center relative">
+                <div className="rounded-xl overflow-hidden bg-gray-100 flex justify-center relative min-h-[4rem]">
                 <button
                     onClick={handleRemoveMedia}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs"
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs z-20"
                 >
                     X
                 </button>
+
                 {mediaUrl && isYouTube(mediaUrl) ? (
                     <iframe
                     className="w-full h-40"
@@ -319,10 +333,20 @@ try {
                     title="YouTube preview"
                     allowFullScreen
                     />
-                ) : file && file.type.startsWith("video") ? (
-                    <video src={preview} controls className="max-h-40 rounded-lg" />
+                ) : (file && file.type.startsWith("video")) || isDirectVideoPreview ? (
+                    <video src={previewSrc} controls className="max-h-40 rounded-lg bg-black w-full" />
                 ) : (
-                    <img src={preview} alt="Preview" className="max-h-40 object-contain" />
+                    <img 
+                        src={previewSrc} 
+                        alt="Preview de URL" 
+                        className="max-h-40 object-contain w-full"
+                        onError={(e) => {
+                            e.target.style.display = "none";
+                        }}
+                        onLoad={(e) => {
+                            e.target.style.display = "block";
+                        }}
+                    />
                 )}
                 </div>
             )}
