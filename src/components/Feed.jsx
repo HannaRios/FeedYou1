@@ -10,8 +10,14 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 function Feed() {
   const { user } = useAuth();
-  const [feed, setFeed] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [feed, setFeed] = useState(() => {
+    const cached = sessionStorage.getItem('cached_main_feed');
+    return cached ? JSON.parse(cached) : [];
+  });
+  
+  // Si tenemos publicaciones cacheadas, mostramos directamente y no el indicador de carga inicial
+  const [loading, setLoading] = useState(feed.length === 0);
+  
   const [hasInterests, setHasInterests] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -59,6 +65,7 @@ function Feed() {
         // Mezclar publicaciones aleatoriamente
         const shuffledFeed = [...filteredFeed].sort(() => Math.random() - 0.5);
         setFeed(shuffledFeed);
+        sessionStorage.setItem('cached_main_feed', JSON.stringify(shuffledFeed));
 
         if (shuffledFeed.length === 0) {
           setHasInterests(false);

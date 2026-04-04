@@ -12,34 +12,35 @@ export default function Trending() {
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
 
   const { user } = useAuth();
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState(() => {
+    const cached = sessionStorage.getItem('cached_trending_posts');
+    return cached ? JSON.parse(cached) : [];
+  });
+  
+  // Si ya tenemos posts en cache, no mostramos "Cargando..."
+  const [loading, setLoading] = useState(posts.length === 0);
 
   useEffect(() => {
     if (!user) return;
 
-const fetchTrending = async () => {
-  try {
-
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/publicaciones/trending/${user.email}`
-    );
-
-    const data = await res.json();
-
-    console.log("Trending posts:", data);
-
-    setPosts(data);
-
-  } catch (error) {
-    console.error("Error cargando tendencias:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchTrending = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/publicaciones/trending/${user.email}`
+      );
+      const data = await res.json();
+      setPosts(data);
+      // Guardar en cache para navegaciones ultrarrápidas al regresar
+      sessionStorage.setItem('cached_trending_posts', JSON.stringify(data));
+    } catch (error) {
+      console.error("Error cargando tendencias:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
     fetchTrending();
 
-}, [user]);
+  }, [user]);
 
   return (
     <>

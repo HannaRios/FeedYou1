@@ -278,14 +278,17 @@ useEffect(() => {
     useEffect(() => {
         const shouldRestore = localStorage.getItem(`restore_comments_${post.id_publicacion}`);
         if (shouldRestore) {
+            // Eliminar de inmediato para no volver a ejecutar
+            localStorage.removeItem(`restore_comments_${post.id_publicacion}`);
             setShowComments(true);
             fetchComments();
-            // Asegurar que la pantalla baje visualmente a donde estaba la publicación
+            // Asegurar que la pantalla baje instantáneamente a donde estaba la publicación
             setTimeout(() => {
                 const element = document.getElementById(`feed_post_${post.id_publicacion}`);
-                if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
-            localStorage.removeItem(`restore_comments_${post.id_publicacion}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'auto', block: 'center' });
+                }
+            }, 50);
         }
     }, [post.id_publicacion]);
 
