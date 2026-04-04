@@ -274,23 +274,7 @@ useEffect(() => {
         }
     };
 
-    // Restaurar modal de comentarios al darle al botón 'Atrás'
-    useEffect(() => {
-        const shouldRestore = localStorage.getItem(`restore_comments_${post.id_publicacion}`);
-        if (shouldRestore) {
-            // Eliminar de inmediato para no volver a ejecutar
-            localStorage.removeItem(`restore_comments_${post.id_publicacion}`);
-            setShowComments(true);
-            fetchComments();
-            // Asegurar que la pantalla baje instantáneamente a donde estaba la publicación
-            setTimeout(() => {
-                const element = document.getElementById(`feed_post_${post.id_publicacion}`);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'auto', block: 'center' });
-                }
-            }, 50);
-        }
-    }, [post.id_publicacion]);
+
 
     const toggleComments = () => {
         const newState = !showComments;
@@ -750,7 +734,6 @@ const copyToClipboard = async () => {
                     {/* FOTO */}
                     <img
                     onClick={() => {
-                        localStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
                         setShowComments(false);
                         if (comment.email === userEmail) navigate("/profile");
                         else navigate(`/usuario/${comment.email}`);
@@ -773,7 +756,6 @@ const copyToClipboard = async () => {
                     <div className="flex items-center justify-between">
                         <span 
                             onClick={() => {
-                                localStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
                                 setShowComments(false);
                                 if (comment.email === userEmail) navigate("/profile");
                                 else navigate(`/usuario/${comment.email}`);
