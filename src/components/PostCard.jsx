@@ -274,6 +274,16 @@ useEffect(() => {
         }
     };
 
+    // Restaurar modal de comentarios al darle al botón 'Atrás'
+    useEffect(() => {
+        const shouldRestore = sessionStorage.getItem(`restore_comments_${post.id_publicacion}`);
+        if (shouldRestore) {
+            setShowComments(true);
+            fetchComments();
+            sessionStorage.removeItem(`restore_comments_${post.id_publicacion}`);
+        }
+    }, [post.id_publicacion]);
+
     const toggleComments = () => {
         const newState = !showComments;
         setShowComments(newState);
@@ -732,6 +742,7 @@ const copyToClipboard = async () => {
                     {/* FOTO */}
                     <img
                     onClick={() => {
+                        sessionStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
                         setShowComments(false);
                         if (comment.email === userEmail) navigate("/profile");
                         else navigate(`/usuario/${comment.email}`);
@@ -754,6 +765,7 @@ const copyToClipboard = async () => {
                     <div className="flex items-center justify-between">
                         <span 
                             onClick={() => {
+                                sessionStorage.setItem(`restore_comments_${post.id_publicacion}`, "true");
                                 setShowComments(false);
                                 if (comment.email === userEmail) navigate("/profile");
                                 else navigate(`/usuario/${comment.email}`);
