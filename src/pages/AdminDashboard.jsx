@@ -7,7 +7,8 @@ import PostDetail from '../components/PostDetail';
 // Importación de componentes de Recharts
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
-    ResponsiveContainer, BarChart, Bar, Cell 
+    ResponsiveContainer, BarChart, Bar, Cell,
+    PieChart, Pie, Legend 
     } from 'recharts';
 
     const StatusDot = ({ color }) => {
@@ -41,6 +42,8 @@ import {
     // Estados para las gráficas
     const [dataRegistros, setDataRegistros] = useState([]);
     const [dataCategorias, setDataCategorias] = useState([]);
+    const [dataGeneros, setDataGeneros] = useState([]);
+    const [dataCiudades, setDataCiudades] = useState([]);
 
     const [formData, setFormData] = useState({
         nombre: "",
@@ -62,18 +65,21 @@ import {
         return `${API_URL}/${cleanPath}`;
     };
     const COLORES_GRAFICA = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'];
+    const COLORES_GENERO = ['#3b82f6', '#ec4899', '#8b5cf6', '#10b981'];
 
     const cargarDatos = async () => {
         try {
         setLoading(true);
         
         // Llamadas en paralelo para mejor rendimiento
-        const [resU, resD, resM, resReg, resCat] = await Promise.all([
+        const [resU, resD, resM, resReg, resCat, resGen, resCiu] = await Promise.all([
             fetch(`${API_URL}/api/usuarios/lista`),
             fetch(`${API_URL}/api/usuarios/admin/denuncias`),
             fetch(`${API_URL}/api/usuarios/admin/moderacion-pendientes`),
             fetch(`${API_URL}/api/usuarios/stats/registros`),
-            fetch(`${API_URL}/api/usuarios/stats/categorias`)
+            fetch(`${API_URL}/api/usuarios/stats/categorias`),
+            fetch(`${API_URL}/api/usuarios/stats/generos`),
+            fetch(`${API_URL}/api/usuarios/stats/ciudades`)
         ]);
 
         const dataU = await resU.json();
@@ -85,6 +91,8 @@ import {
         // Carga de estadísticas para gráficas
         if (resReg.ok) setDataRegistros(await resReg.json());
         if (resCat.ok) setDataCategorias(await resCat.json());
+        if (resGen.ok) setDataGeneros(await resGen.json());
+        if (resCiu.ok) setDataCiudades(await resCiu.json());
 
         } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -263,6 +271,58 @@ import {
                     </div>
                     </div>
                 </div>
+
+                {/* Segunda Sección de Gráficas: Géneros y Ciudades */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                    {/* Gráfica de Géneros */}
+                    <div className="bg-white p-8 rounded-[35px] shadow-sm border border-slate-50 flex flex-col">
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">Distribución por Género</h3>
+                        <p className="text-xs text-slate-400 mb-6 font-medium">¿A quién le gusta más FeedYou?</p>
+                        <div className="flex-1 min-h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie 
+                                    data={dataGeneros} 
+                                    cx="50%" 
+                                    cy="50%" 
+                                    innerRadius={70}
+                                    outerRadius={100} 
+                                    paddingAngle={5} 
+                                    dataKey="value"
+                                >
+                                    {dataGeneros.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORES_GENERO[index % COLORES_GENERO.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#475569' }}/>
+                            </PieChart>
+                        </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* Gráfica de Ciudades */}
+                    <div className="bg-white p-8 rounded-[35px] shadow-sm border border-slate-50 flex flex-col">
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">Top 5 Ciudades Activas</h3>
+                        <p className="text-xs text-slate-400 mb-6 font-medium">Ubicación principal de tus usuarios</p>
+                        <div className="flex-1 min-h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={dataCiudades} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
+                                <YAxis hide />
+                                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
+                                <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={35}>
+                                    {dataCiudades.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORES_GRAFICA[index % COLORES_GRAFICA.length]} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+
                 </div>
             )}
 

@@ -407,8 +407,8 @@ router.get("/stats/registros", async (req, res) => {
       SELECT DATE_FORMAT(fecha_registro, '%d %b') AS fecha, COUNT(*) AS cantidad
       FROM usuarios 
       WHERE fecha_registro >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-      GROUP BY fecha, fecha_registro
-      ORDER BY fecha_registro ASC
+      GROUP BY DATE(fecha_registro)
+      ORDER BY DATE(fecha_registro) ASC
     `;
     const [rows] = await db.query(query);
     res.json(rows);
@@ -434,6 +434,43 @@ router.get("/stats/categorias", async (req, res) => {
   } catch (error) {
     console.error("❌ Error en SQL Categorías:", error.message);
     res.status(500).json({ error: "Error al obtener categorías" });
+  }
+});
+
+// 3. Distribución por Género
+router.get("/stats/generos", async (req, res) => {
+  try {
+    const query = `
+      SELECT genero AS name, COUNT(*) AS value 
+      FROM usuarios 
+      WHERE genero IS NOT NULL AND genero != ''
+      GROUP BY genero
+      ORDER BY value DESC
+    `;
+    const [rows] = await db.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ Error en SQL Generos:", error.message);
+    res.status(500).json({ error: "Error al obtener generos" });
+  }
+});
+
+// 4. Top 5 Ciudades
+router.get("/stats/ciudades", async (req, res) => {
+  try {
+    const query = `
+      SELECT ciudad AS name, COUNT(*) AS value 
+      FROM usuarios 
+      WHERE ciudad IS NOT NULL AND ciudad != ''
+      GROUP BY ciudad
+      ORDER BY value DESC
+      LIMIT 5
+    `;
+    const [rows] = await db.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ Error en SQL Ciudades:", error.message);
+    res.status(500).json({ error: "Error al obtener ciudades" });
   }
 });
 
