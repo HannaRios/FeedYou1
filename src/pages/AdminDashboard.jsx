@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Edit3 } from 'lucide-react';
+import { Camera, Edit3, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
+import PostDetail from '../components/PostDetail';
 // Importación de componentes de Recharts
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
@@ -30,6 +31,8 @@ import {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [tabActual, setTabActual] = useState('inicio');
+    const [selectedPostId, setSelectedPostId] = useState(null);
+    const [selectedDenunciaId, setSelectedDenunciaId] = useState(null);
     const [usuarios, setUsuarios] = useState([]);
     const [denuncias, setDenuncias] = useState([]);
     const [moderacion, setModeracion] = useState([]);
@@ -337,33 +340,39 @@ import {
             {tabActual === 'moderacion' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in">
                 {moderacion.map((item) => (
-                    <div key={item.id_publicacion} className="bg-white rounded-[30px] overflow-hidden border border-slate-100 shadow-sm flex flex-col">
-                    <div className="h-48 bg-slate-100 relative">
+                    <div key={`${item.id_publicacion}-${item.id_denuncia}`} className="bg-white rounded-[30px] overflow-hidden border border-slate-100 shadow-sm flex flex-col hover:shadow-md transition">
+                    <div className="h-48 bg-slate-100 relative cursor-pointer group" onClick={() => { setSelectedPostId(item.id_publicacion); setSelectedDenunciaId(item.id_denuncia); }}>
                         {item.imagen_url ? (
                         <img 
                             src={item.imagen_url.startsWith('http') ? item.imagen_url : `${API_URL}${item.imagen_url}`} 
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
                             alt="Post reportado" 
                             referrerPolicy="no-referrer"
                             onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/400x200?text=Imagen+no+disponible"; }}
                         />
                         ) : (
                         <div className="flex items-center justify-center h-full text-slate-400 text-xs p-4 italic text-center">
-                            "{item.contenido || "Sin descripción"}"
+                            "{item.contenido || "Publicación de texto o video"}"
                         </div>
                         )}
                         <div className="absolute top-4 left-4 bg-rose-500 text-white text-[9px] font-bold px-3 py-1 rounded-full uppercase shadow-lg z-10">
                         Motivo: {item.motivo}
                         </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                             <div className="bg-white text-slate-800 px-4 py-2 rounded-full font-bold uppercase text-[10px] tracking-widest opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all shadow-xl">
+                                Revisar Post
+                             </div>
+                        </div>
                     </div>
                     <div className="p-6 flex-1 flex flex-col">
                         <p className="text-xs text-slate-400 mb-1">Autor: <span className="text-slate-800 font-bold">{item.autor}</span></p>
                         <p className="text-xs text-slate-500 line-clamp-2 italic mb-4">
-                        {item.contenido ? `"${item.contenido}"` : "Sin texto descriptivo."}
+                        {item.contenido ? `"${item.contenido}"` : "Revisa el contenido detallado."}
                         </p>
                         <div className="flex gap-2 mt-auto">
-                        <button onClick={() => handleEliminarPost(item.id_publicacion)} className="flex-1 bg-slate-900 text-white py-2.5 rounded-xl text-[10px] font-bold uppercase hover:bg-rose-600 transition-all active:scale-95">Eliminar Post</button>
-                        <button onClick={() => handleDescartarDenuncia(item.id_denuncia)} className="flex-1 border border-slate-200 py-2.5 rounded-xl text-[10px] font-bold uppercase text-slate-400 hover:bg-slate-50 transition-all active:scale-95">Descartar</button>
+                        <button onClick={() => { setSelectedPostId(item.id_publicacion); setSelectedDenunciaId(item.id_denuncia); }} className="w-full border border-indigo-100 text-indigo-500 py-2.5 rounded-xl text-[10px] font-bold uppercase hover:bg-indigo-50 transition-all active:scale-95 text-center flex items-center justify-center gap-2">
+                            Ver Detalles y Responder
+                        </button>
                         </div>
                     </div>
                     </div>
@@ -373,6 +382,56 @@ import {
                     <p className="text-slate-400 font-medium">No hay contenido pendiente de moderación 🎉</p>
                     </div>
                 )}
+                </div>
+            )}
+
+            {/* MODAL DETALLE DE POST REPORTADO */}
+            {selectedPostId && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in">
+                    <div className="bg-white w-full max-w-5xl h-[95vh] sm:h-[90vh] rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden relative">
+                        {/* Boton Cerrar General */}
+                        <button onClick={() => setSelectedPostId(null)} className="absolute top-4 right-4 z-50 bg-white/70 hover:bg-white rounded-full p-2 shadow-sm transition">
+                            <X className="w-5 h-5 text-gray-800" />
+                        </button>
+
+                        {/* DETALLE DEL POST */}
+                        <div className="w-full md:w-2/3 h-[50vh] md:h-full overflow-y-auto bg-gray-50 border-b md:border-b-0 md:border-r relative flex justify-center py-4">
+                            <div className="w-full px-2 sm:px-6">
+                                <PostDetail postId={selectedPostId} isModal />
+                            </div>
+                        </div>
+
+                        {/* ACCIONES DE MODERACIÓN */}
+                        <div className="w-full md:w-1/3 flex-1 bg-white p-6 md:p-8 flex flex-col h-[45vh] md:h-full">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-800 mb-4 border-b border-slate-100 pb-4">Panel de Decisión</h3>
+                                <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                                    Revisa detalladamente la publicación y sus interacciones antes de tomar una decisión final. Si determinas que infringe las normas, puedes eliminarla.
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-col gap-4 mt-auto">
+                                <button 
+                                    onClick={() => {
+                                        handleEliminarPost(selectedPostId);
+                                        setSelectedPostId(null);
+                                    }} 
+                                    className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-2xl transition shadow-sm flex justify-center items-center gap-2"
+                                >
+                                    Eliminar Definitivamente
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        handleDescartarDenuncia(selectedDenunciaId);
+                                        setSelectedPostId(null);
+                                    }} 
+                                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-2xl transition flex justify-center items-center gap-2"
+                                >
+                                    Descartar Reporte
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
