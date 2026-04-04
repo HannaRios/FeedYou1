@@ -40,6 +40,7 @@ import {
     const [loading, setLoading] = useState(true);
     
     // Estados para las gráficas
+    const [filtroCrecimiento, setFiltroCrecimiento] = useState("semana");
     const [dataRegistros, setDataRegistros] = useState([]);
     const [dataCategorias, setDataCategorias] = useState([]);
     const [dataGeneros, setDataGeneros] = useState([]);
@@ -76,7 +77,7 @@ import {
             fetch(`${API_URL}/api/usuarios/lista`),
             fetch(`${API_URL}/api/usuarios/admin/denuncias`),
             fetch(`${API_URL}/api/usuarios/admin/moderacion-pendientes`),
-            fetch(`${API_URL}/api/usuarios/stats/registros`),
+            fetch(`${API_URL}/api/usuarios/stats/registros?rango=${filtroCrecimiento}`),
             fetch(`${API_URL}/api/usuarios/stats/categorias`),
             fetch(`${API_URL}/api/usuarios/stats/generos`),
             fetch(`${API_URL}/api/usuarios/stats/ciudades`)
@@ -100,6 +101,19 @@ import {
         setLoading(false);
         }
     };
+
+    // Efecto para volver a cargar SOLO la gráfica de registros cuando cambia el filtro
+    useEffect(() => {
+        const fetchSoloRegistros = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/usuarios/stats/registros?rango=${filtroCrecimiento}`);
+                if (res.ok) setDataRegistros(await res.json());
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchSoloRegistros();
+    }, [filtroCrecimiento]);
 
     useEffect(() => {
         cargarDatos();
@@ -237,8 +251,18 @@ import {
                 {/* Sección de Gráficas */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                     {/* Gráfica de Crecimiento */}
-                    <div className="bg-white p-8 rounded-[35px] shadow-sm border border-slate-50">
-                    <h3 className="text-lg font-bold text-slate-800 mb-6">Crecimiento de Usuarios</h3>
+                    <div className="bg-white p-8 rounded-[35px] shadow-sm border border-slate-50 relative">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-slate-800">Crecimiento de Usuarios</h3>
+                            <select 
+                                value={filtroCrecimiento} 
+                                onChange={(e) => setFiltroCrecimiento(e.target.value)}
+                                className="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-full px-3 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 font-medium cursor-pointer"
+                            >
+                                <option value="semana">Últimos 7 Días (Por Semana)</option>
+                                <option value="mes">Últimos 12 Meses (Por Mes)</option>
+                            </select>
+                        </div>
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={dataRegistros}>
@@ -277,7 +301,7 @@ import {
                     {/* Gráfica de Géneros */}
                     <div className="bg-white p-8 rounded-[35px] shadow-sm border border-slate-50 flex flex-col">
                         <h3 className="text-lg font-bold text-slate-800 mb-2">Distribución por Género</h3>
-                        <p className="text-xs text-slate-400 mb-6 font-medium">¿A quién le gusta más FeedYou?</p>
+                        <p className="text-xs text-slate-400 mb-6 font-medium">¿Quién usa más FeedYou?</p>
                         <div className="flex-1 min-h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>

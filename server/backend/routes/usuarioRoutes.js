@@ -403,13 +403,27 @@ router.post("/denunciar-publicacion", async (req, res) => {
 // --- ESTADÍSTICAS PARA EL DASHBOARD ---
 router.get("/stats/registros", async (req, res) => {
   try {
-    const query = `
-      SELECT DATE_FORMAT(fecha_registro, '%d %b') AS fecha, COUNT(*) AS cantidad
-      FROM usuarios 
-      WHERE fecha_registro >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-      GROUP BY fecha
-      ORDER BY MIN(fecha_registro) ASC
-    `;
+    const rango = req.query.rango || "semana";
+    let query = "";
+
+    if (rango === "mes") {
+      query = `
+        SELECT DATE_FORMAT(fecha_registro, '%b %Y') AS fecha, COUNT(*) AS cantidad
+        FROM usuarios 
+        WHERE fecha_registro >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        GROUP BY fecha
+        ORDER BY MIN(fecha_registro) ASC
+      `;
+    } else {
+      query = `
+        SELECT DATE_FORMAT(fecha_registro, '%d %b') AS fecha, COUNT(*) AS cantidad
+        FROM usuarios 
+        WHERE fecha_registro >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY fecha
+        ORDER BY MIN(fecha_registro) ASC
+      `;
+    }
+
     const [rows] = await db.query(query);
     res.json(rows);
   } catch (error) {
