@@ -731,6 +731,11 @@ const copyToClipboard = async () => {
                 >
                     {/* FOTO */}
                     <img
+                    onClick={() => {
+                        setShowComments(false);
+                        if (comment.email === userEmail) navigate("/profile");
+                        else navigate(`/usuario/${comment.email}`);
+                    }}
                     src={
                         comment.foto_perfil
                         ? comment.foto_perfil.startsWith("http")
@@ -739,7 +744,7 @@ const copyToClipboard = async () => {
                         : `${API_URL}/uploads/perfiles/default.png`
                     }
                     alt="avatar"
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition"
                     />
 
                     {/* CONTENIDO */}
@@ -747,7 +752,14 @@ const copyToClipboard = async () => {
 
                     {/* USERNAME */}
                     <div className="flex items-center justify-between">
-                        <span className="font-semibold text-gray-900 text-sm">
+                        <span 
+                            onClick={() => {
+                                setShowComments(false);
+                                if (comment.email === userEmail) navigate("/profile");
+                                else navigate(`/usuario/${comment.email}`);
+                            }}
+                            className="font-semibold text-gray-900 text-sm cursor-pointer hover:underline"
+                        >
                         {comment.email.split("@")[0]}
                         </span>
 

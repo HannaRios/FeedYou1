@@ -20,6 +20,7 @@ const API_URL = import.meta.env.VITE_API_URL;
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        setShowPostModal(false);
         const fetchProfile = async () => {
             if (!email) return;
 
