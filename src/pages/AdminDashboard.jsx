@@ -397,7 +397,7 @@ import {
                         {/* DETALLE DEL POST */}
                         <div className="w-full md:w-2/3 h-[50vh] md:h-full overflow-y-auto bg-gray-50/50 border-b md:border-b-0 md:border-r border-slate-100 relative flex justify-center py-4">
                             <div className="w-full px-2 sm:px-6">
-                                <PostDetail postId={selectedPostId} isModal />
+                                <PostDetail postId={selectedPostId} isModal isAdminMode />
                             </div>
                         </div>
 

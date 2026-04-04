@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, isAdminMode }) {
 
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -525,7 +525,8 @@ const copyToClipboard = async () => {
                     )}
 
                     {userEmail &&
-                    userEmail !== post.email_autor && (
+                    userEmail !== post.email_autor &&
+                    !isAdminMode && (
                         <>
                         <span className="text-gray-400 mx-1">  </span>
                         <FollowButton
@@ -545,7 +546,7 @@ const copyToClipboard = async () => {
             
                 {/* Botones de acción */}
             <div className="flex gap-1">
-                {userEmail === post.email_autor && (
+                {userEmail === post.email_autor && !isAdminMode && (
                     <button 
                         onClick={handleDeletePost}
                         className="p-2 hover:bg-red-50 rounded-full transition-colors group"
@@ -555,6 +556,7 @@ const copyToClipboard = async () => {
                     </button>
                 )}
                 
+                {!isAdminMode && (
                 <button 
                     onClick={handleReportar}
                     className="p-2 hover:bg-rose-50 rounded-full transition-colors group"
@@ -562,6 +564,7 @@ const copyToClipboard = async () => {
                 >
                     <Flag size={18} className="text-gray-400 group-hover:text-rose-500 transition-colors" />
                 </button>
+                )}
             </div>
 
     </div>
@@ -607,6 +610,7 @@ const copyToClipboard = async () => {
         )}
 
     {/*INTERACCIONES*/}
+    {!isAdminMode && (
     <div className="flex justify-between items-center px-4 py-3 border-t mt-2">
 
         <div className="flex items-center gap-6">
@@ -670,6 +674,7 @@ const copyToClipboard = async () => {
         </span>
         </button>
         </div>
+    )}
 
 
 {/* ========================= MODAL COMENTARIOS ========================= */}

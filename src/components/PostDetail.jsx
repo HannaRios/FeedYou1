@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function PostDetail({ postId }) {
+export default function PostDetail({ postId, isAdminMode }) {
 
     const params = useParams();
     const id = postId || params.id; 
@@ -55,6 +55,7 @@ useEffect(() => {
                 <PostCard 
                 post={post} 
                 showUser 
+                isAdminMode={isAdminMode}
                 />
             </div>
         </div>
