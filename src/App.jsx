@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { SearchProvider } from "./context/SearchContext";
 import PublicProfile from "./pages/PublicProfile";
 import AdminDashboard from "./pages/AdminDashboard";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   useEffect(() => {
@@ -36,6 +37,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <SearchProvider>
         <Routes>
           <Route path="/" element={<Landing />} />
